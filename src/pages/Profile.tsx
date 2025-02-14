@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/layout/Layout';
 import { useParams } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { getClient, updateClient } from '../../../services/api';
 import { Client } from '../../../types';
 
@@ -36,6 +36,8 @@ const ProfilePage = () => {
 
 
     const [isEditing, setIsEditing] = useState(false);
+    const [isError, setIsError] = useState(false);
+
     const [profile, setProfile] = useState<Client>();
     const [tempProfile, setTempProfile] = useState<Client>();
 
@@ -49,12 +51,14 @@ const ProfilePage = () => {
             const response = await getClient(id)
             if (response.status !== 200) {
                 toast.error("Something went wrong")
+                setIsError(true)
                 return;
             }
             setProfile(response.data)
             setTempProfile(response.data)
         } catch (error) {
             console.error(error)
+            setIsError(true)
             toast.error("Something went wrong")
         }
     }
@@ -123,6 +127,18 @@ const ProfilePage = () => {
             <div className="text-base font-medium p-2 bg-gray-50 rounded-md">{value}</div>
         </div>
     );
+    if (isError) {
+        return (
+            <div className='w-full h-screen justify-center items-center flex'>
+
+                <h1 className="text-2xl text-black">
+                    Failed to load client details
+                </h1>
+
+
+            </div>
+        )
+    }
     if (!profile || !tempProfile) {
         return (
             <div className='w-full h-screen flex items-center justify-center'>
@@ -137,6 +153,7 @@ const ProfilePage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+            <Toaster />
             <Card className="max-w-2xl mx-auto">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-2xl">Profile Settings</CardTitle>
