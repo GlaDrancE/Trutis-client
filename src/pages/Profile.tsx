@@ -59,11 +59,11 @@ const ProfilePage = () => {
         }
     }
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
         setTempProfile((prev: any) => ({
             ...prev,
-            [name]: value
+            [name]: type === "radio" ? Number(value) : value,
         }));
     };
 
@@ -94,10 +94,14 @@ const ProfilePage = () => {
                 toast.error("Failed to load id, try again")
                 return;
             }
+
             if (!tempProfile) {
                 toast.error("Please fill all details")
                 return;
             }
+
+            console.log("id ", id, " temprofile ", tempProfile);
+            
             const response = await updateClient(id, tempProfile);
             if (response.status !== 200) {
                 toast.error("Failed to save profile, Try Again")
@@ -123,6 +127,7 @@ const ProfilePage = () => {
             <div className="text-base font-medium p-2 bg-gray-50 rounded-md">{value}</div>
         </div>
     );
+
     if (!profile || !tempProfile) {
         return (
             <div className='w-full h-screen flex items-center justify-center'>
@@ -258,6 +263,54 @@ const ProfilePage = () => {
                                             className="mt-1"
                                         />
                                     </div>
+
+                                    <div>
+                                        <Label>Max Discount</Label>
+                                        <div className="flex gap-4">
+                                            {[10, 20, 30].map((discount) => (
+                                                <label key={discount} className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="maxDiscount"
+                                                        value={discount}
+                                                        checked={tempProfile.maxDiscount === discount}
+                                                        onChange={handleInputChange}
+                                                    />
+                                                    <span>{discount}%</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Min Order Value */}
+                                    <div>
+                                        <Label>Minimum Order Value</Label>
+                                        <Input
+                                            name="minOrderValue"
+                                            type="number"
+                                            value={tempProfile.minOrderValue}
+                                            onChange={handleInputChange}
+                                        />
+                                    </div>
+
+                                    {/* Valid Till (Dropdown) */}
+                                    <div>
+                                        <Label>Coupon Valid Till (Days)</Label>
+                                        <select
+                                            name="couponValidity"
+                                            value={tempProfile.couponValidity}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        >
+                                            {[7, 14, 30, 60, 90].map((days) => (
+                                                <option key={days} value={days}>
+                                                    {days} days
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+
                                 </>
                             ) : (
                                 <>
@@ -266,9 +319,10 @@ const ProfilePage = () => {
                                     <DisplayField label="Shop Name" value={profile.shop_name as string} />
                                     <DisplayField label="Address" value={profile.address as string} />
                                     <DisplayField label="Google API Key" value={profile.googleAPI as string} />
-                                    <DisplayField label="Phone Number" value={profile.phone as string
-
-                                    } />
+                                    <DisplayField label="Phone Number" value={profile.phone as string} />
+                                    <DisplayField label="Max Discount" value={profile.maxDiscount?.toString() + " %"} />
+                                    <DisplayField label="Min Order Value" value={profile.minOrderValue?.toString() + " Orders"} />
+                                    <DisplayField label="Coupon Validity" value={profile.couponValidity as string + " Days"} />
                                 </>
                             )}
                         </div>
