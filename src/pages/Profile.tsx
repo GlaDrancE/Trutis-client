@@ -5,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/layout/Layout';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { getClient, updateClient } from '../../../services/api';
 import { Client } from '../../../types';
+import useClient from '@/hooks/client-hook';
 
 interface ProfileData {
     email: string;
@@ -18,6 +19,9 @@ interface ProfileData {
     googleAPI: string;
     phone: string;
     logo: string;
+}
+interface ProfileProps {
+    client: Client | undefined;
 }
 
 const ProfilePage = () => {
@@ -35,40 +39,24 @@ const ProfilePage = () => {
     const { id } = useParams();
 
 
+    const { client, isLoading, isError } = useClient();
     const [isEditing, setIsEditing] = useState(false);
-    const [isError, setIsError] = useState(false);
-
-    const [profile, setProfile] = useState<Client>();
-    const [tempProfile, setTempProfile] = useState<Client>();
+    const [profile, setProfile] = useState<Client | undefined>(client);
+    const [tempProfile, setTempProfile] = useState<Client | undefined>(client);
+    const navigate = useNavigate();
 
     useEffect(() => {
+        setProfile(client)
+        setTempProfile(client)
+    }, [client])
 
-        loadClient();
-    }, [])
-    const loadClient = async () => {
-        try {
-            if (!id) { toast.error("failed to load id"); return }
-            const response = await getClient(id)
-            if (response.status !== 200) {
-                toast.error("Something went wrong")
-                setIsError(true)
-                return;
-            }
-            setProfile(response.data)
-            setTempProfile(response.data)
-        } catch (error) {
-            console.error(error)
-            setIsError(true)
-            toast.error("Something went wrong")
-        }
-    }
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
         setTempProfile((prev: any) => ({
             ...prev,
-            [name]: value
+            [name]: type === "radio" ? Number(value) : value,
         }));
+
     };
 
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,10 +86,14 @@ const ProfilePage = () => {
                 toast.error("Failed to load id, try again")
                 return;
             }
+
             if (!tempProfile) {
                 toast.error("Please fill all details")
                 return;
             }
+
+            console.log("id ", id, " temprofile ", tempProfile);
+
             const response = await updateClient(id, tempProfile);
             if (response.status !== 200) {
                 toast.error("Failed to save profile, Try Again")
@@ -139,7 +131,9 @@ const ProfilePage = () => {
             </div>
         )
     }
-    if (!profile || !tempProfile) {
+
+
+    if (isLoading.client || !profile || !tempProfile) {
         return (
             <div className='w-full h-screen flex items-center justify-center'>
 
@@ -153,10 +147,9 @@ const ProfilePage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-            <Toaster />
             <Card className="max-w-2xl mx-auto">
                 <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-2xl">Profile Settings</CardTitle>
+                    <CardTitle className="text-2xl text-blue-800">Profile Settings</CardTitle>
                     {!isEditing && (
                         <Button
                             variant="outline"
@@ -173,6 +166,12 @@ const ProfilePage = () => {
                         {/* Logo Section */}
                         <div className="flex flex-col items-center mb-6">
                             <div className="relative">
+                                {
+                                    profile.qr_id &&
+                                    <span className='font-bold pb-8'>
+                                        Client ID: {profile.qr_id}
+                                    </span>
+                                }
                                 <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                                     {(isEditing ? tempProfile.logo : profile.logo) ? (
                                         <img
@@ -275,6 +274,54 @@ const ProfilePage = () => {
                                             className="mt-1"
                                         />
                                     </div>
+
+                                    <div>
+                                        <Label>Max Discount</Label>
+                                        <div className="flex gap-4">
+                                            {[10, 20, 30].map((discount) => (
+                                                <label key={discount} className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="maxDiscount"
+                                                        value={discount}
+                                                        checked={tempProfile.maxDiscount === discount}
+                                                        onChange={handleInputChange}
+                                                    />
+                                                    <span>{discount}%</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Min Order Value */}
+                                    <div>
+                                        <Label>Minimum Order Value</Label>
+                                        <Input
+                                            name="minOrderValue"
+                                            type="number"
+                                            value={tempProfile.minOrderValue}
+                                            onChange={handleInputChange}
+                                        />
+                                    </div>
+
+                                    {/* Valid Till (Dropdown) */}
+                                    <div>
+                                        <Label>Coupon Valid Till (Days)</Label>
+                                        <select
+                                            name="couponValidity"
+                                            value={tempProfile.couponValidity}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        >
+                                            {[7, 14, 30, 60, 90].map((days) => (
+                                                <option key={days} value={days}>
+                                                    {days} days
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+
                                 </>
                             ) : (
                                 <>
@@ -283,16 +330,17 @@ const ProfilePage = () => {
                                     <DisplayField label="Shop Name" value={profile.shop_name as string} />
                                     <DisplayField label="Address" value={profile.address as string} />
                                     <DisplayField label="Google API Key" value={profile.googleAPI as string} />
-                                    <DisplayField label="Phone Number" value={profile.phone as string
-
-                                    } />
+                                    <DisplayField label="Phone Number" value={profile.phone as string} />
+                                    <DisplayField label="Max Discount" value={profile.maxDiscount?.toString() + " %"} />
+                                    <DisplayField label="Min Order Value" value={profile.minOrderValue?.toString() + " Orders"} />
+                                    <DisplayField label="Coupon Validity" value={profile.couponValidity as string + " Days"} />
                                 </>
                             )}
                         </div>
 
                         {isEditing && (
                             <div className="flex gap-4">
-                                <Button type="submit" className="flex-1">
+                                <Button type="submit" className="flex-1 bg-blue-600">
                                     <Save className="w-4 h-4 mr-2" />
                                     Save Changes
                                 </Button>

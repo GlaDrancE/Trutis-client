@@ -21,8 +21,6 @@ function App() {
           <Route path='/:id' element={<HomePage />} />
           <Route path='/coupon/:id' element={<CustomerDetailsPage />} />
           <Route path='/:id/profile' element={<Profile />} />
-
-
         </Route>
       </Routes>
     </Router>
