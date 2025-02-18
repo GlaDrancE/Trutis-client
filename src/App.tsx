@@ -14,6 +14,7 @@ import ForgotPassword from './pages/ForgetPassword';
 import ResetPassword from './pages/ResetPassword';
 import AddCardPage from './pages/AddCard';
 import SubscriptionPlans from './pages/SubscriptionPlans';
+import PaymentPage from './pages/PaymentPage';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path='/coupon/:id' element={<CustomerDetailsPage />} />
           <Route path='/:id/profile' element={<Profile />} />
           <Route path='/:id/settings' element={<Settings />} />
+          <Route path="/payment" element={<PaymentPage />} />
         </Route>
       </Routes>
     </Router>

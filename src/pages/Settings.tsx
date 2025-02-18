@@ -47,8 +47,7 @@ const SettingsPage = () => {
     };
 
     const handleSubscription = () => {
-        // Redirect to subscription page
-        window.location.href = '/subscription';
+        window.location.href = '/subscription-plans';
     };
     const changeStaffStatus = async () => {
         try {

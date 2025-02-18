@@ -9,7 +9,7 @@ type NavItem = {
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { id } = useParams();
-    console.log(id)
+
     const navItems: NavItem[] = [
         { icon: <Home size={24} />, label: 'Home', path: `/${id}` },
         { icon: <User size={24} />, label: 'Profile', path: `/${id}/profile` },

@@ -43,6 +43,7 @@ const LoginForm = () => {
             }
             const decode: any = jwtDecode(response.data.token)
             if (!decode) { toast.error("Login failed") }
+            localStorage.setItem("clientId", decode.userId)
             navigate(`/${decode.userId}`)
 
         } catch (error) {

@@ -1,51 +1,88 @@
 import { useEffect, useState } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
+import { createCheckoutSession,verifyPaymentAndStore } from '../../../services/api'
 
-const ProductDisplay = () => (
-    <section>
-        <div className="product">
-            <Logo />
-            <div className="description">
-                <h3>Starter plan</h3>
-                <h5>$20.00 / month</h5>
-            </div>
-        </div>
-        <form action="/create-checkout-session" method="POST">
-            {/* Add a hidden field with the lookup_key of your Price */}
-            <input type="hidden" name="lookup_key" value="{{PRICE_LOOKUP_KEY}}" />
-            <button id="checkout-and-portal-button" type="submit">
-                Checkout
-            </button>
-        </form>
-    </section>
-);
 
-const SuccessDisplay = ({ sessionId }: { sessionId: string }) => {
+const ProductDisplay = () => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const location = useLocation();
+    const plan = location.state?.plan || { name: "Unknown Plan", price: 0, description: "No description available." };
+
+    const handleCheckout = async () => {
+        if (!plan.default_price) return;
+
+        setLoading(true);
+        setError("");
+
+        try {
+            const clientId = localStorage.getItem("clientId") as string;
+            
+            const response = await createCheckoutSession(plan.default_price, clientId);
+            if (response.data.url) {
+                window.location.href = response.data.url;
+            } else {
+                setError("Failed to create payment session. Please try again.");
+            }
+        } catch (err) {
+            console.error("Error creating checkout session", err);
+            setError("Error creating checkout session. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <section>
-            <div className="product Box-root">
-                <Logo />
-                <div className="description Box-root">
-                    <h3>Subscription to starter plan successful!</h3>
+        <section className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+            <div className="bg-white shadow-lg rounded-2xl p-6 max-w-lg w-full text-center border border-gray-200">
+                <div className="flex justify-center mb-4">
+                    <Logo />
                 </div>
-            </div>
-            <form action="/api/create-portal-session" method="POST">
-                <input
-                    type="hidden"
-                    id="session-id"
-                    name="session_id"
-                    value={sessionId}
-                />
-                <button id="checkout-and-portal-button" type="submit">
-                    Manage your billing information
+                <h3 className="text-2xl font-semibold text-gray-800">{plan.name}</h3>
+                <h5 className="text-xl text-blue-600 font-bold mt-2">₹{plan.price} / month</h5>
+                <p className="text-gray-600 mt-4">{plan.description}</p>
+                {error && <p className="text-red-500 mt-3">{error}</p>}
+                <button
+                    className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 disabled:bg-gray-400"
+                    onClick={handleCheckout}
+                    disabled={loading}
+                >
+                    {loading ? "Processing..." : "Proceed to Checkout"}
                 </button>
-            </form>
+            </div>
         </section>
     );
 };
 
+
+
+const SuccessDisplay = ({ sessionId }: { sessionId: string }) => {
+    return (
+        <section className="flex flex-col items-center justify-center min-h-screen bg-green-100 p-6">
+            <div className="bg-white shadow-lg rounded-2xl p-8 max-w-lg w-full text-center border border-gray-200">
+                <div className="flex justify-center mb-4">
+                    <Logo />
+                </div>
+                <h3 className="text-3xl font-semibold text-green-700">Payment Successful! 🎉</h3>
+                <p className="text-gray-600 mt-4">Your subscription is now active.</p>
+                <form action="/api/create-portal-session" method="POST" className="mt-6">
+                    <input type="hidden" id="session-id" name="session_id" value={sessionId} />
+                    <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+                        Manage Your Subscription
+                    </button>
+                </form>
+            </div>
+        </section>
+    );
+};
+
+
 const Message = ({ message }: { message: string }) => (
-    <section>
-        <p>{message}</p>
+    <section className="flex flex-col items-center justify-center min-h-screen p-6 bg-yellow-100">
+        <div className="bg-white shadow-lg rounded-2xl p-8 max-w-lg w-full text-center border border-gray-200">
+            <h3 className="text-2xl font-semibold text-yellow-700">Notice</h3>
+            <p className="text-gray-600 mt-4">{message}</p>
+        </div>
     </section>
 );
 
@@ -78,26 +115,49 @@ const Logo = () => (
 
 
 const PaymentPage = () => {
-    let [message, setMessage] = useState('');
-    let [success, setSuccess] = useState(false);
-    let [sessionId, setSessionId] = useState('');
+    const [searchParams] = useSearchParams();
+    const [message, setMessage] = useState('');
+    const [success, setSuccess] = useState(false);
+    const [sessionId, setSessionId] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check to see if this is a redirect back from Checkout
-        const query = new URLSearchParams(window.location.search);
+        const session_id = searchParams.get("session_id");
+        const successParam = searchParams.get("success");
 
-        if (query.get('success')) {
-            setSuccess(true);
-            setSessionId(query.get('session_id') as string);
-        }
-
-        if (query.get('canceled')) {
+        if (successParam && session_id) {
+            
+            verifyPayment(session_id);
+        } else if (searchParams.get("cancel")) {
             setSuccess(false);
-            setMessage(
-                "Order canceled -- continue to shop around and checkout when you're ready."
-            );
+            setMessage("Order canceled -- continue to shop around and checkout when you're ready.");
+            setLoading(false);
+        } else {
+            setLoading(false);
         }
-    }, [sessionId]);
+    }, [searchParams]);
+
+    const verifyPayment = async (session_id: string) => {
+        try {
+            const response = await verifyPaymentAndStore(session_id);
+
+            if (response.data.success) {
+                setSuccess(true);
+                setSessionId(session_id);
+            } else {
+                setMessage("Payment verification failed. Please contact support.");
+            }
+        } catch (error) {
+            console.error("Error verifying payment:", error);
+            setMessage("Error verifying payment. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return <p>Loading...</p>;
+    }
 
     if (!success && message === '') {
         return <ProductDisplay />;
@@ -106,6 +166,7 @@ const PaymentPage = () => {
     } else {
         return <Message message={message} />;
     }
-}
+};
+
 
 export default PaymentPage;
