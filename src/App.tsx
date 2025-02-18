@@ -13,7 +13,7 @@ import { Settings } from './pages/Settings';
 import ForgotPassword from './pages/ForgetPassword';
 import ResetPassword from './pages/ResetPassword';
 import AddCardPage from './pages/AddCard';
-import SubscriptionPlans from '../../admin/src/pages/SubscriptionPlans';
+import SubscriptionPlans from './pages/SubscriptionPlans';
 
 function App() {
   return (
