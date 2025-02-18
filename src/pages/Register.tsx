@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Phone, MapPin, Key, User2, Loader } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Key, User2, Loader, Store } from 'lucide-react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import { createClient, createGoogleClient, getAgents } from '../../../services/api';
+import { createClient, createGoogleClient, generateOtp, getAgents, verifyOtp } from '../../../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import OTPInput from '@/components/otpInput';
 
 const Register = () => {
     const [email, setEmail] = useState<string>("");
@@ -18,22 +19,25 @@ const Register = () => {
     const [ip, setIP] = useState<string>("");
     const navigate = useNavigate();
     const [isFormFilled, setIsFormFilled] = useState<Boolean>(false)
+    const [shopName, setShopName] = useState<string>("");
+    const [address, setAddress] = useState<string>("");
     const [contractChecked, setContractChecked] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [slide, setSlide] = useState<number>(1)
+    const [otp, setOtp] = useState<string>("");
+    const handleFormSubmit = () => {
+        // setIsFormFilled(true)
 
-    const handleFormSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsFormFilled(true)
 
+        // const clientContainer = document.querySelector("#clientContainer")
+        // const registerForm = document.querySelector("#clientRegisterForm")
+        // const formWidth = registerForm?.getBoundingClientRect();
 
-        const clientContainer = document.querySelector("#clientContainer")
-        const registerForm = document.querySelector("#clientRegisterForm")
-        const formWidth = registerForm?.getBoundingClientRect();
-
-        console.log(formWidth)
-        console.log(clientContainer)
-        if (formWidth && formWidth.right && clientContainer)
-            clientContainer.scrollLeft = formWidth?.right
+        // console.log(formWidth)
+        // console.log(clientContainer)
+        // if (formWidth && formWidth.right && clientContainer)
+        //     clientContainer.scrollLeft = formWidth?.right
+        setSlide(prev => prev + 1);
     }
     useEffect(() => {
         getData();
@@ -44,7 +48,21 @@ const Register = () => {
         console.log(res.data);
         setIP(res.data.ip);
     };
-
+    const handleGenerateOtp = async () => {
+        handleFormSubmit();
+        if (email) {
+            const response: any = await generateOtp(email);
+            console.log(response)
+            if (response.status !== 200) {
+                toast.error("Something went wrong")
+            } else {
+                toast.success("OTP sent to email")
+                setIsFormFilled(true)
+            }
+        } else {
+            toast.error("Please enter an email")
+        }
+    }
     const handleSubmit = async () => {
         try {
             setIsLoading(true)
@@ -54,8 +72,13 @@ const Register = () => {
                 password,
                 logo,
                 ipAddress: ip,
+                address,
+                shop_name: shopName,
                 contractTime: new Date(),
-                authProvider: "manual"
+                authProvider: "manual",
+                maxDiscount: 0,
+                couponValidity: '',
+                minOrderValue: 0
             });
             setIsLoading(false)
             if (response.status !== 201) {
@@ -64,7 +87,7 @@ const Register = () => {
                 console.log("CLient Created")
                 toast.success("Client created")
                 localStorage.setItem("token", response.data.token)
-                navigate('/')
+                navigate(`/${response.data.userId}`)
             }
         } catch (error) {
             toast.error("Something went wrong")
@@ -84,38 +107,41 @@ const Register = () => {
 
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     console.log(GOOGLE_CLIENT_ID)
-    const handleGoogleSignIn = async (crednetialsResponse: any) => {
-        try {
+    // const handleGoogleSignIn = async (crednetialsResponse: any) => {
+    //     try {
 
-            const decode: any = jwtDecode(crednetialsResponse.credential);
-            console.log("Decode Information: ", decode);
-            const response = await createGoogleClient({
-                email: decode.email,
-                owner_name: decode.name,
-                logo: decode.picture,
-                ipAddress: ip,
-                password: decode.sub as string,
-                contractTime: new Date(),
-                authProvider: "google",
-                token: crednetialsResponse.credential
-            })
-            if (response.status !== 201) {
-                toast.error("Failed to create an account")
-                return
-            }
-            localStorage.setItem('token', crednetialsResponse.credential)
-            navigate(`/${response.data.userId}`)
+    //         const decode: any = jwtDecode(crednetialsResponse.credential);
+    //         console.log("Decode Information: ", decode);
+    //         const response = await createGoogleClient({
+    //             email: decode.email,
+    //             owner_name: decode.name,
+    //             logo: decode.picture,
+    //             ipAddress: ip,
+    //             password: decode.sub as string,
+    //             contractTime: new Date(),
+    //             authProvider: "google",
+    //             token: crednetialsResponse.credential,
+    //             maxDiscount: 0,
+    //             couponValidity: '',
+    //             minOrderValue: 0
+    //         })
+    //         if (response.status !== 201) {
+    //             toast.error("Failed to create an account")
+    //             return
+    //         }
+    //         localStorage.setItem('token', crednetialsResponse.credential)
+    //         navigate(`/${response.data.userId}`)
 
-        } catch (error) {
-            console.error(error)
-            toast.error("Failed to create account")
-        }
-    };
+    //     } catch (error) {
+    //         console.error(error)
+    //         toast.error("Failed to create account")
+    //     }
+    // };
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 h-screen">
             <Toaster />
             <div className='max-w-md w-full flex h-full overflow-hidden' style={{ scrollBehavior: "smooth" }} id='clientContainer'>
-                <Card className="w-full min-w-full">
+                {slide === 1 && <Card className="w-full min-w-full">
                     <CardHeader className="space-y-1">
                         <CardTitle className="text-2xl font-bold text-center text-blue-600">
                             Create an Account
@@ -123,7 +149,7 @@ const Register = () => {
                     </CardHeader>
                     <CardContent>
 
-                        <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
+                        {/* <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
                             <div>
                                 <GoogleLogin
                                     onSuccess={handleGoogleSignIn}
@@ -137,7 +163,7 @@ const Register = () => {
                                 />
                             </div>
 
-                        </GoogleOAuthProvider>
+                        </GoogleOAuthProvider> */}
 
                         <div className="relative mb-6">
                             <div className="absolute inset-0 flex items-center">
@@ -148,7 +174,7 @@ const Register = () => {
                             </div>
                         </div>
 
-                        <form onSubmit={handleFormSubmit} className="space-y-4">
+                        <form className="space-y-4">
                             <div className="relative">
                                 <User className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
                                 <input
@@ -157,6 +183,17 @@ const Register = () => {
                                     className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     value={ownerName}
                                     onChange={(e) => setOwnerName(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="relative">
+                                <Store className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
+                                <input
+                                    type="text"
+                                    placeholder="Shop Name"
+                                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    value={shopName}
+                                    onChange={(e) => setShopName(e.target.value)}
                                     required
                                 />
                             </div>
@@ -186,6 +223,17 @@ const Register = () => {
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
+                            <div className="relative">
+                                <MapPin className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
+                                <textarea
+                                    placeholder="Address"
+                                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                />
+                            </div>
                             {/* <div className="relative">
                             <Phone className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
                             <input
@@ -199,6 +247,7 @@ const Register = () => {
                             <button
                                 type="submit"
                                 className="w-full bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                onClick={handleGenerateOtp}
                             >
                                 Register
                             </button>
@@ -209,8 +258,9 @@ const Register = () => {
                             <Link to={'/login'} className='text-blue-500 ml-2'>Login</Link>
                         </p>
                     </CardContent>
-                </Card>
-                <div onScroll={monitorScroll} id='clientRegisterForm' className='min-w-full relative h-full min-h-lg'>
+                </Card>}
+                {slide === 2 && <OTPInput value={otp} email={email} onChange={setOtp} handleFormSubmit={handleFormSubmit} />}
+                {slide === 3 && <div id='clientRegisterForm' className='min-w-full relative h-full min-h-lg'>
 
                     <Card className='overflow-y-auto w-full min-w-full h-full'>
                         <CardHeader>
@@ -299,8 +349,7 @@ const Register = () => {
                             <Button variant="default" className='mb-4 mx-6 w-32' disabled={!contractChecked || contractChecked && isLoading} onClick={handleSubmit} >{isLoading ? <Loader className='animate-spin' /> : "Submit"}</Button>
                         </div>
                     </Card>
-                </div>
-
+                </div>}
             </div>
         </div>
     );

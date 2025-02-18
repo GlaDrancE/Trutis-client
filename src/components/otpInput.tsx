@@ -138,12 +138,17 @@ const OTPInput = ({ value, email, onChange, disabled = false, handleFormSubmit }
         pastedData.split('').forEach((char: any, index: any) => {
             if (index < 6) newOtp[index] = char;
         });
-        setOtpValues(newOtp);
+        setOtpValues(prev => {
+            console.log(prev)
+            return newOtp
+        });
 
         // Focus last filled input or first empty input
         const lastFilledIndex = Math.min(pastedData.length - 1, 5);
         inputRefs.current[5]?.focus();
-        if (e.target.value && inputRefs.current[5]?.value !== null) {
+        console.log(inputRefs.current[5])
+        console.log(inputRefs.current[5]?.value)
+        if (inputRefs.current[5]?.value !== null) {
             handleVerify();
         }
     };
