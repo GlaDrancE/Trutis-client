@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { createCheckoutSession,verifyPaymentAndStore } from '../../../services/api'
+import { createCheckoutSession, portalSession, verifyPaymentAndStore } from '../../../services/api'
+import toast, { Toaster } from "react-hot-toast";
 
 
 const ProductDisplay = () => {
@@ -17,7 +18,7 @@ const ProductDisplay = () => {
 
         try {
             const clientId = localStorage.getItem("clientId") as string;
-            
+
             const response = await createCheckoutSession(plan.default_price, clientId);
             if (response.data.url) {
                 window.location.href = response.data.url;
@@ -57,15 +58,31 @@ const ProductDisplay = () => {
 
 
 const SuccessDisplay = ({ sessionId }: { sessionId: string }) => {
+    const handleManageSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        try {
+            const response = await portalSession(sessionId);
+            if (response.data.url) {
+                window.location.href = response.data.url;
+                toast.success("Redirecting to subscription management page...");
+            } else {
+                toast.error("Failed to create portal session. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error creating portal session", error);
+            toast.error("Error creating portal session. Please try again.");
+        }
+    }
     return (
         <section className="flex flex-col items-center justify-center min-h-screen bg-green-100 p-6">
+            <Toaster />
             <div className="bg-white shadow-lg rounded-2xl p-8 max-w-lg w-full text-center border border-gray-200">
                 <div className="flex justify-center mb-4">
                     <Logo />
                 </div>
                 <h3 className="text-3xl font-semibold text-green-700">Payment Successful! 🎉</h3>
                 <p className="text-gray-600 mt-4">Your subscription is now active.</p>
-                <form action="/api/create-portal-session" method="POST" className="mt-6">
+                <form onSubmit={handleManageSubscription} method="POST" className="mt-6">
                     <input type="hidden" id="session-id" name="session_id" value={sessionId} />
                     <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
                         Manage Your Subscription
@@ -126,7 +143,7 @@ const PaymentPage = () => {
         const successParam = searchParams.get("success");
 
         if (successParam && session_id) {
-            
+
             verifyPayment(session_id);
         } else if (searchParams.get("cancel")) {
             setSuccess(false);
