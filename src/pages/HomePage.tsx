@@ -23,6 +23,8 @@ const HomePage: React.FC = () => {
     const [coupons, setCoupons] = React.useState<Coupon[]>();
     const navigate = useNavigate();
     const { id } = useParams();
+    console.log(id);
+    
     const [isLoading, setIsLoading] = useState({
         client: false,
         coupons: false
@@ -126,6 +128,7 @@ const HomePage: React.FC = () => {
     return (
         <DashboardLayout>
             {/* Search Bar */}
+            
             <div className="mb-6">
                 <div className="relative">
                     <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />

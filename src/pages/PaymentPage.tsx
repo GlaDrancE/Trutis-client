@@ -73,6 +73,7 @@ const SuccessDisplay = ({ sessionId }: { sessionId: string }) => {
             toast.error("Error creating portal session. Please try again.");
         }
     }
+    
     return (
         <section className="flex flex-col items-center justify-center min-h-screen bg-green-100 p-6">
             <Toaster />

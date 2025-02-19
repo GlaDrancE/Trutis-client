@@ -9,7 +9,7 @@ const AddCardPage = () => {
             <h1 className="text-xl font-bold mb-4">Please add a card to a plan to continue</h1>
             <button
                 className="px-4 py-2 bg-white text-black border border-black rounded-md"
-                onClick={() => navigate("/profile")}
+                onClick={() => navigate("/subscription-plans")}
             >
                 Add Card
             </button>

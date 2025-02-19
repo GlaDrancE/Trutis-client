@@ -24,7 +24,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                 <h1 className='text-2xl text-black font-bold '>
                     Please add card to a plan to continue
                 </h1>
-                <Button variant='outline' onClick={() => navigate('/subscription')}>
+                <Button variant='outline' onClick={() => navigate('/subscription-plans')}>
                     Add Card
                 </Button>
             </div>
