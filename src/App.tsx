@@ -15,6 +15,7 @@ import ResetPassword from './pages/ResetPassword';
 import AddCardPage from './pages/AddCard';
 import SubscriptionPlans from './pages/SubscriptionPlans';
 import PaymentPage from './pages/PaymentPage';
+import CouponScanner from './pages/CouponScanner';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/subscription-plans" element={<SubscriptionPlans />} />
           <Route element={<ProtectedRoute />}>
             <Route path='/:id' element={<HomePage />} />
+            <Route path='/:id/couponscanner' element={<CouponScanner />} />
             <Route path='/coupon/:id' element={<CustomerDetailsPage />} />
             <Route path='/:id/profile' element={<Profile />} />
             <Route path='/:id/settings' element={<Settings />} />

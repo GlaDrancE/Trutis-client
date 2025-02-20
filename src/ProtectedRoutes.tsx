@@ -2,6 +2,7 @@ import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { useEffect, useState } from 'react';
 import HomePage from './pages/HomePage';
+import CouponScanner from './pages/CouponScanner';
 
 interface CustomJwtPayload extends JwtPayload {
     userType?: string;
@@ -35,12 +36,12 @@ const ProtectedRoute = () => {
             }
 
             useEffect(() => {
-                navigate(`/${clientId}`, { replace: true });
+                navigate(`/${clientId}/couponscanner`, { replace: true });
                 setIsNavigated(true);
             }, [clientId, navigate]);
 
             if (isNavigated) {
-                return <HomePage />;
+                return <CouponScanner />;
             }
             return null; 
         }
