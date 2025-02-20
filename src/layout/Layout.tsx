@@ -1,11 +1,9 @@
-import { Button } from '@/components/ui/button';
-import useClient from '@/hooks/client-hook';
 import {
     Home,
     User,
     Settings,
 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 // Interfaces
 interface LayoutProps {
@@ -16,21 +14,6 @@ interface LayoutProps {
 const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
     const { id } = useParams();
-    const { client } = useClient();
-    const navigate = useNavigate();
-    if (client && !client.qr_id) {
-        return (
-            <div className='flex items-center justify-center h-screen text-center flex-col gap-4'>
-                <h1 className='text-2xl text-black font-bold '>
-                    Please add card to a plan to continue
-                </h1>
-                <Button variant='outline' onClick={() => navigate('/subscription')}>
-                    Add Card
-                </Button>
-            </div>
-        )
-    }
-
     return (<div className="min-h-screen bg-gray-50">
         {/* Desktop Sidebar */}
         <aside className="fixed left-0 top-0 hidden md:flex flex-col w-64 h-screen bg-white border-r">

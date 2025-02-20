@@ -15,16 +15,16 @@ const useClient = () => {
         coupons: false,
     });
     const [isError, setIsError] = useState<boolean>(false);
-    const { id } = useParams();
+    const clientId = localStorage.getItem("clientId") as string;
 
     const loadClient = async () => {
         setIsLoading(prev => ({ ...prev, client: true }));
-        if (!id) {
+        if (!clientId) {
             setIsError(true);
             setIsLoading(prev => ({ ...prev, client: false }));
             return;
         }
-        const response = await getClient(id);
+        const response = await getClient(clientId);
         console.log(response.data);
         setClient(response.data);
         setIsLoading(prev => ({ ...prev, client: false }));
@@ -33,8 +33,8 @@ const useClient = () => {
     const loadCoupons = async () => {
         try {
             setIsLoading(prev => ({ ...prev, coupons: true }))
-            if (id) {
-                const response = await getCoupons(id);
+            if (clientId) {
+                const response = await getCoupons(clientId);
                 setCoupons(response.data)
             }
             setIsLoading(prev => ({ ...prev, coupons: false }))

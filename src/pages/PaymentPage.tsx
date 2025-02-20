@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { createCheckoutSession, portalSession, verifyPaymentAndStore } from '../../../services/api'
+import { createCheckoutSession, createClientPublicKey, portalSession, verifyPaymentAndStore } from '../../../services/api'
 import toast, { Toaster } from "react-hot-toast";
 
 
@@ -57,11 +57,12 @@ const ProductDisplay = () => {
 
 
 
-const SuccessDisplay = ({ sessionId }: { sessionId: string }) => {
+const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customerId: string }) => {
+    const [manageSubscriptionUrl, setManageSubscriptionUrl] = useState("");
     const handleManageSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const response = await portalSession(sessionId);
+            const response = await portalSession(customerId);
             if (response.data.url) {
                 window.location.href = response.data.url;
                 toast.success("Redirecting to subscription management page...");
@@ -73,6 +74,23 @@ const SuccessDisplay = ({ sessionId }: { sessionId: string }) => {
             toast.error("Error creating portal session. Please try again.");
         }
     }
+    useEffect(() => {
+        const redirectToDashboard = async () => {
+            const clientId = localStorage.getItem("clientId") as string;
+            const response = await portalSession(customerId);
+            console.log("response: ", response)
+            if (response.data.url) {
+                setManageSubscriptionUrl(response.data.url);
+            }
+            if (clientId) {
+                const response = await createClientPublicKey(clientId);
+                console.log("response: ", response)
+
+
+            }
+        }
+        redirectToDashboard();
+    }, [sessionId]);
     return (
         <section className="flex flex-col items-center justify-center min-h-screen bg-green-100 p-6">
             <Toaster />
@@ -84,12 +102,29 @@ const SuccessDisplay = ({ sessionId }: { sessionId: string }) => {
                 <p className="text-gray-600 mt-4">Your subscription is now active.</p>
                 <form onSubmit={handleManageSubscription} method="POST" className="mt-6">
                     <input type="hidden" id="session-id" name="session_id" value={sessionId} />
-                    <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+                    {/* <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
                         Manage Your Subscription
-                    </button>
+                    </button> */}
+                    {/* <h1>Redirecting to dashboard...</h1>
+                    <span>
+                        <a href="/dashboard">If not redirected, click here to go to dashboard</a>
+                    </span> */}
+                    < div className="flex flex-row gap-4">
+                        {manageSubscriptionUrl &&
+                            <>
+                                <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+                                    <a href={manageSubscriptionUrl}>Manage Your Subscription</a>
+                                </button>
+                                <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+                                    <a href={`/`}>Go to Dashboard</a>
+                                </button>
+                            </>
+                        }
+                    </div>
                 </form>
-            </div>
-        </section>
+
+            </div >
+        </section >
     );
 };
 
@@ -136,14 +171,15 @@ const PaymentPage = () => {
     const [message, setMessage] = useState('');
     const [success, setSuccess] = useState(false);
     const [sessionId, setSessionId] = useState('');
+    const [customerId, setCustomerId] = useState('');
     const [loading, setLoading] = useState(true);
+    const [verified, setVerified] = useState(false);
 
     useEffect(() => {
         const session_id = searchParams.get("session_id");
         const successParam = searchParams.get("success");
 
-        if (successParam && session_id) {
-
+        if (successParam && session_id && !verified) {
             verifyPayment(session_id);
         } else if (searchParams.get("cancel")) {
             setSuccess(false);
@@ -157,11 +193,13 @@ const PaymentPage = () => {
     const verifyPayment = async (session_id: string) => {
         try {
             const response = await verifyPaymentAndStore(session_id);
-
             if (response.data.success) {
+                setVerified(true);
                 setSuccess(true);
                 setSessionId(session_id);
+                setCustomerId(response.data.customerId);
             } else {
+
                 setMessage("Payment verification failed. Please contact support.");
             }
         } catch (error) {
@@ -179,7 +217,7 @@ const PaymentPage = () => {
     if (!success && message === '') {
         return <ProductDisplay />;
     } else if (success && sessionId !== '') {
-        return <SuccessDisplay sessionId={sessionId} />;
+        return <SuccessDisplay sessionId={sessionId} customerId={customerId} />;
     } else {
         return <Message message={message} />;
     }
