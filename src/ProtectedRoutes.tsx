@@ -1,15 +1,15 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
-
 const ProtectedRoute = () => {
     const token = localStorage.getItem('token');
-
+    const userType = localStorage.getItem('userType');
     if (!token) {
-        // If no token is found, redirect to the login page
         return <Navigate to="/login" replace />;
     }
 
-    // If token is found, render the child components
+    if (userType === 'staff') {
+        return <Navigate to={`/${localStorage.getItem('clientId')}`} replace />;
+    }
     return <Outlet />;
 };
 

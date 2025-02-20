@@ -10,7 +10,7 @@ import HomePage from './pages/HomePage';
 import CustomerDetailsPage from './pages/CustomerDetailsPage';
 import Profile from './pages/Profile';
 import { Settings } from './pages/Settings';
-import ForgotPassword from './pages/ForgetPassword';
+import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import AddCardPage from './pages/AddCard';
 import SubscriptionPlans from './pages/SubscriptionPlans';
@@ -18,24 +18,29 @@ import PaymentPage from './pages/PaymentPage';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path='/register' element={<Register />} />
-        <Route path='/public_key' element={<PublicID />} />
-        <Route path='/login' element={<LoginForm />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/add-card" element={<AddCardPage />} />
-        <Route path="/subscription-plans" element={<SubscriptionPlans />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path='/:id' element={<HomePage />} />
-          <Route path='/coupon/:id' element={<CustomerDetailsPage />} />
-          <Route path='/:id/profile' element={<Profile />} />
-          <Route path='/:id/settings' element={<Settings />} />
-          <Route path="/payment" element={<PaymentPage />} />
-        </Route>
-      </Routes>
-    </Router>
+
+    <>
+      <Toaster position="top-right" />
+
+      <Router>
+        <Routes>
+          <Route path='/register' element={<Register />} />
+          <Route path='/public_key' element={<PublicID />} />
+          <Route path='/login' element={<LoginForm />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/add-card" element={<AddCardPage />} />
+          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path='/:id' element={<HomePage />} />
+            <Route path='/coupon/:id' element={<CustomerDetailsPage />} />
+            <Route path='/:id/profile' element={<Profile />} />
+            <Route path='/:id/settings' element={<Settings />} />
+            <Route path="/payment" element={<PaymentPage />} />
+          </Route>
+        </Routes>
+      </Router>
+    </>
   )
 }
 
