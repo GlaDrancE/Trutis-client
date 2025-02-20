@@ -37,7 +37,7 @@ const SettingsPage = () => {
         if (client?.id) {
             setCredentials(editedCredentials);
             const saveCredentials = await updateStaff({ client_id: client?.id, staff_id: editedCredentials.id, staff_password: editedCredentials.password });
-            if (saveCredentials.status === 200) {
+            if (saveCredentials.status === 201) {
                 toast.success('Credentials saved successfully');
             } else {
                 toast.error('Failed to save credentials');
@@ -54,7 +54,7 @@ const SettingsPage = () => {
             if (client?.id) {
                 setIsLoading(true);
                 const saveCredentials = await updateStaff({ client_id: client?.id, staffStatus: !isEnabled });
-                if (saveCredentials.status === 200) {
+                if (saveCredentials.status === 201) {
                     toast.success('Staff status changed successfully');
                 } else {
                     toast.error('Failed to change staff status');
