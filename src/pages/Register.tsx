@@ -88,7 +88,6 @@ const Register = () => {
                 toast.success("Client created")
                 localStorage.setItem("token", response.data.token)
                 localStorage.setItem("clientId", response.data.userId)
-                localStorage.setItem("userType", "client")
                 navigate(`/${response.data.userId}`)
             }
         } catch (error) {

@@ -55,10 +55,9 @@ const LoginForm = () => {
     const handleSubmit = async () => {
         try {
             const response = await loginClient(email, password);
-            console.log(response.data);
+
             if (response.data) {
                 localStorage.setItem('token', response.data.token);
-                localStorage.setItem('userType', response.data.userType);
             }
             const decode: any = jwtDecode(response.data.token);
             if (!decode) {
