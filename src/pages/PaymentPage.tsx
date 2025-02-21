@@ -195,15 +195,17 @@ const PaymentPage = () => {
 
     const verifyPayment = async (session_id: string) => {
         try {
-            const response = await verifyPaymentAndStore(session_id);
-            if (response.data.success) {
-                setVerified(true);
-                setSuccess(true);
-                setSessionId(session_id);
-                setCustomerId(response.data.customerId);
-            } else {
+            if (!verified) {
+                const response = await verifyPaymentAndStore(session_id);
+                if (response.data.success) {
+                    setVerified(true);
+                    setSuccess(true);
+                    setSessionId(session_id);
+                    setCustomerId(response.data.customerId);
+                } else {
 
-                setMessage("Payment verification failed. Please contact support.");
+                    setMessage("Payment verification failed. Please contact support.");
+                }
             }
         } catch (error) {
             console.error("Error verifying payment:", error);
