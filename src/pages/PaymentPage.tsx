@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { createCheckoutSession, createClientPublicKey, portalSession, verifyPaymentAndStore } from '../../../services/api'
 import toast, { Toaster } from "react-hot-toast";
+import useClient from "@/hooks/client-hook";
 
 
 const ProductDisplay = () => {
@@ -59,6 +60,9 @@ const ProductDisplay = () => {
 
 const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customerId: string }) => {
     const [manageSubscriptionUrl, setManageSubscriptionUrl] = useState("");
+    const [clientId, setClientId] = useState("");
+
+
     const handleManageSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
@@ -77,6 +81,7 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customer
     useEffect(() => {
         const redirectToDashboard = async () => {
             const clientId = localStorage.getItem("clientId") as string;
+            setClientId(clientId);
             const response = await portalSession(customerId);
             console.log("response: ", response)
             if (response.data.url) {
@@ -85,8 +90,6 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customer
             if (clientId) {
                 const response = await createClientPublicKey(clientId);
                 console.log("response: ", response)
-
-
             }
         }
         redirectToDashboard();
@@ -116,7 +119,7 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customer
                                     <a href={manageSubscriptionUrl}>Manage Your Subscription</a>
                                 </button>
                                 <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
-                                    <a href={`/`}>Go to Dashboard</a>
+                                    <a href={`/${clientId}`}>Go to Dashboard</a>
                                 </button>
                             </>
                         }

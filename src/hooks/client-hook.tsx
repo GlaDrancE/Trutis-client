@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getClient, getCoupons } from "../../../services/api";
+import { createClientPublicKey, getClient, getCoupons } from "../../../services/api";
 import { useParams } from "react-router-dom";
 import { Client, Coupon } from "../../../types";
 import toast from "react-hot-toast";
@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 const useClient = () => {
     const [client, setClient] = useState<Client | undefined>(undefined);
     const [coupons, setCoupons] = useState<Coupon[]>([]);
+    const [publicKey, _setPublicKey] = useState<string | undefined>(undefined);
     const [isLoading, setIsLoading] = useState<{
         client: boolean;
         coupons: boolean;
@@ -16,6 +17,7 @@ const useClient = () => {
     });
     const [isError, setIsError] = useState<boolean>(false);
     const clientId = localStorage.getItem("clientId") as string;
+
 
     const loadClient = async () => {
         setIsLoading(prev => ({ ...prev, client: true }));
@@ -27,6 +29,7 @@ const useClient = () => {
         const response = await getClient(clientId);
         console.log(response.data);
         setClient(response.data);
+        _setPublicKey(response.data.public_key);
         setIsLoading(prev => ({ ...prev, client: false }));
     }
 
@@ -50,7 +53,7 @@ const useClient = () => {
         loadClient();
         loadCoupons();
     }, []);
-    return { client, isLoading, isError, coupons };
+    return { client, isLoading, isError, coupons, publicKey };
 }
 
 export default useClient;

@@ -79,7 +79,7 @@ const SubscriptionPlans = () => {
                     ))}
                 </div>
                 <div className="text-center mt-12 text-gray-600">
-                    <p>All plans include a 14-day free trial.</p>
+                    <p>All plans include a 7-day free trial.</p>
                     <p className="mt-2">Need a custom plan? <Link to="/contact" className="text-blue-600 cursor-pointer hover:underline">Contact us</Link></p>
                 </div>
             </div>

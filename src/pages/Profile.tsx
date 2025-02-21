@@ -39,7 +39,7 @@ const ProfilePage = () => {
     const { id } = useParams();
 
 
-    const { client, isLoading, isError } = useClient();
+    const { client, isLoading, isError, publicKey } = useClient();
     const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState<Client | undefined>(client);
     const [tempProfile, setTempProfile] = useState<Client | undefined>(client);
@@ -49,6 +49,11 @@ const ProfilePage = () => {
         setProfile(client)
         setTempProfile(client)
     }, [client])
+
+    useEffect(() => {
+
+        console.log("publicKey", publicKey)
+    }, [publicKey, profile])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -167,9 +172,9 @@ const ProfilePage = () => {
                         <div className="flex flex-col items-center mb-6">
                             <div className="relative">
                                 {
-                                    profile.qr_id &&
+
                                     <span className='font-bold pb-8'>
-                                        Client ID: {profile.qr_id}
+                                        Client ID: {publicKey ? publicKey : profile.qr_id}
                                     </span>
                                 }
                                 <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
