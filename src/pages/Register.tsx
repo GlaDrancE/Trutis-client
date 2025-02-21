@@ -6,7 +6,7 @@ import { User, Mail, Phone, MapPin, Key, User2, Loader, Store } from 'lucide-rea
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { createClient, createGoogleClient, generateOtp, getAgents, verifyOtp } from '../../../services/api';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import OTPInput from '@/components/otpInput';
@@ -140,7 +140,6 @@ const Register = () => {
     // };
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 h-screen">
-            <Toaster />
             <div className='max-w-md w-full flex h-full overflow-hidden' style={{ scrollBehavior: "smooth" }} id='clientContainer'>
                 {slide === 1 && <Card className="w-full min-w-full">
                     <CardHeader className="space-y-1">
