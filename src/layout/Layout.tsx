@@ -1,4 +1,4 @@
-import { Home, LogOut, Settings, User } from 'lucide-react';
+import { Home, LogOut, Settings, User, Scan } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 
@@ -43,9 +43,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                             <span>Home</span>
                         </a>
                         <a href={`/${id}/coupon-scanner`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
-                            <svg className="text-blue-600" width={20} height={20} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
+                            <Scan className="text-blue-600" size={20} />
                             <span>QR Scanner</span>
                         </a>
                         <button onClick={handleLogout} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg w-full text-left">
@@ -62,9 +60,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                             <span className="text-xs mt-1">Home</span>
                         </a>
                         <a href={`/${id}/coupon-scanner`} className="flex flex-col items-center">
-                            <svg className="text-blue-600" width={20} height={20} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
+                            <Scan className="text-blue-600" size={20} />
                             <span className="text-xs mt-1">QR Scanner</span>
                         </a>
                         <button onClick={handleLogout} className="flex flex-col items-center">
