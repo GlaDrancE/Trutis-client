@@ -1,13 +1,14 @@
 import DashboardLayout from '../layout/Layout';
 import React, { useState } from 'react';
 import QrReader from 'react-qr-scanner';
-import { fetchCustomerFromCoupon } from '../../../services/api'
+import { fetchCustomerFromCoupon, updatePoints } from '../../../services/api';
 
 interface CustomerDetails {
   name: string;
   email: string;
   phone: string;
   dob: string;
+  id: string;
 }
 
 const CouponScanner: React.FC = () => {
@@ -16,6 +17,8 @@ const CouponScanner: React.FC = () => {
   const [isScanning, setIsScanning] = useState<boolean>(true);
   const [customerDetails, setCustomerDetails] = useState<CustomerDetails | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [amount, setAmount] = useState<string>('');
+  const [pointsUpdated, setPointsUpdated] = useState<boolean>(false);
 
   const previewStyle = {
     height: 240,
@@ -24,6 +27,7 @@ const CouponScanner: React.FC = () => {
 
   const handleScan = async (data: { text: string } | null) => {
     if (data?.text) {
+      const code = data.text;
       setCouponCode("1234");
       setIsScanning(false);
       setError('');
@@ -34,7 +38,6 @@ const CouponScanner: React.FC = () => {
   const verifyCoupon = async (code: string) => {
     try {
       setIsLoading(true);
-
       const response = await fetchCustomerFromCoupon(code);
 
       if (response.data.success) {
@@ -60,7 +63,41 @@ const CouponScanner: React.FC = () => {
     setCouponCode('');
     setError('');
     setCustomerDetails(null);
+    setAmount('');
+    setPointsUpdated(false);
     setIsScanning(true);
+  };
+
+  const handlePointsSubmission = async () => {
+    if (!customerDetails || !amount || isNaN(parseFloat(amount))) {
+      setError('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const pointsToAdd = Math.floor(parseFloat(amount) * 0.1);
+
+
+      const response = await updatePoints({
+        customerId: customerDetails.id,
+        points: pointsToAdd, 
+        email: customerDetails.email,
+        name: customerDetails.name,
+        amount: parseFloat(amount),
+      });
+
+      if (response.data.success) {
+        setPointsUpdated(true);
+        setError('');
+      } else {
+        throw new Error('Failed to update points');
+      }
+    } catch (err: any) {
+      setError('Error updating points: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -84,7 +121,7 @@ const CouponScanner: React.FC = () => {
           ) : (
             <div className="flex flex-col items-center animate-fade-in">
               {isLoading ? (
-                <div className="text-gray-600">Verifying coupon...</div>
+                <div className="text-gray-600">Processing...</div>
               ) : couponCode && !error ? (
                 <>
                   <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
@@ -116,6 +153,31 @@ const CouponScanner: React.FC = () => {
                         <p><span className="font-medium">Phone:</span> {customerDetails.phone}</p>
                         <p><span className="font-medium">DOB:</span> {new Date(customerDetails.dob).toLocaleDateString()}</p>
                       </div>
+
+                      {!pointsUpdated ? (
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Enter Amount
+                          </label>
+                          <input
+                            type="number"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Enter purchase amount"
+                          />
+                          <button
+                            onClick={handlePointsSubmission}
+                            className="mt-2 bg-green-600 text-white px-4 py-1.5 rounded-full font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
+                          >
+                            Add Points
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="mt-4 text-green-600 text-sm">
+                          Points added successfully! ({Math.floor(parseFloat(amount) * 0.1)} points)
+                        </div>
+                      )}
                     </div>
                   )}
 
