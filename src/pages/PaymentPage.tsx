@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { createCheckoutSession, createClientPublicKey, portalSession, verifyPaymentAndStore } from '../../../services/api'
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 
 const ProductDisplay = () => {
@@ -93,7 +93,6 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customer
     }, [sessionId]);
     return (
         <section className="flex flex-col items-center justify-center min-h-screen bg-green-100 p-6">
-            <Toaster />
             <div className="bg-white shadow-lg rounded-2xl p-8 max-w-lg w-full text-center border border-gray-200">
                 <div className="flex justify-center mb-4">
                     <Logo />

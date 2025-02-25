@@ -5,9 +5,10 @@ import { Search, QrCode, Calendar, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import DashboardLayout from '@/layout/Layout';
-import { getClient, getCoupons } from '../../../services/api';
+import { getClient, getCoupons, claimCoupon } from '../../../services/api';
 import toast from 'react-hot-toast';
 import { Client, Coupon } from '../../../types';
+import axios from 'axios'; // Add axios for API calls
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = React.useState<string>('');
@@ -23,7 +24,6 @@ const HomePage: React.FC = () => {
   });
   const FORM_BASE_URL = import.meta.env.VITE_FORM_BASE_URL;
 
-  // Redirect if id doesn't match clientId
   useEffect(() => {
     const clientId = localStorage.getItem('clientId');
     if (clientId && id && id !== clientId) {
@@ -31,7 +31,6 @@ const HomePage: React.FC = () => {
     }
   }, [id, navigate]);
 
-  // Load client and coupons when id changes
   useEffect(() => {
     if (id) {
       loadClient();
@@ -55,7 +54,6 @@ const HomePage: React.FC = () => {
       setIsLoading(prev => ({ ...prev, coupons: false }));
     } catch (error) {
       setIsLoading(prev => ({ ...prev, coupons: false }));
-    //   toast.error('Something went wrong');
       console.error('Something went wrong', error);
     }
   };
@@ -76,13 +74,8 @@ const HomePage: React.FC = () => {
     } catch (error) {
       setIsLoading(prev => ({ ...prev, client: false }));
       console.error(error);
-    //   toast.error('Something went wrong');
     }
   };
-
-  useEffect(() => {
-    console.log(filteredCoupons);
-  }, [filteredCoupons]);
 
   const handleQRClick = (id: number): void => {
     navigate(`/customer-details/${id}`);
@@ -96,6 +89,27 @@ const HomePage: React.FC = () => {
     const couponDate = new Date(date);
     const currentDate = new Date();
     return couponDate >= currentDate;
+  };
+
+  const handleClaimCoupon = async (couponId: string) => {
+    try {
+      const response = await claimCoupon(couponId);
+
+      toast.success('Coupon claimed successfully!');
+
+      setCoupons(prevCoupons =>
+        prevCoupons?.map(coupon => ({
+          ...coupon,
+          Coupon: {
+            ...coupon.Coupon,
+            isActive: coupon.Coupon.id === couponId ? false : coupon.Coupon.isActive,
+          },
+        }))
+      );
+    } catch (error) {
+      console.error('Error claiming coupon:', error);
+      toast.error('Failed to claim coupon. Please try again.');
+    }
   };
 
   return (
@@ -171,7 +185,7 @@ const HomePage: React.FC = () => {
                             <span>Expires: {handleDateFormat(coupon.validTill)}</span>
                           </div>
                         </div>
-                        <div>
+                        <div className="text-right">
                           <span
                             className={`px-2 py-1 rounded-full text-xs ${
                               isValidDate(coupon.validTill)
@@ -181,6 +195,17 @@ const HomePage: React.FC = () => {
                           >
                             {isValidDate(coupon.validTill) ? 'Valid' : 'Expired'}
                           </span>
+                          <button
+                            onClick={() => handleClaimCoupon(coupon.id)}
+                            disabled={!coupon.isActive || !isValidDate(coupon.validTill)}
+                            className={`mt-2 px-3 py-1 rounded text-sm ${
+                              coupon.isActive && isValidDate(coupon.validTill)
+                                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                          >
+                            {coupon.isActive ? 'Claim' : 'Claimed'}
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -203,7 +228,7 @@ const HomePage: React.FC = () => {
                             <span>Expires: {handleDateFormat(coupon.validTill)}</span>
                           </div>
                         </div>
-                        <div>
+                        <div className="text-right">
                           <span
                             className={`px-2 py-1 rounded-full text-xs ${
                               isValidDate(coupon.validTill)
@@ -213,6 +238,17 @@ const HomePage: React.FC = () => {
                           >
                             {isValidDate(coupon.validTill) ? 'Valid' : 'Expired'}
                           </span>
+                          <button
+                            onClick={() => handleClaimCoupon(coupon.id)}
+                            disabled={!coupon.isActive || !isValidDate(coupon.validTill)}
+                            className={`mt-2 px-3 py-1 rounded text-sm ${
+                              coupon.isActive && isValidDate(coupon.validTill)
+                                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                          >
+                            {coupon.isActive ? 'Claim' : 'Claimed'}
+                          </button>
                         </div>
                       </div>
                     </div>
