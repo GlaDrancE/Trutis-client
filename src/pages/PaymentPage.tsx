@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { createCheckoutSession, createClientPublicKey, portalSession, verifyPaymentAndStore } from '../../../services/api'
+import { createCheckoutSession, portalSession, verifyPaymentAndStore } from '../../../services/api'
 import toast, { Toaster } from "react-hot-toast";
 import useClient from "@/hooks/client-hook";
 
@@ -10,6 +10,8 @@ const ProductDisplay = () => {
     const [error, setError] = useState("");
     const location = useLocation();
     const plan = location.state?.plan || { name: "Unknown Plan", price: 0, description: "No description available." };
+    const { client } = useClient();
+
 
     const handleCheckout = async () => {
         if (!plan.default_price) return;
@@ -20,7 +22,7 @@ const ProductDisplay = () => {
         try {
             const clientId = localStorage.getItem("clientId") as string;
 
-            const response = await createCheckoutSession(plan.default_price, clientId);
+            const response = await createCheckoutSession(plan.default_price, client?.id as string);
             if (response.data.url) {
                 window.location.href = response.data.url;
             } else {
@@ -86,10 +88,6 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customer
             console.log("response: ", response)
             if (response.data.url) {
                 setManageSubscriptionUrl(response.data.url);
-            }
-            if (clientId) {
-                const response = await createClientPublicKey(clientId);
-                console.log("response: ", response)
             }
         }
         redirectToDashboard();

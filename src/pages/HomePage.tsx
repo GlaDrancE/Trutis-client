@@ -5,17 +5,19 @@ import { Search, QrCode, Calendar, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import DashboardLayout from '@/layout/Layout';
-import { getClient, getCoupons } from '../../../services/api';
+import { getClient, getCoupons, redeemCoupon } from '../../../services/api';
 import toast from 'react-hot-toast';
 import { Client, Coupon } from '../../../types';
+import { Button } from '@/components/ui/button';
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = React.useState<string>('');
   const [client, setClient] = React.useState<Client>();
   const [coupons, setCoupons] = React.useState<Coupon[]>();
+  const [loadingRedeems, setLoadingRedeems] = useState<{ [key: string]: boolean }>({});
+
   const navigate = useNavigate();
   const { id } = useParams();
-  console.log('Current id:', id);
 
   const [isLoading, setIsLoading] = useState({
     client: false,
@@ -39,11 +41,9 @@ const HomePage: React.FC = () => {
     }
   }, [id]);
 
-  const filteredCoupons = coupons
-    ?.flatMap(coupon => coupon.Coupon)
-    .filter((coupon: any) =>
-      coupon.code.toLowerCase() === searchTerm.toLowerCase()
-    );
+  const filteredCoupons = coupons?.filter((coupon: any) =>
+    coupon.code.toLowerCase() === searchTerm.toLowerCase()
+  );
 
   const loadCoupons = async () => {
     try {
@@ -55,7 +55,7 @@ const HomePage: React.FC = () => {
       setIsLoading(prev => ({ ...prev, coupons: false }));
     } catch (error) {
       setIsLoading(prev => ({ ...prev, coupons: false }));
-    //   toast.error('Something went wrong');
+      //   toast.error('Something went wrong');
       console.error('Something went wrong', error);
     }
   };
@@ -76,7 +76,7 @@ const HomePage: React.FC = () => {
     } catch (error) {
       setIsLoading(prev => ({ ...prev, client: false }));
       console.error(error);
-    //   toast.error('Something went wrong');
+      //   toast.error('Something went wrong');
     }
   };
 
@@ -90,6 +90,22 @@ const HomePage: React.FC = () => {
 
   const handleDateFormat = (date: Date): string => {
     return new Date(date).toLocaleDateString();
+  };
+  const handleRedeemClick = async (id: string): Promise<void> => {
+    try {
+      setLoadingRedeems(prev => ({ ...prev, [id]: true }));
+      const response = await redeemCoupon(id);
+      if (response.status !== 200) {
+        toast.error('Something went wrong');
+      } else {
+        await loadCoupons();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to redeem coupon');
+    } finally {
+      setLoadingRedeems(prev => ({ ...prev, [id]: false }));
+    }
   };
 
   const isValidDate = (date: Date): boolean => {
@@ -164,29 +180,45 @@ const HomePage: React.FC = () => {
                           <h3 className="font-medium">{coupon.code}</h3>
                           <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
                             <Calendar size={16} />
-                            <span>Created: {handleDateFormat(coupon.validFrom)}</span>
+                            <span>{handleDateFormat(coupon.validFrom)} - {handleDateFormat(coupon.validTill)}</span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                            <Calendar size={16} />
-                            <span>Expires: {handleDateFormat(coupon.validTill)}</span>
-                          </div>
+                          <h4>
+                            {coupon.customer}
+                          </h4>
                         </div>
-                        <div>
+                        <div className='flex items-center gap-2 flex-col justify-between'>
                           <span
-                            className={`px-2 py-1 rounded-full text-xs ${
-                              isValidDate(coupon.validTill)
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
+                            className={`px-2 py-1 rounded-full text-xs ${isValidDate(coupon.validTill) && !coupon.isUsed
+                              ? coupon.validFrom < new Date() ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                              }`}
                           >
-                            {isValidDate(coupon.validTill) ? 'Valid' : 'Expired'}
+                            {isValidDate(coupon.validTill) && !coupon.isUsed ? coupon.validFrom < new Date() ? 'Valid' : 'Valid Soon' : 'Expired'}
                           </span>
+
+                          {coupon.isUsed ? (
+                            <span className='text-sm text-gray-500'>Redeemed</span>
+                          ) : (
+                            <Button
+                              variant="redeem"
+                              size="sm"
+                              onClick={() => handleRedeemClick(coupon.id)}
+                              type='button'
+                              disabled={loadingRedeems[coupon.id]}
+                            >
+                              {loadingRedeems[coupon.id] ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                'Redeem'
+                              )}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
                   ))
                 ) : coupons && coupons.length > 0 ? (
-                  coupons.flatMap(coupon => coupon.Coupon).map((coupon: any) => (
+                  coupons.map((coupon: any) => (
                     <div
                       key={coupon.id}
                       className="p-4 border rounded-lg hover:shadow-md transition-shadow"
@@ -205,13 +237,12 @@ const HomePage: React.FC = () => {
                         </div>
                         <div>
                           <span
-                            className={`px-2 py-1 rounded-full text-xs ${
-                              isValidDate(coupon.validTill)
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
+                            className={`px-2 py-1 rounded-full text-xs ${isValidDate(coupon.validTill) && !coupon.isUsed
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                              }`}
                           >
-                            {isValidDate(coupon.validTill) ? 'Valid' : 'Expired'}
+                            {isValidDate(coupon.validTill) && !coupon.isUsed ? 'Valid' : 'Expired'}
                           </span>
                         </div>
                       </div>

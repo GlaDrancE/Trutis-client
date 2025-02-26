@@ -59,7 +59,7 @@ const ProfilePage = () => {
         const { name, value, type } = e.target;
         setTempProfile((prev: any) => ({
             ...prev,
-            [name]: type === "radio" ? Number(value) : value,
+            [name]: type === "radio" || name === 'minOrderValue' || name === 'couponValidity' ? Number(value) : value,
         }));
 
     };
@@ -174,7 +174,7 @@ const ProfilePage = () => {
                                 {
 
                                     <span className='font-bold pb-8'>
-                                        Client ID: {publicKey ? publicKey : profile.qr_id}
+                                        Client ID: {!client?.qr_id ? publicKey : profile.qr_id}
                                     </span>
                                 }
                                 <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">

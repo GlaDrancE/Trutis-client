@@ -5,16 +5,18 @@ import { Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createProducts } from '../../../services/api';
 import { useNavigate } from "react-router-dom";
+import useClient from '@/hooks/client-hook';
 
 
 const SubscriptionPlans = () => {
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
     const [plans, setPlans] = useState<any[]>([]);
+    const { client } = useClient();
     const navigate = useNavigate();
 
     const getPlans = async () => {
         try {
-            const response = await createProducts();
+            const response = await createProducts(client?.id as string);
             if (response.status === 200) {
                 setPlans(response.data.products);
                 console.log(response.data)

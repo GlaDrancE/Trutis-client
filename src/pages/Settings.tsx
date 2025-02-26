@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Save, Edit2, Lock, Loader2 } from 'lucide-react';
 import useClient from '@/hooks/client-hook';
-import { updateStaff } from '../../../services/api';
+import { portalSession, updateStaff } from '../../../services/api';
 import toast from 'react-hot-toast';
 const SettingsPage = () => {
     const [isEnabled, setIsEnabled] = useState(false);
@@ -17,6 +17,10 @@ const SettingsPage = () => {
     const { client } = useClient();
     const [isLoading, setIsLoading] = useState(false);
 
+
+    useEffect(() => {
+        console.log(client)
+    }, [client]);
 
     const generateCredentials = async () => {
         try {
@@ -48,6 +52,20 @@ const SettingsPage = () => {
 
     const handleSubscription = () => {
         window.location.href = '/subscription-plans';
+    };
+
+    const handlePortalSession = async () => {
+        try {
+            const session = await portalSession(client?.customer_id as string);
+            console.log(client)
+            if (session.status === 200) {
+                window.location.href = session.data.url;
+            } else {
+                toast.error('Failed to load manage subscription page');
+            }
+        } catch (error) {
+            toast.error('Failed to load manage subscription page');
+        }
     };
     const changeStaffStatus = async () => {
         try {
@@ -83,12 +101,22 @@ const SettingsPage = () => {
                 <div className="max-w-full mx-auto bg-white shadow-lg">
                     {/* Subscription Button */}
                     <div className="mb-6 flex justify-end">
-                        <Button
-                            variant="premium"
-                            onClick={handleSubscription}
-                        >
-                            Subscription
-                        </Button>
+                        {
+                            !client?.isActive && !client?.customer_id ?
+                                <Button
+                                    variant="premium"
+                                    onClick={handleSubscription}
+                                >
+                                    Subscriptions
+                                </Button>
+                                :
+                                <Button
+                                    variant="premium"
+                                    onClick={handlePortalSession}
+                                >
+                                    Manage Subscription
+                                </Button>
+                        }
                     </div>
 
                     <CardHeader>

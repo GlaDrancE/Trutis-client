@@ -92,6 +92,11 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                         <User className="text-blue-600" size={20} />
                         <span>Profile</span>
                     </a>
+
+                    <a href={`/${id}/coupon-scanner`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
+                        <Scan className="text-blue-600" size={20} />
+                        <span>QR Scanner</span>
+                    </a>
                     <a href={`/${id}/settings`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
                         <Settings className="text-blue-600" size={20} />
                         <span>Settings</span>
@@ -112,6 +117,11 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                     <a href={`/${id}/profile`} className="flex flex-col items-center">
                         <User className="text-blue-600" size={20} />
                         <span>Profile</span>
+                    </a>
+
+                    <a href={`/${id}/coupon-scanner`} className="flex flex-col items-center">
+                        <Scan className="text-blue-600" size={20} />
+                        <span className="text-xs mt-1">QR Scanner</span>
                     </a>
                     <a href={`/${id}/settings`} className="flex flex-col items-center">
                         <Settings className="text-blue-600" size={20} />
