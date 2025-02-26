@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { sendResetPasswordEmail } from '../../../services/api';
+import { sendResetPasswordEmail } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 

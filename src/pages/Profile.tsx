@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/layout/Layout';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { getClient, updateClient } from '../../../services/api';
+import { getClient, updateClient } from '../../services/api';
 import { Client } from '../../../types';
 import useClient from '@/hooks/client-hook';
 

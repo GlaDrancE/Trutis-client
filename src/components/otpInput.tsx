@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { generateOtp, verifyOtp } from '../../../services/api';
+import { generateOtp, verifyOtp } from '../../services/api';
 import toast from 'react-hot-toast';
 
 interface OTPInputProps {

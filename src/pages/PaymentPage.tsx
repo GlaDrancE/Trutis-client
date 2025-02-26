@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { createCheckoutSession, portalSession, verifyPaymentAndStore } from '../../../services/api'
+import { createCheckoutSession, portalSession, verifyPaymentAndStore } from '../../services/api'
 import toast, { Toaster } from "react-hot-toast";
 import useClient from "@/hooks/client-hook";
 

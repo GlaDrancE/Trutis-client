@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Save, Edit2, Lock, Loader2 } from 'lucide-react';
 import useClient from '@/hooks/client-hook';
-import { portalSession, updateStaff } from '../../../services/api';
+import { portalSession, updateStaff } from '../../services/api';
 import toast from 'react-hot-toast';
 const SettingsPage = () => {
     const [isEnabled, setIsEnabled] = useState(false);

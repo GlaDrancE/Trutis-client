@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast';
 import { UserPlus, Edit2, Trash2, Camera, Plus } from 'lucide-react';
 import { Client, Plans } from '../../../types';
-import { createClient, getAgents, getClients, getPlans, updateClient } from '../../../services/api';
+import { createClient, getAgents, getClients, getPlans, updateClient } from '../../services/api';
 
 export const Register = () => {
     const [plans, setPlans] = useState<Plans[]>([]);

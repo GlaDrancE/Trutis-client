@@ -5,7 +5,7 @@ import { Search, QrCode, Calendar, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import DashboardLayout from '@/layout/Layout';
-import { getClient, getCoupons, redeemCoupon } from '../../../services/api';
+import { getClient, getCoupons, redeemCoupon } from '../../services/api';
 import toast from 'react-hot-toast';
 import { Client, Coupon } from '../../../types';
 import { Button } from '@/components/ui/button';

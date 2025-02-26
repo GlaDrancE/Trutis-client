@@ -1,7 +1,7 @@
 import { LogIn } from 'lucide-react';
 import React, { useState } from 'react';
 import Layout from '../layout/Layout';
-import { generateOtp, loginClient } from '../../../services/api';
+import { generateOtp, loginClient } from '../../services/api';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';

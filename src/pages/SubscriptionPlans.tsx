@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { createProducts } from '../../../services/api';
+import { createProducts } from '../../services/api';
 import { useNavigate } from "react-router-dom";
 import useClient from '@/hooks/client-hook';
 

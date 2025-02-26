@@ -1,7 +1,7 @@
 import DashboardLayout from '../layout/Layout';
 import React, { useState } from 'react';
 import QrReader from 'react-qr-scanner';
-import { fetchCustomerFromCoupon } from '../../../services/api'
+import { fetchCustomerFromCoupon } from '../../services/api'
 
 interface CustomerDetails {
   name: string;

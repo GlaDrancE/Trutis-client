@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { User, Mail, Phone, MapPin, Key, User2, Loader, Store } from 'lucide-react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import { createClient, createGoogleClient, generateOtp, getAgents, verifyOtp } from '../../../services/api';
+import { createClient, createGoogleClient, generateOtp, getAgents, verifyOtp } from '../../services/api';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
