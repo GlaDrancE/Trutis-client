@@ -111,7 +111,7 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customer
                         <a href="/dashboard">If not redirected, click here to go to dashboard</a>
                     </span> */}
                     < div className="flex flex-row gap-4">
-                        {manageSubscriptionUrl &&
+                        {
                             <>
                                 <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
                                     <a href={manageSubscriptionUrl}>Manage Your Subscription</a>

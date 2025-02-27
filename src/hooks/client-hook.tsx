@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createClientPublicKey, getClient, getCoupons } from "../../services/api";
 import { useParams } from "react-router-dom";
-import { Client, Coupon } from "../../../types";
+import { Client, Coupon } from "../../types/index";
 import toast from "react-hot-toast";
 
 const useClient = () => {

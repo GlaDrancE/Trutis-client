@@ -7,7 +7,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import DashboardLayout from '@/layout/Layout';
 import { getClient, getCoupons, redeemCoupon } from '../../services/api';
 import toast from 'react-hot-toast';
-import { Client, Coupon } from '../../../types';
+import { Client, Coupon } from '../../types';
 import { Button } from '@/components/ui/button';
 
 const HomePage: React.FC = () => {
