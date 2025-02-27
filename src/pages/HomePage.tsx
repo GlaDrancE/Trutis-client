@@ -145,7 +145,7 @@ const HomePage: React.FC = () => {
               {!isLoading.client ? (
                 client?.qr_id ? (
                   <QRCodeCanvas
-                    value={`${FORM_BASE_URL + '/?c_id=' + client.qr_id}`}
+                    value={`${FORM_BASE_URL}/${client.qr_id}`}
                     color="red"
                     bgColor="white"
                     size={200}

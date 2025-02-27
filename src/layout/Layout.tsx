@@ -2,6 +2,7 @@ import { Home, LogOut, Settings, User, Scan } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { Link } from 'react-router-dom';
+import useClient from '@/hooks/client-hook';
 interface LayoutProps {
     children: React.ReactNode;
 }
@@ -14,6 +15,8 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
+    const { client } = useClient();
+
     let userType;
 
     if (token) {
@@ -42,10 +45,12 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                             <Home className="text-blue-600" size={20} />
                             <span>Home</span>
                         </Link>
-                        <Link to={`/${id}/coupon-scanner`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
-                            <Scan className="text-blue-600" size={20} />
-                            <span>QR Scanner</span>
-                        </Link>
+                        {client?.isActive && client?.qr_id && (
+                            <Link to={`/${id}/coupon-scanner`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
+                                <Scan className="text-blue-600" size={20} />
+                                <span>QR Scanner</span>
+                            </Link>
+                        )}
                         <button onClick={handleLogout} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg w-full text-left">
                             <LogOut className="text-blue-600" size={20} />
                             <span>Logout</span>
@@ -59,10 +64,12 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                             <Home className="text-blue-600" size={20} />
                             <span className="text-xs mt-1">Home</span>
                         </Link>
-                        <Link to={`/${id}/coupon-scanner`} className="flex flex-col items-center">
-                            <Scan className="text-blue-600" size={20} />
-                            <span className="text-xs mt-1">QR Scanner</span>
-                        </Link>
+                        {client?.isActive && client?.qr_id && (
+                            <Link to={`/${id}/coupon-scanner`} className="flex flex-col items-center">
+                                <Scan className="text-blue-600" size={20} />
+                                <span className="text-xs mt-1">QR Scanner</span>
+                            </Link>
+                        )}
                         <button onClick={handleLogout} className="flex flex-col items-center">
                             <LogOut className="text-blue-600" size={20} />
                             <span className="text-xs mt-1">Logout</span>

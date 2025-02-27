@@ -98,7 +98,7 @@ const SettingsPage = () => {
     return (
         <div className="min-h-screen">
             <Card className="">
-                <div className="max-w-full mx-auto bg-white shadow-lg">
+                <div className="max-w-full mx-auto bg-white shadow-lg p-4">
                     {/* Subscription Button */}
                     <div className="mb-6 flex justify-end">
                         {

@@ -80,18 +80,18 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customer
             toast.error("Error creating portal session. Please try again.");
         }
     }
-    useEffect(() => {
-        const redirectToDashboard = async () => {
-            const clientId = localStorage.getItem("clientId") as string;
-            setClientId(clientId);
-            const response = await portalSession(customerId);
-            console.log("response: ", response)
-            if (response.data.url) {
-                setManageSubscriptionUrl(response.data.url);
-            }
-        }
-        redirectToDashboard();
-    }, [sessionId]);
+    // useEffect(() => {
+    //     const redirectToDashboard = async () => {
+    //         const clientId = localStorage.getItem("clientId") as string;
+    //         setClientId(clientId);
+    //         const response = await portalSession(customerId);
+    //         console.log("response: ", response)
+    //         if (response.data.url) {
+    //             setManageSubscriptionUrl(response.data.url);
+    //         }
+    //     }
+    //     redirectToDashboard();
+    // }, [sessionId]);
     return (
         <section className="flex flex-col items-center justify-center min-h-screen bg-green-100 p-6">
             <Toaster />
@@ -116,7 +116,7 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string, customer
                                 <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
                                     <a href={manageSubscriptionUrl}>Manage Your Subscription</a>
                                 </button>
-                                <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300">
+                                <button className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300" type="button">
                                     <a href={`/${clientId}`}>Go to Dashboard</a>
                                 </button>
                             </>
