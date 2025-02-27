@@ -1,7 +1,7 @@
 import { Home, LogOut, Settings, User, Scan } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
-
+import { Link } from 'react-router-dom';
 interface LayoutProps {
     children: React.ReactNode;
 }
@@ -38,14 +38,14 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                         <h2 className="text-xl font-bold text-blue-600">Trutis Staff</h2>
                     </div>
                     <nav className="flex-1 p-4">
-                        <a href={`/${id}`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
+                        <Link to={`/${id}`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
                             <Home className="text-blue-600" size={20} />
                             <span>Home</span>
-                        </a>
-                        <a href={`/${id}/coupon-scanner`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
+                        </Link>
+                        <Link to={`/${id}/coupon-scanner`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
                             <Scan className="text-blue-600" size={20} />
                             <span>QR Scanner</span>
-                        </a>
+                        </Link>
                         <button onClick={handleLogout} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg w-full text-left">
                             <LogOut className="text-blue-600" size={20} />
                             <span>Logout</span>
@@ -55,14 +55,14 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
                 <div className="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t">
                     <nav className="flex justify-around p-4">
-                        <a href={`/${id}`} className="flex flex-col items-center">
+                        <Link to={`/${id}`} className="flex flex-col items-center">
                             <Home className="text-blue-600" size={20} />
                             <span className="text-xs mt-1">Home</span>
-                        </a>
-                        <a href={`/${id}/coupon-scanner`} className="flex flex-col items-center">
+                        </Link>
+                        <Link to={`/${id}/coupon-scanner`} className="flex flex-col items-center">
                             <Scan className="text-blue-600" size={20} />
                             <span className="text-xs mt-1">QR Scanner</span>
-                        </a>
+                        </Link>
                         <button onClick={handleLogout} className="flex flex-col items-center">
                             <LogOut className="text-blue-600" size={20} />
                             <span className="text-xs mt-1">Logout</span>
@@ -84,23 +84,23 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                     <h2 className="text-xl font-bold text-blue-600">Trutis</h2>
                 </div>
                 <nav className="flex-1 p-4">
-                    <a href={`/${id}`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
+                    <Link to={`/${id}`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
                         <Home className="text-blue-600" size={20} />
                         <span>Home</span>
-                    </a>
-                    <a href={`/${id}/profile`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
+                    </Link>
+                    <Link to={`/${id}/profile`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
                         <User className="text-blue-600" size={20} />
                         <span>Profile</span>
-                    </a>
+                    </Link>
 
-                    <a href={`/${id}/coupon-scanner`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
+                    <Link to={`/${id}/coupon-scanner`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
                         <Scan className="text-blue-600" size={20} />
                         <span>QR Scanner</span>
-                    </a>
-                    <a href={`/${id}/settings`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
+                    </Link>
+                    <Link to={`/${id}/settings`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
                         <Settings className="text-blue-600" size={20} />
                         <span>Settings</span>
-                    </a>
+                    </Link>
                     <button onClick={handleLogout} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg w-full text-left">
                         <LogOut className="text-blue-600" size={20} />
                         <span>Logout</span>
@@ -110,23 +110,23 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
             <div className="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t">
                 <nav className="flex justify-around p-4">
-                    <a href={`/${id}`} className="flex flex-col items-center">
+                    <Link to={`/${id}`} className="flex flex-col items-center">
                         <Home className="text-blue-600" size={20} />
                         <span className="text-xs mt-1">Home</span>
-                    </a>
-                    <a href={`/${id}/profile`} className="flex flex-col items-center">
+                    </Link>
+                    <Link to={`/${id}/profile`} className="flex flex-col items-center">
                         <User className="text-blue-600" size={20} />
                         <span>Profile</span>
-                    </a>
+                    </Link>
 
-                    <a href={`/${id}/coupon-scanner`} className="flex flex-col items-center">
+                    <Link to={`/${id}/coupon-scanner`} className="flex flex-col items-center">
                         <Scan className="text-blue-600" size={20} />
                         <span className="text-xs mt-1">QR Scanner</span>
-                    </a>
-                    <a href={`/${id}/settings`} className="flex flex-col items-center">
+                    </Link>
+                    <Link to={`/${id}/settings`} className="flex flex-col items-center">
                         <Settings className="text-blue-600" size={20} />
                         <span>Settings</span>
-                    </a>
+                    </Link>
                     <button onClick={handleLogout} className="flex flex-col items-center">
                         <LogOut className="text-blue-600" size={20} />
                         <span className="text-xs mt-1">Logout</span>
