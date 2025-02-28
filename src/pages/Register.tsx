@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import OTPInput from '@/components/otpInput';
+import { LoadScript, Autocomplete } from '@react-google-maps/api';
 
 const Register = () => {
     const [email, setEmail] = useState<string>("");
@@ -18,16 +19,110 @@ const Register = () => {
     const [logo, setLogo] = useState<string>("");
     const [ip, setIP] = useState<string>("");
     const navigate = useNavigate();
-    const [isFormFilled, setIsFormFilled] = useState<Boolean>(false)
+    const [isFormFilled, setIsFormFilled] = useState<boolean>(false);
     const [shopName, setShopName] = useState<string>("");
-    const [address, setAddress] = useState<string>("");
-    const [contractChecked, setContractChecked] = useState<boolean>(false)
-    const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [slide, setSlide] = useState<number>(1)
+    const [contractChecked, setContractChecked] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [slide, setSlide] = useState<number>(1);
     const [otp, setOtp] = useState<string>("");
+    const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+
+    const [address, setAddress] = useState({
+        line1: "",
+        city: "",
+        state: "",
+        country: "",
+        pincode: ""
+    });
+    const [pincodeError, setPincodeError] = useState<string>("");
+    const autocompleteInputRef = useRef<HTMLInputElement>(null);
+
+    const handleAddressChange = (field: keyof typeof address) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setAddress(prev => ({
+            ...prev,
+            [field]: value
+        }));
+
+        if (field === 'pincode') {
+            validatePincode(value);
+        }
+    };
+
+    const validatePincode = (pincode: string) => {
+        const pincodeRegex = /^\d{6}$/; // 6-digit numeric validation
+        if (!pincode) {
+            setPincodeError("Pincode is required");
+            return false;
+        } else if (!pincodeRegex.test(pincode)) {
+            setPincodeError("Pincode must be a 6-digit number");
+            return false;
+        } else {
+            setPincodeError("");
+            return true;
+        }
+    };
+
+    const onLoad = (autocompleteInstance: google.maps.places.Autocomplete) => {
+        setAutocomplete(autocompleteInstance);
+    };
+
+    const onPlaceChanged = () => {
+        if (autocomplete) {
+            const place = autocomplete.getPlace();
+            parseAddress(place);
+            // Update the input field value to reflect the selected street address
+            if (autocompleteInputRef.current) {
+                const streetAddress = place.address_components
+                    ? place.address_components
+                        .filter((comp: google.maps.GeocoderAddressComponent) => 
+                            comp.types.includes('street_number') || comp.types.includes('route'))
+                        .map((comp: google.maps.GeocoderAddressComponent) => comp.long_name)
+                        .join(' ')
+                    : '';
+                autocompleteInputRef.current.value = streetAddress || address.line1;
+            }
+        }
+    };
+
+    const parseAddress = (place: google.maps.places.PlaceResult) => {
+        const addressComponents = place.address_components || [];
+        let line1 = '';
+        let city = '';
+        let state = '';
+        let country = '';
+        let pincode = '';
+
+        addressComponents.forEach((component: google.maps.GeocoderAddressComponent) => {
+            const types = component.types;
+            if (types.includes('street_number')) {
+                line1 = component.long_name;
+            } else if (types.includes('route')) {
+                line1 += ' ' + component.long_name;
+            } else if (types.includes('locality') || types.includes('sublocality') || types.includes('administrative_area_level_2')) {
+                city = component.long_name;
+            } else if (types.includes('administrative_area_level_1')) {
+                state = component.long_name;
+            } else if (types.includes('country')) {
+                country = component.long_name;
+            } else if (types.includes('postal_code')) {
+                pincode = component.long_name;
+            }
+        });
+
+        setAddress({
+            line1: line1.trim(),
+            city,
+            state,
+            country,
+            pincode
+        });
+
+        if (pincode) validatePincode(pincode);
+    };
+
     const handleFormSubmit = () => {
         // setIsFormFilled(true)
-
 
         // const clientContainer = document.querySelector("#clientContainer")
         // const registerForm = document.querySelector("#clientRegisterForm")
@@ -38,41 +133,53 @@ const Register = () => {
         // if (formWidth && formWidth.right && clientContainer)
         //     clientContainer.scrollLeft = formWidth?.right
         setSlide(prev => prev + 1);
-    }
+    };
+
     useEffect(() => {
         getData();
-        console.log(ip)
-    }, [])
+        console.log(ip);
+    }, []);
+
     const getData = async () => {
         const res = await axios.get("https://api.ipify.org/?format=json");
         console.log(res.data);
         setIP(res.data.ip);
     };
-    const handleGenerateOtp = async () => {
-        handleFormSubmit();
+
+    const handleGenerateOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validatePincode(address.pincode)) {
+            toast.error("Please enter a valid pincode");
+            return;
+        }
         if (email) {
+            handleFormSubmit();
             const response: any = await generateOtp(email);
-            console.log(response)
             if (response.status !== 200) {
-                toast.error("Something went wrong")
+                toast.error("Something went wrong");
             } else {
-                toast.success("OTP sent to email")
-                setIsFormFilled(true)
+                toast.success("OTP sent to email");
+                setIsFormFilled(true);
             }
         } else {
-            toast.error("Please enter an email")
+            toast.error("Please enter an email");
         }
-    }
+    };
+
     const handleSubmit = async () => {
         try {
-            setIsLoading(true)
+            setIsLoading(true);
             const response: any = await createClient({
                 email,
                 owner_name: ownerName,
                 password,
                 logo,
                 ipAddress: ip,
-                address,
+                line1: address.line1,       
+                city: address.city,
+                state: address.state,
+                country: address.country,
+                pincode: address.pincode,
                 shop_name: shopName,
                 contractTime: new Date(),
                 authProvider: "manual",
@@ -80,22 +187,21 @@ const Register = () => {
                 couponValidity: '',
                 minOrderValue: 0
             });
-            setIsLoading(false)
+            setIsLoading(false);
             if (response.status !== 201) {
-                toast.error('Error while creating client')
+                toast.error('Error while creating client');
             } else {
-                console.log("CLient Created")
-                toast.success("Client created")
-                localStorage.setItem("token", response.data.token)
-                localStorage.setItem("clientId", response.data.userId)
-                navigate(`/${response.data.userId}`)
+                console.log("Client Created");
+                toast.success("Client created");
+                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("clientId", response.data.userId);
+                navigate(`/${response.data.userId}`);
             }
         } catch (error) {
-            toast.error("Something went wrong")
+            toast.error("Something went wrong");
             setIsLoading(false);
-            console.error(error)
+            console.error(error);
         }
-
     };
 
     const monitorScroll = (e: any) => {
@@ -104,10 +210,11 @@ const Register = () => {
         if (scrollVal >= scrollHeight) {
 
         }
-    }
+    };
 
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    console.log(GOOGLE_CLIENT_ID)
+    console.log(GOOGLE_CLIENT_ID);
+    console.log("Ek min", import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
     // const handleGoogleSignIn = async (crednetialsResponse: any) => {
     //     try {
 
@@ -125,19 +232,20 @@ const Register = () => {
     //             maxDiscount: 0,
     //             couponValidity: '',
     //             minOrderValue: 0
-    //         })
+    //         });
     //         if (response.status !== 201) {
-    //             toast.error("Failed to create an account")
-    //             return
+    //             toast.error("Failed to create an account");
+    //             return;
     //         }
-    //         localStorage.setItem('token', crednetialsResponse.credential)
-    //         navigate(`/${response.data.userId}`)
+    //         localStorage.setItem('token', crednetialsResponse.credential);
+    //         navigate(`/${response.data.userId}`);
 
     //     } catch (error) {
-    //         console.error(error)
-    //         toast.error("Failed to create account")
+    //         console.error(error);
+    //         toast.error("Failed to create account");
     //     }
     // };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 h-screen">
             <div className='max-w-md w-full flex h-full overflow-hidden' style={{ scrollBehavior: "smooth" }} id='clientContainer'>
@@ -148,7 +256,6 @@ const Register = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-
                         {/* <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
                             <div>
                                 <GoogleLogin
@@ -162,7 +269,6 @@ const Register = () => {
                                     context="signup"
                                 />
                             </div>
-
                         </GoogleOAuthProvider> */}
 
                         <div className="relative mb-6">
@@ -205,7 +311,6 @@ const Register = () => {
                                     placeholder="Email"
                                     className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
-
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
@@ -218,42 +323,102 @@ const Register = () => {
                                     placeholder="Password"
                                     className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
-
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
-                            <div className="relative">
-                                <MapPin className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
-                                <textarea
-                                    placeholder="Address"
-                                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    required
 
-                                    value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                />
+                            {/* Address Section with Autocomplete */}
+                            <div className="space-y-4">
+                                <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={['places']}>
+                                    <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged} options={{ types: ['address'] }}>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
+                                            <input
+                                                type="text"
+                                                placeholder="Search for your address"
+                                                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                                ref={autocompleteInputRef}
+                                                value={address.line1}
+                                                onChange={handleAddressChange('line1')}
+                                            />
+                                        </div>
+                                    </Autocomplete>
+                                </LoadScript>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
+                                        <input
+                                            type="text"
+                                            placeholder="City"
+                                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                            value={address.city}
+                                            onChange={handleAddressChange('city')}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
+                                        <input
+                                            type="text"
+                                            placeholder="State"
+                                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                            value={address.state}
+                                            onChange={handleAddressChange('state')}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
+                                        <input
+                                            type="text"
+                                            placeholder="Country"
+                                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                            value={address.country}
+                                            onChange={handleAddressChange('country')}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
+                                        <input
+                                            type="text"
+                                            placeholder="Pincode"
+                                            className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${pincodeError ? 'border-red-500' : ''}`}
+                                            value={address.pincode}
+                                            onChange={handleAddressChange('pincode')}
+                                            required
+                                        />
+                                        {pincodeError && (
+                                            <p className="text-red-500 text-xs mt-1">{pincodeError}</p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                             {/* <div className="relative">
-                            <Phone className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
-                            <input
-                                type="tel"
-                                placeholder="Phone Number"
-                                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                required
-                            />
-                        </div> */}
+                                <Phone className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
+                                <input
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                            </div> */}
 
                             <button
                                 type="submit"
                                 className="w-full bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 onClick={handleGenerateOtp}
+                                disabled={!!pincodeError}
                             >
                                 Register
                             </button>
                         </form>
                         <p className='mx-auto text-center'>
-
                             Already have account?
                             <Link to={'/login'} className='text-blue-500 ml-2'>Login</Link>
                         </p>
@@ -261,7 +426,6 @@ const Register = () => {
                 </Card>}
                 {slide === 2 && <OTPInput value={otp} email={email} onChange={setOtp} handleFormSubmit={handleFormSubmit} />}
                 {slide === 3 && <div id='clientRegisterForm' className='min-w-full relative h-full min-h-lg'>
-
                     <Card className='overflow-y-auto w-full min-w-full h-full'>
                         <CardHeader>
                             <strong>Terms and Conditions</strong>
@@ -334,7 +498,6 @@ const Register = () => {
                                                 <p><strong>Party B:</strong> {ownerName}</p>
                                                 <p>Date: {new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
                                             </div>
-
                                         </div>
                                     </div>
 
@@ -342,11 +505,12 @@ const Register = () => {
                                 </div>
                                 <Checkbox id='terms-conditions' checked={contractChecked} onClick={() => { setContractChecked(prev => !prev) }} />
                                 <label htmlFor="terms-conditions" className='ml-4'>I have read all the <strong>Terms & Conditions</strong></label>
-
                             </CardContent>
                         }
                         <div className='flex justify-end'>
-                            <Button variant="default" className='mb-4 mx-6 w-32' disabled={!contractChecked || contractChecked && isLoading} onClick={handleSubmit} >{isLoading ? <Loader className='animate-spin' /> : "Submit"}</Button>
+                            <Button variant="default" className='mb-4 mx-6 w-32' disabled={!contractChecked || contractChecked && isLoading} onClick={handleSubmit}>
+                                {isLoading ? <Loader className='animate-spin' /> : "Submit"}
+                            </Button>
                         </div>
                     </Card>
                 </div>}

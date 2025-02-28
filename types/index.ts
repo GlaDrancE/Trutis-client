@@ -28,6 +28,11 @@ export interface Client {
   phone?: string;
   address?: string;
   logo?: File | any;
+  line1?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
   googleAPI?: string;
   maxDiscount: number;
   couponValidity: string;
