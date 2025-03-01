@@ -75,7 +75,7 @@ const Register = () => {
             if (autocompleteInputRef.current) {
                 const streetAddress = place.address_components
                     ? place.address_components
-                        .filter((comp: google.maps.GeocoderAddressComponent) => 
+                        .filter((comp: google.maps.GeocoderAddressComponent) =>
                             comp.types.includes('street_number') || comp.types.includes('route'))
                         .map((comp: google.maps.GeocoderAddressComponent) => comp.long_name)
                         .join(' ')
@@ -175,7 +175,7 @@ const Register = () => {
                 password,
                 logo,
                 ipAddress: ip,
-                line1: address.line1,       
+                line1: address.line1,
                 city: address.city,
                 state: address.state,
                 country: address.country,
@@ -247,7 +247,7 @@ const Register = () => {
     // };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 h-screen">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 h-full">
             <div className='max-w-md w-full flex h-full overflow-hidden' style={{ scrollBehavior: "smooth" }} id='clientContainer'>
                 {slide === 1 && <Card className="w-full min-w-full">
                     <CardHeader className="space-y-1">
@@ -424,7 +424,7 @@ const Register = () => {
                         </p>
                     </CardContent>
                 </Card>}
-                {slide === 2 && <OTPInput value={otp} email={email} onChange={setOtp} handleFormSubmit={handleFormSubmit} />}
+                {slide === 2 && <OTPInput value={otp} email={email} setOtp={setOtp} handleFormSubmit={handleFormSubmit} />}
                 {slide === 3 && <div id='clientRegisterForm' className='min-w-full relative h-full min-h-lg'>
                     <Card className='overflow-y-auto w-full min-w-full h-full'>
                         <CardHeader>

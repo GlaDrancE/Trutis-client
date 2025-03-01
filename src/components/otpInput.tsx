@@ -6,12 +6,12 @@ import toast from 'react-hot-toast';
 interface OTPInputProps {
     value: string;
     email: string;
-    onChange: (otp: string) => void;
+    setOtp: (otp: string) => void;
     disabled?: boolean;
     handleFormSubmit?: () => void;
 }
 
-const OTPInput = ({ value, email, onChange, disabled = false, handleFormSubmit }: OTPInputProps) => {
+const OTPInput = ({ value, email, setOtp, disabled = false, handleFormSubmit }: OTPInputProps) => {
     const [otpValues, setOtpValues] = useState<string[]>(new Array(6).fill(''));
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -26,10 +26,12 @@ const OTPInput = ({ value, email, onChange, disabled = false, handleFormSubmit }
         setOtpValues([...otpArray, ...new Array(6 - otpArray.length).fill('')]);
     }, [value]);
 
-    const handleVerify = async () => {
+    const handleVerify = async (otp?: string) => {
+        console.log(value)
         try {
-            const verify = await verifyOtp({ email: email, otp: value });
-            if (!verify) {
+            const verify = await verifyOtp({ email: email, otp: otp ? otp : value });
+
+            if (verify.status !== 200) {
                 toast.error("Invalid OTP")
             }
             else {
@@ -52,7 +54,7 @@ const OTPInput = ({ value, email, onChange, disabled = false, handleFormSubmit }
             const otpArray = pastedData.split('').slice(0, 6);
             const newOtpValues = [...otpArray, ...new Array(6 - otpArray.length).fill('')];
             setOtpValues(newOtpValues);
-            onChange(newOtpValues.join(''));
+            setOtp(newOtpValues.join(''));
 
             // Focus last input or first empty input
             const lastFilledIndex = newOtpValues.findIndex(val => val === '');
@@ -69,7 +71,7 @@ const OTPInput = ({ value, email, onChange, disabled = false, handleFormSubmit }
         const newOtpValues = [...otpValues];
         newOtpValues[index] = targetValue;
         setOtpValues(newOtpValues);
-        onChange(newOtpValues.join(''));
+        setOtp(newOtpValues.join(''));
 
         // Auto-focus next input
         if (targetValue && index < 5) {
@@ -103,13 +105,13 @@ const OTPInput = ({ value, email, onChange, disabled = false, handleFormSubmit }
                 // Clear current input if it has a value
                 newOtpValues[index] = '';
                 setOtpValues(newOtpValues);
-                onChange(newOtpValues.join(''));
+                setOtp(newOtpValues.join(''));
             } else if (index > 0) {
                 // Move to previous input if current is empty
                 inputRefs.current[index - 1]?.focus();
                 newOtpValues[index - 1] = '';
                 setOtpValues(newOtpValues);
-                onChange(newOtpValues.join(''));
+                setOtp(newOtpValues.join(''));
             }
         }
 
@@ -138,10 +140,12 @@ const OTPInput = ({ value, email, onChange, disabled = false, handleFormSubmit }
         pastedData.split('').forEach((char: any, index: any) => {
             if (index < 6) newOtp[index] = char;
         });
-        setOtpValues(prev => {
-            console.log(prev)
-            return newOtp
-        });
+        const updatedOtp = newOtp.join('')
+
+        setOtpValues(newOtp)
+        setOtp(updatedOtp)
+        console.log(value)
+        console.log(newOtp.join(''))
 
         // Focus last filled input or first empty input
         const lastFilledIndex = Math.min(pastedData.length - 1, 5);
@@ -149,7 +153,7 @@ const OTPInput = ({ value, email, onChange, disabled = false, handleFormSubmit }
         console.log(inputRefs.current[5])
         console.log(inputRefs.current[5]?.value)
         if (inputRefs.current[5]?.value !== null) {
-            handleVerify();
+            handleVerify(newOtp.join(''));
         }
     };
 

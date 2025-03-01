@@ -1,12 +1,13 @@
-import { LogIn } from 'lucide-react';
+import { Loader2, LogIn } from 'lucide-react';
 import React, { useState } from 'react';
 import Layout from '../layout/Layout';
-import { generateOtp, loginClient } from '../../services/api';
+import { generateOtp, getClient, loginClient, verifyOtp } from '../../services/api';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import OTPInput from '@/components/otpInput';
+import { Button } from '@/components/ui/button';
 
 // Login Form Component
 const LoginForm = () => {
@@ -15,9 +16,10 @@ const LoginForm = () => {
     const navigate = useNavigate();
     const [slide, setSlide] = useState<number>(1);
     const [otp, setOtp] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-    const handleNext = () => {
+    const handleNext = async () => {
         setSlide((prev) => prev + 1);
     };
 
@@ -28,12 +30,14 @@ const LoginForm = () => {
 
     const handleGenerateOtp = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); // Prevent default form submission behavior
-
-        if (!isValidEmail(email)) {
-            handleSubmit();
+        const loginResponse = await handleValidateLogin();
+        if (!loginResponse) {
             return;
         }
-
+        // if (!isValidEmail(email)) {
+        //     handleSubmit();
+        //     return;
+        // }
         handleNext();
         if (email) {
             try {
@@ -52,24 +56,47 @@ const LoginForm = () => {
         }
     };
 
-    const handleSubmit = async () => {
+    const handleValidateLogin = async () => {
         try {
+            setIsLoading(true)
             const response = await loginClient(email, password);
 
+            if (response.status !== 200) {
+                toast.error("Invalid Credentails")
+                return false
+            }
             if (response.data) {
                 localStorage.setItem('token', response.data.token);
             }
-            const decode: any = jwtDecode(response.data.token);
-            if (!decode) {
-                toast.error('Login failed');
-            }
-            localStorage.setItem('clientId', decode.userId);
-            navigate(`/${decode.userId}`);
+
+            return true
         } catch (error) {
             toast.error('Invalid Credentials');
             console.error(error);
+            return false
+        }
+        finally {
+            setIsLoading(false)
         }
     };
+    const handleSubmit = async () => {
+        try {
+            const token = localStorage.getItem("token")
+            const decode: any = jwtDecode(token as string);
+            if (!decode) {
+                toast.error('Login failed');
+                return false;
+            }
+            localStorage.setItem('clientId', decode.userId);
+            navigate(`/${decode.userId}`)
+
+        } catch (error) {
+            toast.error("Something went wrong, try again")
+            console.error(error)
+        }
+    }
+
+
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -138,13 +165,14 @@ const LoginForm = () => {
                                 </div>
                             </div>
                             <div>
-                                <button
+                                <Button
                                     type="submit"
                                     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                 >
-                                    <LogIn className="mr-2" size={20} />
-                                    Sign in
-                                </button>
+                                    {isLoading ? <Loader2 className='animate-spin' /> : <><LogIn className="mr-2" size={20} />
+                                        <span>Sign in</span></>}
+
+                                </Button>
                             </div>
                             <div className="text-center">
                                 Don't have an account?{' '}
@@ -155,7 +183,7 @@ const LoginForm = () => {
                         </form>
                     )}
                     {slide === 2 && (
-                        <OTPInput value={otp} email={email} onChange={setOtp} handleFormSubmit={handleSubmit} />
+                        <OTPInput value={otp} email={email} setOtp={setOtp} handleFormSubmit={handleSubmit} />
                     )}
                 </div>
             </div>
