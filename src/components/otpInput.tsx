@@ -78,7 +78,7 @@ const OTPInput = ({ value, email, setOtp, disabled = false, handleFormSubmit }: 
             inputRefs.current[index + 1]?.focus();
         }
         if (targetValue && index === 5) {
-            handleVerify();
+            handleVerify(newOtpValues.join() as string);
         }
     };
     const handleResendOTP = async () => {
