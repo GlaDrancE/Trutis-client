@@ -2,7 +2,9 @@ import axios from "axios";
 import { Agent, Client } from "../types";
 
 const api = axios.create({
+    // baseURL: 'http://localhost:5000/api',
     baseURL: 'https://trutis-backend.onrender.com/api',
+
 });
 
 api.interceptors.request.use(
@@ -60,7 +62,7 @@ export const updateAgentStatus = (agentId: string, newStatus: boolean) =>
 
 export const searchClient = (publicKey: string) => api.post(`/agents/client`, { publicKey });
 
-export const linkQRCode = (publicKey: string, QRId: string, agentId: string) =>
+export const linkQRCode = (publicKey: string, QRId: string, agentId?: string) =>
     api.post("/agents/linkQRCode", { publicKey, QRId, agentId });
 
 // Clients
@@ -86,9 +88,15 @@ export const verifyClientOtp = (data: string) => {
 };
 
 export const updateClient = (id: string, data: Partial<Client>) =>
-    api.put(`/clients/${id}`, data);
+    api.put(`/clients/${id}`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
 
 export const deleteClient = (id: string) => api.delete(`/clients/${id}`);
+export const uploadToCloudinary = (data: { file: File, upload_preset: string }) => api.post("https://api.cloudinary.com/v1_1/doahncdjq/image/upload", { data })
+// TODO: Need to create endpoint for google bucket upload
+
+
 
 // Staff
 export const updateStaff = (data: { client_id: string; staff_id?: string; staff_password?: string; staffStatus?: boolean }) =>

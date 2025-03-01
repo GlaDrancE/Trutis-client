@@ -280,7 +280,7 @@ const Register = () => {
                             </div>
                         </div>
 
-                        <form className="space-y-4">
+                        <form className="space-y-4" onSubmit={handleGenerateOtp}>
                             <div className="relative">
                                 <User className="absolute left-3 top-3 h-5 w-5 text-blue-600" />
                                 <input
@@ -412,7 +412,7 @@ const Register = () => {
                             <button
                                 type="submit"
                                 className="w-full bg-blue-600 text-white rounded-lg py-2 px-4 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                onClick={handleGenerateOtp}
+
                                 disabled={!!pincodeError}
                             >
                                 Register

@@ -17,6 +17,7 @@ const useClient = () => {
     });
     const [isError, setIsError] = useState<boolean>(false);
     const clientId = localStorage.getItem("clientId") as string;
+    const [isClientLoad, setIsClientLoad] = useState<boolean>(false)
 
 
     const loadClient = async () => {
@@ -27,7 +28,6 @@ const useClient = () => {
             return;
         }
         const response = await getClient(clientId);
-        console.log(response.data);
         setClient(response.data);
         _setPublicKey(response.data.public_key);
         setIsLoading(prev => ({ ...prev, client: false }));
@@ -50,9 +50,12 @@ const useClient = () => {
     }
 
     useEffect(() => {
-        loadClient();
-        loadCoupons();
-    }, []);
+        if (!isClientLoad) {
+            setIsClientLoad(true)
+            loadClient();
+            loadCoupons();
+        }
+    }, [clientId]);
     return { client, isLoading, isError, coupons, publicKey };
 }
 

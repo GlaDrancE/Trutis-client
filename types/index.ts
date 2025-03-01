@@ -27,7 +27,7 @@ export interface Client {
   password?: string;
   phone?: string;
   address?: string;
-  logo?: File | any;
+  logo?: File | string | null;
   line1?: string;
   city?: string;
   state?: string;
@@ -43,6 +43,7 @@ export interface Client {
   token?: string;
   plan_id?: string;
   qr_id?: string;
+  public_key?: string;
   plan_title?: string;
   agent_id?: string;
   created_at?: string;

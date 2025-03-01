@@ -80,9 +80,6 @@ const HomePage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(filteredCoupons);
-  }, [filteredCoupons]);
 
   const handleQRClick = (id: number): void => {
     navigate(`/customer-details/${id}`);

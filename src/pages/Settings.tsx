@@ -89,9 +89,10 @@ const SettingsPage = () => {
         if (client) {
             if (client.staffId && client.staffPassword) {
                 setCredentials({ id: client.staffId, password: client.staffPassword });
-                setIsEnabled(client.staffStatus || true);
+                // setIsEnabled(client.staffStatus || true);
                 setEditedCredentials({ id: client.staffId, password: client.staffPassword });
             }
+            setIsEnabled(client.staffStatus || false)
         }
     }, [client]);
 

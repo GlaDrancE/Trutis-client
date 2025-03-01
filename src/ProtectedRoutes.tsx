@@ -31,7 +31,6 @@ const ProtectedRoute = () => {
 
         userType = decode.userType;
         clientId = localStorage.getItem('clientId');
-        console.log("userType: ", userType);
     } catch (error) {
         console.error('Error decoding token:', error);
         return <Navigate to="/login" replace />;
