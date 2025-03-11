@@ -97,9 +97,9 @@ const SettingsPage = () => {
     }, [client]);
 
     return (
-        <div className="min-h-screen">
-            <Card className="">
-                <div className="max-w-full mx-auto bg-white shadow-lg p-4">
+        <div className="bg-background p-6 min-h-screen">
+            <Card className="bg-card">
+                <div className="max-w-full mx-auto shadow-lg p-4">
                     {/* Subscription Button */}
                     <div className="mb-6 flex justify-end">
                         {
@@ -121,18 +121,18 @@ const SettingsPage = () => {
                     </div>
 
                     <CardHeader>
-                        <CardTitle className="text-2xl text-blue-800"> Settings</CardTitle>
+                        <CardTitle className="text-2xl text-foreground"> Settings</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {/* Enable/Disable Switch */}
                         <div className="flex items-center justify-between py-4 border-b">
                             <div className="space-y-1">
-                                <h3 className="text-lg font-medium text-gray-900">Enable Staff</h3>
+                                <h3 className="text-lg font-medium text-muted-foreground">Enable Staff</h3>
                             </div>
                             <Switch
                                 checked={isEnabled}
                                 onCheckedChange={changeStaffStatus}
-                                className="data-[state=checked]:bg-blue-600"
+                                className="data-[state=checked]:bg-primary"
                                 disabled={isLoading}
                             />
                         </div>
@@ -141,7 +141,7 @@ const SettingsPage = () => {
                         {isEnabled && !credentials && (
                             <Button
                                 onClick={generateCredentials}
-                                className="w-full bg-blue-600 hover:bg-blue-700"
+                                className="w-full bg-primary hover:bg-primary/80"
                             >
                                 Generate Credentials
                             </Button>
@@ -149,14 +149,14 @@ const SettingsPage = () => {
 
                         {/* Credentials Display */}
                         {credentials && (
-                            <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                            <div className="space-y-4 p-4 bg-secondary rounded-lg">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h4 className="text-lg font-medium text-gray-900">Generated Credentials</h4>
+                                    <h4 className="text-lg font-medium text-muted-foreground">Generated Credentials</h4>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={handleEdit}
-                                        className="text-blue-600 hover:text-blue-700"
+                                        className="text-primary hover:text-primary/80"
                                     >
                                         {isEditing ? <Save className="h-4 w-4" /> : <Edit2 className="h-4 w-4" />}
                                     </Button>
@@ -164,7 +164,7 @@ const SettingsPage = () => {
 
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-700">Restaurant ID</label>
+                                        <label className="text-sm font-medium text-muted-foreground">Restaurant ID</label>
                                         {isEditing ? (
                                             <Input
                                                 value={editedCredentials.id}
@@ -172,14 +172,14 @@ const SettingsPage = () => {
                                                 className="border-blue-200 focus:border-blue-400"
                                             />
                                         ) : (
-                                            <div className="flex items-center space-x-2 p-2 bg-white rounded border">
-                                                <span className="text-gray-800">{credentials.id}</span>
+                                            <div className="flex items-center space-x-2 p-2 rounded border ">
+                                                <span className="text-foreground">{credentials.id}</span>
                                             </div>
                                         )}
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-700">Password</label>
+                                        <label className="text-sm font-medium text-muted-foreground">Password</label>
                                         {isEditing ? (
                                             <Input
                                                 value={editedCredentials.password}
@@ -188,9 +188,9 @@ const SettingsPage = () => {
                                                 type="password"
                                             />
                                         ) : (
-                                            <div className="flex items-center space-x-2 p-2 bg-white rounded border">
-                                                <Lock className="h-4 w-4 text-gray-400" />
-                                                <span className="text-gray-800">{credentials.password}</span>
+                                            <div className="flex items-center space-x-2 p-2 rounded border">
+                                                <Lock className="h-4 w-4 text-foreground" />
+                                                <span className="text-foreground">{credentials.password}</span>
                                             </div>
                                         )}
                                     </div>
@@ -205,8 +205,6 @@ const SettingsPage = () => {
 };
 export const Settings = () => {
     return (
-        <DashboardLayout>
-            <SettingsPage />
-        </DashboardLayout>
+        <SettingsPage />
     )
 }

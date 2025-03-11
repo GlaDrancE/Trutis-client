@@ -19,6 +19,12 @@ export interface ActivePlan {
   plan_id: string;
   updatedAt: string;
 }
+export interface ClientSignUp {
+  email: string;
+  owner_name: string;
+  password: string;
+  phone: string;
+}
 export interface Client {
   id?: string;
   email: string;
@@ -93,6 +99,7 @@ export interface Coupon {
   created: string;
   expires: string;
   qrData: string;
+  createdAt: Date;
 }
 
 export interface CustomerData {
@@ -106,5 +113,37 @@ export interface CustomerData {
   DOB: string;
   ratings: number;
   reviewImage: File | any;
+  createdAt: Date;
 
+}
+
+
+
+
+// Define types for our props and data
+interface DataPoint {
+  [key: string]: any;
+}
+
+interface DataSeries {
+  label: string;
+  dataKey: string;
+  borderColor: string;
+  backgroundColor: string;
+  tension?: number;
+  hoverBackgroundColor?: string;
+  fill?: boolean;
+  borderWidth?: number;
+  borderRadius?: number;
+}
+
+
+
+export interface DataPointProps {
+  data: DataPoint[];
+  xAxisKey: string;
+  series: DataSeries[];
+  title: string;
+  height?: string;
+  darkMode?: boolean;
 }

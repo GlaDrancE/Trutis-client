@@ -16,7 +16,11 @@ import SubscriptionPlans from './pages/SubscriptionPlans';
 import PaymentPage from './pages/PaymentPage';
 import CouponScanner from './pages/CouponScanner';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
-
+import Home from './pages/Home';
+import DashboardLayout from './layout/Layout';
+import SignInPage from './pages/SignInPage';
+import SignUpPage from './pages/SignUpPage';
+import ContactUs from './pages/ContactPage';
 interface CustomJwtPayload extends JwtPayload {
   userType?: string;
 }
@@ -50,13 +54,15 @@ function App() {
         <Routes>
           <Route path="/register" element={<Register />} />
           <Route path="/public_key" element={<PublicID />} />
-          <Route path="/login" element={<LoginForm />} />
+          <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/login" element={<SignInPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/add-card" element={<AddCardPage />} />
           <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+          <Route path="/contact-us" element={<ContactUs />} />
           <Route element={<ProtectedRoute />}>
-            <Route path="/:id" element={<HomePage />} />
+            <Route path="/:id" element={<Home />} />
             <Route path="/:id/coupon-scanner" element={<CouponScanner />} />
             <Route path="/coupon/:id" element={<CustomerDetailsPage />} />
             <Route path="/:id/profile" element={<Profile />} />

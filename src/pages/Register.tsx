@@ -212,39 +212,6 @@ const Register = () => {
         }
     };
 
-    const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    console.log(GOOGLE_CLIENT_ID);
-    console.log("Ek min", import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
-    // const handleGoogleSignIn = async (crednetialsResponse: any) => {
-    //     try {
-
-    //         const decode: any = jwtDecode(crednetialsResponse.credential);
-    //         console.log("Decode Information: ", decode);
-    //         const response = await createGoogleClient({
-    //             email: decode.email,
-    //             owner_name: decode.name,
-    //             logo: decode.picture,
-    //             ipAddress: ip,
-    //             password: decode.sub as string,
-    //             contractTime: new Date(),
-    //             authProvider: "google",
-    //             token: crednetialsResponse.credential,
-    //             maxDiscount: 0,
-    //             couponValidity: '',
-    //             minOrderValue: 0
-    //         });
-    //         if (response.status !== 201) {
-    //             toast.error("Failed to create an account");
-    //             return;
-    //         }
-    //         localStorage.setItem('token', crednetialsResponse.credential);
-    //         navigate(`/${response.data.userId}`);
-
-    //     } catch (error) {
-    //         console.error(error);
-    //         toast.error("Failed to create account");
-    //     }
-    // };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 h-full">
@@ -256,20 +223,6 @@ const Register = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {/* <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
-                            <div>
-                                <GoogleLogin
-                                    onSuccess={handleGoogleSignIn}
-                                    onError={() => console.log("Login failed")}
-                                    theme="outline"
-                                    size="large"
-                                    shape="circle"
-                                    locale="en-US"
-                                    text="signin_with"
-                                    context="signup"
-                                />
-                            </div>
-                        </GoogleOAuthProvider> */}
 
                         <div className="relative mb-6">
                             <div className="absolute inset-0 flex items-center">

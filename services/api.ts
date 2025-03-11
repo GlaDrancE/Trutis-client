@@ -1,9 +1,9 @@
 import axios from "axios";
-import { Agent, Client } from "../types";
+import { Agent, Client, ClientSignUp } from "../types";
 
 const api = axios.create({
-    // baseURL: 'http://localhost:5000/api',
-    baseURL: 'https://trutis-backend.onrender.com/api',
+    baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api',
+    // baseURL: 'https://trutis-backend.onrender.com/api',
 
 });
 
@@ -19,12 +19,47 @@ api.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
         }
 
+
         return config;
     },
     (error) => {
         return Promise.reject(error);
     }
 );
+
+
+const getRefreshTokenFromCookie = () => {
+    const cookies = document.cookie.split(';');
+    const refreshTokenCookie = cookies.find(cookie => cookie.trim().startsWith('refreshToken='));
+    return refreshTokenCookie ? refreshTokenCookie.split('=')[1].trim() : null;
+};
+
+
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+        if (error.response.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                const { data } = await axios.post('http://your-api-url/token/refresh', {
+                    refreshToken: getRefreshTokenFromCookie(),
+                });
+                localStorage.setItem("token", data.accessToken)
+                originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
+                return api(originalRequest);
+            } catch (err) {
+                // Handle refresh token expiration (e.g., redirect to login)
+                localStorage.removeItem("token")
+                localStorage.removeItem("refreshToken")
+                window.location.href = "/login"
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
+
 
 // Auth
 export const login = (email: string, password: string) =>
@@ -70,10 +105,10 @@ export const getClients = () => api.get("/clients");
 
 export const getClient = (client_id: string) => api.get(`/client/${client_id}`);
 
-export const loginClient = (email: string, password: string) =>
-    api.post("/auth/client/login", { email, password });
+export const loginClient = (email: string, password: string, authProvider: string) =>
+    api.post("/auth/client/login", { email, password, authProvider });
 
-export const createClient = (data: Omit<Client, "id" | "created_at">): Promise<any> => {
+export const createClient = (data: ClientSignUp): Promise<any> => {
     return api.post("/auth/clients/register", data, {
         headers: { "Content-Type": "multipart/form-data" },
     });
@@ -128,11 +163,13 @@ export const generateOtp = (email: string) =>
 
 // Coupons
 export const getCoupons = (id: string) => api.get(`/forms/get-coupons/${id}`);
-export const fetchCustomerFromCoupon = (code: string) => api.post(`/clients/verify`, { code });
 export const generateCoupon = (data: { qr_id: string, code: string, email: string, name: string, phone: string, DOB: string, ratings: number | null, reviewImage: File | null }) => api.post(`/coupon`, data, {
     headers: { "Content-Type": "multipart/form-data" },
 });
 
+// Customers
+export const fetchCustomerFromCoupon = (code: string) => api.post(`/clients/verify`, { code });
+export const getCustomers = (id: string) => api.get(`/forms/get-customers/${id}`);
 
 // Admin
 export const getStats = () => api.get("/admin/getStats");

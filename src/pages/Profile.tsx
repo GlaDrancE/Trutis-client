@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import DashboardLayout from '@/layout/Layout';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { getClient, linkQRCode, updateClient, uploadToCloudinary } from '../../services/api';
@@ -189,7 +188,7 @@ const ProfilePage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+        <div className="min-h-screen bg-background p-4 md:p-6">
             <Card className="max-w-2xl mx-auto">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-2xl text-blue-800">Profile Settings</CardTitle>
@@ -475,9 +474,7 @@ const ProfilePage = () => {
 };
 const Profile = () => {
     return (
-        <DashboardLayout>
-            <ProfilePage />
-        </DashboardLayout>
+        <ProfilePage />
     )
 }
 export default Profile;

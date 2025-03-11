@@ -3,6 +3,7 @@ import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { useEffect } from 'react';
 import HomePage from './pages/HomePage';
 import CouponScanner from './pages/CouponScanner';
+import DashboardLayout from './layout/Layout';
 
 interface CustomJwtPayload extends JwtPayload {
     userType?: string;
@@ -66,7 +67,7 @@ const ProtectedRoute = () => {
     }
 
 
-    return <Outlet />;
+    return <DashboardLayout><Outlet /></DashboardLayout>;
 };
 
 export default ProtectedRoute;
