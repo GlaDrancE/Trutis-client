@@ -1,15 +1,24 @@
 import axios from "axios";
 import { Agent, Client, ClientSignUp } from "../types";
 
+
+
+
+
+
+
+
+
+import { useAuthStore } from '@/store'
+
 const api = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api',
-    // baseURL: 'https://trutis-backend.onrender.com/api',
-
 });
 
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("token");
+        const token = useAuthStore.getState().token
+        const authProvider = useAuthStore.getState().authProvider
 
         if (!config.headers) {
             config.headers = new axios.AxiosHeaders();
@@ -17,8 +26,11 @@ api.interceptors.request.use(
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            config.data = {
+                ...config.data,
+                authProvider
+            }
         }
-
 
         return config;
     },

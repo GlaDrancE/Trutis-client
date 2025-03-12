@@ -20,7 +20,7 @@ interface DataPoint {
 }
 function Home() {
 
-    const { client, customers, coupons, isError, isLoading } = useClient();
+    const { client, customers, coupons, isLoading } = useClient();
     const [months, setMonths] = useState<DataPoint[]>([]);
     const [_coupons, setCoupons] = useState<DataPoint[]>([]);
     const [isDarkMode, setIsDarkMode] = useState(sessionStorage.getItem('theme') === 'dark');
