@@ -38,6 +38,7 @@ const SignInPage: React.FC = () => {
             if (response.status !== 200) {
                 toast.error("Invalid Credentails")
             }
+            console.log(response.data)
             localStorage.setItem('token', response.data.accessToken);
             navigate(`/${response.data.id}`);
         } catch (error) {

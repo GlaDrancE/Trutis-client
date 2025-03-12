@@ -42,6 +42,7 @@ const useClient = () => {
             if (id) {
                 const response = await getCoupons(id);
                 setCoupons(response.data)
+                console.log("coupons ", response.data)
             }
             setIsLoading(prev => ({ ...prev, coupons: false }))
 
@@ -73,7 +74,7 @@ const useClient = () => {
             loadCustomers();
         }
     }, [id]);
-    return { client, isLoading, isError, coupons, publicKey, customers };
+    return { client, isLoading, isError, coupons, publicKey, customers, loadCoupons };
 }
 
 export default useClient;

@@ -56,6 +56,7 @@ const notifications = [
         unread: true,
     },
     {
+        
         id: 3,
         title: 'System Update',
         message: 'Dashboard v2.0 is now available',
@@ -74,7 +75,7 @@ const navigationItems = {
         { icon: Users, label: 'Customer Data', id: 'customers', href: '/customers' },
         { icon: Ticket, label: 'Subscriptions', id: 'subscriptions', href: '/subscriptions' },
         { icon: Star, label: 'Reviews', id: 'reviews', href: '/review' },
-        { icon: Ticket, label: 'Coupons', id: 'coupons', href: 'coupons' },
+        { icon: Ticket, label: 'Coupons', id: 'coupons', href: '/coupons' },
         { icon: Gift, label: 'Rewards', id: 'rewards', href: '/gift' },
         { icon: TrendingUp, label: 'Marketing', id: 'marketing', href: '/marketing' },
     ],
@@ -311,7 +312,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                 </nav>
             </div> */}
 
-            <main className={`${isMobile ? 'ml-0' : 'lg:ml-[280px]'} transition-[margin] duration-200 ease-in-out min-h-screen flex flex-col`}>
+            <main className={`${isMobile ? 'ml-0' : 'lg:ml-[280px]'} bg-background transition-[margin] duration-200 ease-in-out min-h-screen flex flex-col`}>
 
                 {/* Header */}
                 <header className="sticky top-0 z-20 border-b bg-card/80 backdrop-blur-sm">

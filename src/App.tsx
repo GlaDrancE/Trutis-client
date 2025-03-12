@@ -21,6 +21,7 @@ import DashboardLayout from './layout/Layout';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import ContactUs from './pages/ContactPage';
+import CouponsPage from './pages/Coupons';
 interface CustomJwtPayload extends JwtPayload {
   userType?: string;
 }
@@ -49,7 +50,7 @@ function App() {
 
   return (
     <>
-      <Toaster position="top-right" />
+      {/* <Toaster position="top-right" /> */}
       <Router>
         <Routes>
           <Route path="/register" element={<Register />} />
@@ -64,7 +65,8 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/:id" element={<Home />} />
             <Route path="/:id/coupon-scanner" element={<CouponScanner />} />
-            <Route path="/coupon/:id" element={<CustomerDetailsPage />} />
+            <Route path="/:id/customer/:couponId" element={<CustomerDetailsPage />} />
+            <Route path="/:id/coupons" element={<CouponsPage />} />
             <Route path="/:id/profile" element={<Profile />} />
             <Route path="/:id/settings" element={<Settings />} />
             <Route path="/payment" element={<PaymentPage />} />
