@@ -2,8 +2,8 @@ import axios from "axios";
 import { Agent, Client, ClientSignUp } from "../types";
 
 const api = axios.create({
-    // baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api',
-    baseURL:  'http://localhost:5000/api',
+    baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api',
+    // baseURL:  'http://localhost:5000/api',
     // baseURL: 'https://trutis-backend.onrender.com/api',
 
 });
@@ -18,6 +18,10 @@ api.interceptors.request.use(
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            config.body = {
+                ...config.body,
+                authProvider: "google"
+            }
         }
 
 
