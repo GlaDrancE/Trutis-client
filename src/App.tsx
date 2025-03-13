@@ -60,7 +60,6 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/add-card" element={<AddCardPage />} />
-          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/:id" element={<Home />} />
@@ -69,7 +68,8 @@ function App() {
             <Route path="/:id/coupons" element={<CouponsPage />} />
             <Route path="/:id/profile" element={<Profile />} />
             <Route path="/:id/settings" element={<Settings />} />
-            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/:id/subscription-plans" element={<SubscriptionPlans />} />
+            <Route path="/:id/payment" element={<PaymentPage />} />
             <Route path="*" element={<HandleUnknownRoute />} />
           </Route>
         </Routes>
