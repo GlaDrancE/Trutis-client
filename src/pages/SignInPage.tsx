@@ -74,7 +74,7 @@ const SignInPage: React.FC = () => {
                 <div className="mb-8">
                     <button
                         onClick={() => console.log("Back to dashboard")}
-                        className="flex items-center text-sm text-gray-500 hover:text-gray-700"
+                        className="flex items-center dark:text-white text-sm text-gray-500 hover:text-gray-700"
                     >
                         <svg
                             className="w-4 h-4 mr-2"
@@ -95,8 +95,8 @@ const SignInPage: React.FC = () => {
 
                 <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
                     <div className="text-center sm:text-left">
-                        <h1 className="text-3xl font-bold text-gray-800 mb-2">Sign In</h1>
-                        <p className="text-gray-500 mb-8">Enter your email and password to sign in!</p>
+                        <h1 className="text-3xl font-bold dark:text-white text-gray-800 mb-2">Sign In</h1>
+                        <p className="text-gray-500 mb-8 dark:text-white">Enter your email and password to sign in!</p>
                     </div>
 
                     <div className="mb-6">
@@ -126,7 +126,7 @@ const SignInPage: React.FC = () => {
                     <form onSubmit={handleValidateLogin}>
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="email" className="dark:text-white block text-sm font-medium text-gray-700">
                                     Email<span className="text-blue-600">*</span>
                                 </label>
                                 <Input
@@ -141,7 +141,7 @@ const SignInPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="password" className="dark:text-white block text-sm font-medium text-gray-700">
                                     Password<span className="text-blue-600">*</span>
                                 </label>
                                 <div className="relative">
@@ -179,15 +179,15 @@ const SignInPage: React.FC = () => {
                                     </label>
                                 </div>
 
-                                <a
-                                    href="#"
+                                <Link
+                                    to="/forgot-password"
                                     className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
                                 >
                                     Forgot password?
-                                </a>
+                                </Link>
                             </div>
 
-                            <Button type="submit" className="w-full py-6 bg-indigo-600 hover:bg-indigo-700" disabled={isLoading}>
+                            <Button type="submit" className="dark:text-white w-full py-6 bg-indigo-600 hover:bg-indigo-700" disabled={isLoading}>
                                 {
                                     isLoading ? "Signing In..." : "Sign In"
                                 }
@@ -196,7 +196,7 @@ const SignInPage: React.FC = () => {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
                             Not registered yet?{" "}
                             <Link to="/sign-up" className="font-medium text-indigo-600 hover:text-indigo-500">
                                 Create an Account

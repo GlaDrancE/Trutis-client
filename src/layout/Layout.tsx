@@ -72,11 +72,11 @@ const navigationItems = {
     main: [
         { icon: LineChart, label: 'Dashboard', id: 'dashboard', href: '/' },
         { icon: QrCode, label: 'QR Code', id: 'qr-code', href: '/coupon-scanner' },
-        { icon: Users, label: 'Customer Data', id: 'customers', href: '/customers' },
+        // { icon: Users, label: 'Customer Data', id: 'customers', href: '/customers' },
         { icon: Ticket, label: 'Subscriptions', id: 'subscriptions', href: '/subscription-plans' },
         { icon: Star, label: 'Reviews', id: 'reviews', href: '/review' },
-        { icon: Ticket, label: 'Coupons', id: 'coupons', href: '/coupons' },
-        { icon: Gift, label: 'Rewards', id: 'rewards', href: '/gift' },
+        { icon: Ticket, label: 'Rewards', id: 'coupons', href: '/coupons' },
+        // { icon: Gift, label: 'Rewards', id: 'rewards', href: '/gift' },
         { icon: TrendingUp, label: 'Marketing', id: 'marketing', href: '/marketing' },
     ],
     settings: [

@@ -122,7 +122,7 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string; customer
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+    <div className="h-[90vh] bg-background flex items-center justify-center p-6">
       <Toaster />
       <div className="max-w-xl w-full">
         <div className="bg-white dark:bg-gray-100 rounded-2xl shadow-xl overflow-hidden">
@@ -169,7 +169,7 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string; customer
 };
 
 const Message = ({ message }: { message: string }) => (
-  <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center p-6">
+  <div className="h-[90vh] bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center p-6">
     <div className="max-w-xl w-full">
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="bg-gradient-to-r from-yellow-500 to-orange-500 p-8 text-white text-center">

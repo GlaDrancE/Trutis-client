@@ -50,7 +50,7 @@ function App() {
 
   return (
     <>
-      {/* <Toaster position="top-right" /> */}
+      <Toaster position="top-right" />
       <Router>
         <Routes>
           <Route path="/register" element={<Register />} />

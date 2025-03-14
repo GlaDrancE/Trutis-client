@@ -308,7 +308,7 @@ const SubscriptionPlans = () => {
                     </div>
                     {selectedAddons.includes(addon.id) && (
                       <div className="bg-blue-500 p-1 rounded-full">
-                        <CheckCircle2 className="w-5 h-5" />
+                        <CheckCircle2 className="w-5 h-5 text-white" />
                       </div>
                     )}
                   </div>
