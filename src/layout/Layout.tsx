@@ -74,7 +74,7 @@ const navigationItems = {
         { icon: QrCode, label: 'QR Code', id: 'qr-code', href: '/coupon-scanner' },
         // { icon: Users, label: 'Customer Data', id: 'customers', href: '/customers' },
         { icon: Ticket, label: 'Subscriptions', id: 'subscriptions', href: '/subscription-plans' },
-        { icon: Star, label: 'Reviews', id: 'reviews', href: '/review' },
+        { icon: Star, label: 'Reviews', id: 'reviews', href: '/reviews' },
         { icon: Ticket, label: 'Rewards', id: 'coupons', href: '/coupons' },
         // { icon: Gift, label: 'Rewards', id: 'rewards', href: '/gift' },
         { icon: TrendingUp, label: 'Marketing', id: 'marketing', href: '/marketing' },
@@ -265,7 +265,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                         <h3 className="text-sm font-medium text-muted-foreground mb-4">Account</h3>
                         <Button variant={'ghost'} className="flex items-center gap-3 mb-4 px-3 py-8 w-full" onClick={() => navigate(`/${id}/profile`)}>
                             <Avatar>
-                                <AvatarImage src="https://github.com/shadcn.png" />
+                                <AvatarImage src={typeof client?.logo === 'string' ? client.logo : undefined} />
                                 <AvatarFallback>PR</AvatarFallback>
                             </Avatar>
                             <div>

@@ -22,6 +22,7 @@ import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import ContactUs from './pages/ContactPage';
 import CouponsPage from './pages/Coupons';
+import ReviewPage from './pages/ReviewPage';
 interface CustomJwtPayload extends JwtPayload {
   userType?: string;
 }
@@ -70,6 +71,7 @@ function App() {
             <Route path="/:id/settings" element={<Settings />} />
             <Route path="/:id/subscription-plans" element={<SubscriptionPlans />} />
             <Route path="/:id/payment" element={<PaymentPage />} />
+            <Route path="/:clientId/reviews" element={<ReviewPage />} />
             <Route path="*" element={<HandleUnknownRoute />} />
           </Route>
         </Routes>

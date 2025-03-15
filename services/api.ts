@@ -3,7 +3,7 @@ import { Agent, Client, ClientSignUp } from "../types";
 
 const api = axios.create({
     // baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api',
-    baseURL:  'http://localhost:5000/api',
+    baseURL: 'http://localhost:5000/api',
     // baseURL: 'https://trutis-backend.onrender.com/api',
 
 });
@@ -172,6 +172,7 @@ export const generateCoupon = (data: { qr_id: string, code: string, email: strin
 export const fetchCustomerFromCoupon = (code: string) => api.post(`/coupon/verify`, { code });
 export const getCustomers = (id: string) => api.get(`/forms/get-customers/${id}`);
 export const fetchCustomerFromCouponID = (couponId: string) => api.post(`/coupon/getcustomer`, { couponId });
+export const fetchReviewsFromClientId = (clientId: string) => api.post(`/clients/reviews`, { clientId });
 
 // Admin
 export const getStats = () => api.get("/admin/getStats");
