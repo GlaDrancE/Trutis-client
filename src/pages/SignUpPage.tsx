@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import { useAuthStore } from '../store'
 
 const SignUpPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -19,9 +20,11 @@ const SignUpPage: React.FC = () => {
     const [rememberMe, setRememberMe] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
+    const { login: storeLogin, setRememberMe: storeSetRememberMe } = useAuthStore();
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
+    const authStore = useAuthStore();
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 
@@ -47,8 +50,13 @@ const SignUpPage: React.FC = () => {
                 console.log("Client Created");
                 toast.success("Client created");
                 localStorage.setItem("token", response.data.accessToken);
-                // localStorage.setItem("clientId", response.data.userId);
+                authStore.login(response.data.accessToken, "manual", rememberMe)
+                document.cookie = `refreshToken=${response.data.refreshToken}`;
+
+                localStorage.setItem("clientId", response.data.id);
                 navigate(`/${response.data.id}`);
+                storeSetRememberMe(rememberMe);
+                storeLogin(response.data.accessToken, 'manual', rememberMe);
             }
         } catch (error: any) {
             if (error.response.data === "User already exists") {
@@ -75,9 +83,14 @@ const SignUpPage: React.FC = () => {
             } else {
                 console.log("Client Created");
                 toast.success("Client created");
-                localStorage.setItem("token", response.data.accessToken);
-                // localStorage.setItem("clientId", response.data.userId);
+                authStore.login(credentialResponse.credential, "google", rememberMe)
+                // document.cookie = `refreshToken=${response.data.refreshToken}`;
+
+                localStorage.setItem("token", credentialResponse.credential);
+                localStorage.setItem("clientId", response.data.id);
                 navigate(`/${response.data.id}`);
+                storeSetRememberMe(rememberMe);
+                storeLogin(credentialResponse.credential, 'google', rememberMe);
             }
         } catch (error: any) {
             toast.error("Error while creating client");

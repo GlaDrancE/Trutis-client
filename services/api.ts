@@ -1,24 +1,20 @@
 import axios from "axios";
 import { Agent, Client, ClientSignUp } from "../types";
+import { useAuthStore } from '../src/store/slices/authStore'
 
-
-
-
-
-
-
-
-
-import { useAuthStore } from '@/store'
-
+const baseUrl = 'http://localhost:3000/api/api'
 const api = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api',
+    baseURL: baseUrl,
+});
+const paymentApi = axios.create({
+    baseURL: 'http://localhost:3000/payment/payment'
 });
 
 api.interceptors.request.use(
     (config) => {
         const token = useAuthStore.getState().token
         const authProvider = useAuthStore.getState().authProvider
+        console.log("Auth Provider: ", authProvider)
 
         if (!config.headers) {
             config.headers = new axios.AxiosHeaders();
@@ -26,10 +22,15 @@ api.interceptors.request.use(
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            config.data = {
-                ...config.data,
-                authProvider
-            }
+            console.log("Config Data: ", config.data)
+            // if (config.data) {
+            //     config.data = {
+            //         ...config.data,
+            //         authProvider: authProvider
+            //     }
+            // } else {
+            //     config.data = { authProvider }
+            // }
         }
 
         return config;
@@ -40,11 +41,11 @@ api.interceptors.request.use(
 );
 
 
-const getRefreshTokenFromCookie = () => {
-    const cookies = document.cookie.split(';');
-    const refreshTokenCookie = cookies.find(cookie => cookie.trim().startsWith('refreshToken='));
-    return refreshTokenCookie ? refreshTokenCookie.split('=')[1].trim() : null;
-};
+// const getRefreshTokenFromCookie = () => {
+//     const cookies = document.cookie.split(';');
+//     const refreshTokenCookie = cookies.find(cookie => cookie.trim().startsWith('refreshToken='));
+//     return refreshTokenCookie ? refreshTokenCookie.split('=')[1].trim() : null;
+// };
 
 
 api.interceptors.response.use(
@@ -54,17 +55,18 @@ api.interceptors.response.use(
         if (error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
-                const { data } = await axios.post('http://your-api-url/token/refresh', {
-                    refreshToken: getRefreshTokenFromCookie(),
+                const { data } = await axios.post(`${baseUrl}/token/refresh`, {
+                    withCredentials: true,
                 });
+                console.log("refresh token", data)
                 localStorage.setItem("token", data.accessToken)
                 originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
                 return api(originalRequest);
             } catch (err) {
-                // Handle refresh token expiration (e.g., redirect to login)
                 localStorage.removeItem("token")
                 localStorage.removeItem("refreshToken")
-                window.location.href = "/login"
+                console.log("error", err)
+                // window.location.href = "/login"
             }
         }
         return Promise.reject(error);
@@ -117,11 +119,12 @@ export const getClients = () => api.get("/clients");
 
 export const getClient = (client_id: string) => api.get(`/client/${client_id}`);
 
-export const loginClient = (email: string, password: string, authProvider: string) =>
-    api.post("/auth/client/login", { email, password, authProvider });
+export const loginClient = (email: string, password: string, authProvider: string, rememberMe: boolean = useAuthStore.getState().rememberMe) =>
+    api.post("/auth/client/login", { email, password, authProvider, rememberMe });
+export const logOutClient = () => api.post("/auth/client/logout");
 
-export const createClient = (data: ClientSignUp): Promise<any> => {
-    return api.post("/auth/clients/register", data, {
+export const createClient = (data: ClientSignUp, rememberMe: boolean = useAuthStore.getState().rememberMe): Promise<any> => {
+    return api.post("/auth/clients/register", { ...data, rememberMe }, {
         headers: { "Content-Type": "multipart/form-data" },
     });
 };
@@ -159,13 +162,16 @@ export const getQrId = (token: string) => {
     return api.post("/client/getqrid", { token });
 };
 
-// Payment Logs
-export const getPaymentLogs = () => api.get("/payment-logs");
 
-export const getPlans = () => api.get("/clients/subscription-plans");
-export const createCheckoutSession = (lookup_key: string, clientId: string) => api.post("/payments/create-checkout-session", { lookup_key, clientId });
-export const verifyPaymentAndStore = (session_id: string) => api.post("/payments/verify", { session_id });
-export const portalSession = (customerId: string) => api.post("/payment/create-portal-session", { customerId });
+// Payment Logs
+export const getPaymentLogs = () => paymentApi.get("/payment-logs");
+export const getPlans = () => paymentApi.get("/clients/subscription-plans");
+export const createCheckoutSession = (lookup_key: string, clientId: string) => paymentApi.post("/create-checkout-session", { lookup_key, clientId });
+export const verifyPaymentAndStore = (session_id: string) => paymentApi.post("/verify", { session_id });
+export const portalSession = (customerId: string) => paymentApi.post("/create-portal-session", { customerId });
+export const createProducts = (client_id: string) => paymentApi.post("/create-products", { client_id });
+
+
 // OTP
 export const verifyOtp = (data: { email: string; otp: string }) =>
     api.post("/client/verify-otp", data);
@@ -180,14 +186,13 @@ export const generateCoupon = (data: { qr_id: string, code: string, email: strin
 });
 
 // Customers
-export const fetchCustomerFromCoupon = (code: string) => api.post(`/clients/verify`, { code });
+export const fetchCustomerFromCoupon = (code: string) => api.post(`/coupon/verify`, { code });
 export const getCustomers = (id: string) => api.get(`/forms/get-customers/${id}`);
+export const fetchCustomerFromCouponID = (couponId: string) => api.post(`/coupon/getcustomer`, { couponId });
 
 // Admin
 export const getStats = () => api.get("/admin/getStats");
 
-// Payments
-export const createProducts = (client_id: string) => api.post("/payments/create-products", { client_id });
 
 // Forms
 export const getClientFromQR = (qr_id: string) => api.post("/forms/get-client", { qr_id: qr_id });

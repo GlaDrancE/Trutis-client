@@ -31,6 +31,8 @@ import {
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ShopDetailsModal } from '@/components/ShopDetailsModal';
+import { Loader } from '@/components/Loader';
+import { logOutClient } from '../../services/api';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -56,6 +58,7 @@ const notifications = [
         unread: true,
     },
     {
+
         id: 3,
         title: 'System Update',
         message: 'Dashboard v2.0 is now available',
@@ -74,7 +77,7 @@ const navigationItems = {
         { icon: Users, label: 'Customer Data', id: 'customers', href: '/customers' },
         { icon: Ticket, label: 'Subscriptions', id: 'subscriptions', href: '/subscriptions' },
         { icon: Star, label: 'Reviews', id: 'reviews', href: '/review' },
-        { icon: Ticket, label: 'Coupons', id: 'coupons', href: 'coupons' },
+        { icon: Ticket, label: 'Coupons', id: 'coupons', href: '/coupons' },
         { icon: Gift, label: 'Rewards', id: 'rewards', href: '/gift' },
         { icon: TrendingUp, label: 'Marketing', id: 'marketing', href: '/marketing' },
     ],
@@ -112,6 +115,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+
     const toggleTheme = () => {
         setIsDarkMode(!isDarkMode);
         const theme = sessionStorage.getItem('theme');
@@ -139,8 +143,14 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
         }
     }
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         localStorage.clear();
+        try {
+            await logOutClient();
+            navigate('/login');
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
         navigate('/login');
     };
 
@@ -189,7 +199,9 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
 
                 <main className="md:ml-64 p-4 pb-20 md:pb-4">
-                    {children}
+                    {
+                        client ? <Loader /> : <>{children}</>
+                    }
                 </main>
             </div>
         );
@@ -311,7 +323,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                 </nav>
             </div> */}
 
-            <main className={`${isMobile ? 'ml-0' : 'lg:ml-[280px]'} transition-[margin] duration-200 ease-in-out min-h-screen flex flex-col`}>
+            <main className={`${isMobile ? 'ml-0' : 'lg:ml-[280px]'} bg-background transition-[margin] duration-200 ease-in-out min-h-screen flex flex-col`}>
 
                 {/* Header */}
                 <header className="sticky top-0 z-20 border-b bg-card/80 backdrop-blur-sm">

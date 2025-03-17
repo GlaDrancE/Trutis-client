@@ -12,11 +12,12 @@ const SubscriptionPlans = () => {
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
     const [plans, setPlans] = useState<any[]>([]);
     const { client } = useClient();
+    const clientId = localStorage.getItem('clientId');
     const navigate = useNavigate();
 
     const getPlans = async () => {
         try {
-            const response = await createProducts(client?.id as string);
+            const response = await createProducts(clientId as string);
             if (response.status === 200) {
                 setPlans(response.data.products);
                 console.log(response.data)

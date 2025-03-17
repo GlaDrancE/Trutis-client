@@ -21,8 +21,9 @@ const ProductDisplay = () => {
 
         try {
             const clientId = localStorage.getItem("clientId") as string;
+            console.log("clientId: ", clientId)
 
-            const response = await createCheckoutSession(plan.default_price, client?.id as string);
+            const response = await createCheckoutSession(plan.default_price, clientId);
             if (response.data.url) {
                 window.location.href = response.data.url;
             } else {

@@ -4,9 +4,12 @@ export interface AuthState {
     token: string | null;
     authProvider: string | null;
     isAuthenticated: boolean;
+    rememberMe: boolean;
+    setRememberMe: (value: boolean) => void;
     setToken: (token: string) => void;
     setAuthProvider: (provider: string) => void;
     logout: () => void;
+    login: (token: string, authProvider: string, remember: boolean) => void;
 }
 
 export interface ClientState {

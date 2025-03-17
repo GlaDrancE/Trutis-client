@@ -92,6 +92,10 @@ export interface Plans {
 
 
 export interface Coupon {
+  isUsed: boolean;
+  validFrom: string;
+  maxDiscount: number;
+  minOrderValue: number;
   id: number;
   Coupon: any;
   code: string;
@@ -99,7 +103,7 @@ export interface Coupon {
   created: string;
   expires: string;
   qrData: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface CustomerData {

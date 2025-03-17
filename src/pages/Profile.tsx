@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Camera, Edit2, Loader, Loader2, Save, X } from 'lucide-react';
+import { Camera, Edit2, Loader2, Save, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
-import { getClient, linkQRCode, updateClient, uploadToCloudinary } from '../../services/api';
+import toast from 'react-hot-toast';
+import { getClient, linkQRCode, updateClient } from '../../services/api';
 import { Client } from '../../types';
 import useClient from '@/hooks/client-hook';
+import { cn } from '@/lib/utils';
 
 interface ProfileData {
     email: string;
@@ -24,174 +25,133 @@ interface ProfileProps {
 }
 
 const ProfilePage = () => {
-    // Simulated existing data - replace with your actual data source
-    const initialData: ProfileData = {
-        email: 'shop@example.com',
-        owner_name: 'John Smith',
-        shop_name: 'The Best Shop',
-        address: '123 Main Street, City, Country',
-        googleAPI: 'AIzaSyXXXXXXXXXXXXXXX',
-        phone: '+1 (555) 123-4567',
-        logo: '/api/placeholder/128/128',
-    };
-
     const { id } = useParams();
-
-
-    const { client, isLoading, isError, publicKey } = useClient();
+    const { client, isLoading } = useClient();
     const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState<Client | undefined>(client);
-    const [file, setFile] = useState<File | null>()
+    const [file, setFile] = useState<File | null>(null);
     const [tempProfile, setTempProfile] = useState<Client | undefined>(client);
     const navigate = useNavigate();
-    const preset = import.meta.env.VITE_UPLOAD_PRESET
+    const preset = import.meta.env.VITE_UPLOAD_PRESET;
 
     useEffect(() => {
-        setProfile(client)
-        setTempProfile(client)
-    }, [client])
-
+        if (client) {
+            setProfile(client);
+            setTempProfile(client);
+        }
+    }, [client]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-        setTempProfile((prev: any) => ({
-            ...prev,
-            [name]: type === "radio" || name === 'minOrderValue' || name === 'couponValidity' ? Number(value) : value,
-        }));
+        if (!tempProfile) return;
 
+        setTempProfile(prev => ({
+            ...prev!,
+            [name]: type === "radio" || name === 'minOrderValue' || name === 'couponValidity'
+                ? Number(value)
+                : value,
+        }));
     };
 
-    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
+    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files?.length) return;
 
-            const file = e.target.files[0];
-            // setTempProfile(prev => ({
-            //     ...prev!,
-            //     logo: file
-            // }));
-            setFile(e.target.files[0])
-        }
-        // if (file) {
+        const file = e.target.files[0];
+        setFile(file);
+
         const reader = new FileReader();
         reader.onloadend = () => {
-            setTempProfile(prev => ({
-                ...prev!,
+            setTempProfile(prev => prev ? {
+                ...prev,
                 logo: reader.result as string
-            }));
+            } : undefined);
         };
-        reader.readAsDataURL(e.target.files?.[0] as File);
-        // reader.readAsDataURL(file);
-        // }
-
-
-        // try {
-
-        //     const uploadImage = await uploadToCloudinary({ file, upload_preset: preset })
-        //     if (uploadImage.status !== 200) {
-        //         toast.error("Failed to update image")
-        //         return
-        //     }
-        //     const url = uploadImage.data().secure_url;
-        //     if (url)
-        //         setTempProfile({ ...tempProfile, logo: url as string } as Client)
-        // } catch (error) {
-        //     toast.error("Something went wrong")
-        //     return;
-        // }
+        reader.readAsDataURL(file);
     };
 
     const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!id) {
+            toast.error("Failed to load id, try again");
+            return;
+        }
+
+        if (!tempProfile) {
+            toast.error("Please fill all details");
+            return;
+        }
+
         try {
-
-            e.preventDefault();
-            setProfile(tempProfile);
-            setIsEditing(false);
-
-
-            if (!id) {
-                toast.error("Failed to load id, try again")
-                return;
-            }
-
-            if (!tempProfile) {
-                toast.error("Please fill all details")
-                return;
-            }
-
-
             const response = await updateClient(id, {
                 ...tempProfile,
-                logo: file
+                logo: client?.logo ? client.logo : file
             });
-            if (response.status !== 200) {
-                toast.error("Failed to save profile, Try Again")
-                return
+            console.log(client)
+
+            if (response.status === 200) {
+                setProfile(tempProfile);
+                setIsEditing(false);
+                toast.success("Profile updated successfully");
+            } else {
+                toast.error("Failed to save profile, Try Again");
             }
-            console.log(tempProfile)
-
-
         } catch (error) {
-            toast.error("Something went wrong")
-            console.error("Something went wrong: ", error)
+            toast.error("Something went wrong");
+            console.error("Error updating profile:", error);
         }
     };
 
-    const handleCancel = () => {
-        setTempProfile(profile);
-        setIsEditing(false);
-    };
     const handleLinkQr = async () => {
-        try {
-            if (!publicKey) { toast.error("Failed to load public key, Make sure payment is made"); return }
-            const linkQR = await linkQRCode(publicKey, tempProfile?.qr_id as string)
-            console.log("Publickey: ", publicKey)
-            if (linkQR.status !== 200) {
-                toast.error("Failed to link QR, Try again")
-            }
-            toast.success("QR Linked")
-        } catch (error) {
-            toast.error("Failed to link QR, Try again")
-            console.error("Failed to load qr: ", error);
+        if (!tempProfile?.public_key) {
+            toast.error("Failed to load public key, Make sure payment is made");
+            return;
         }
-    }
 
-    const DisplayField = ({ label, value, className }: { label: string; value: string, className?: string }) => (
+        if (!tempProfile.qr_id) {
+            toast.error("QR ID is required");
+            return;
+        }
+
+        try {
+            const linkQR = await linkQRCode(tempProfile.public_key, tempProfile.qr_id);
+            if (linkQR.status === 200) {
+                toast.success("QR Linked successfully");
+            } else {
+                toast.error("Failed to link QR, Try again");
+            }
+        } catch (error) {
+            toast.error("Failed to link QR, Try again");
+            console.error("Error linking QR:", error);
+        }
+    };
+
+    const DisplayField = ({ label, value, className }: { label: string; value?: string | number; className?: string }) => (
         <div className="space-y-1">
-            <Label className="text-sm text-gray-500">{label}</Label>
-            <div className={`text-base font-medium p-2 bg-gray-50 rounded-md ${className}`}>{value}</div>
+            <Label className="text-sm text-muted-foreground">{label}</Label>
+            <div className={cn(
+                "text-base font-medium p-2 rounded-md bg-muted",
+                "text-foreground",
+                className
+            )}>
+                {value || 'Not set'}
+            </div>
         </div>
     );
-    if (isError) {
-        return (
-            <div className='w-full h-screen justify-center items-center flex'>
-
-                <h1 className="text-2xl text-black">
-                    Failed to load client details
-                </h1>
-
-
-            </div>
-        )
-    }
-
 
     if (isLoading.client || !profile || !tempProfile) {
         return (
             <div className='w-full h-screen flex items-center justify-center'>
-
-                <div>
-                    <Loader2 className='animate-spin' />
-                </div>
-
+                <Loader2 className='animate-spin text-primary' />
             </div>
-        )
+        );
     }
 
     return (
         <div className="min-h-screen bg-background p-4 md:p-6">
             <Card className="max-w-2xl mx-auto">
                 <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-2xl text-blue-800">Profile Settings</CardTitle>
+                    <CardTitle className="text-2xl text-primary">Profile Settings</CardTitle>
                     {!isEditing && (
                         <Button
                             variant="outline"
@@ -206,25 +166,24 @@ const ProfilePage = () => {
                 <CardContent>
                     <form onSubmit={handleSave} className="space-y-6">
                         {/* Logo Section */}
-
                         <div className="flex flex-col items-center mb-6">
                             <div className="relative">
-
-                                <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                                <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                                     {(isEditing ? tempProfile.logo : profile.logo) ? (
                                         <img
                                             src={isEditing ? tempProfile.logo as string : profile.logo as string}
+                                            alt="Profile logo"
                                             className="w-full h-full object-cover"
                                             loading='lazy'
                                         />
                                     ) : (
-                                        <Camera className="w-12 h-12 text-gray-400" />
+                                        <Camera className="w-12 h-12 text-muted-foreground" />
                                     )}
                                 </div>
                                 {isEditing && (
                                     <label
                                         htmlFor="logo-upload"
-                                        className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer shadow-lg hover:bg-primary/90"
+                                        className="absolute bottom-0 right-0 bg-primary hover:bg-primary/90 text-primary-foreground p-2 rounded-full cursor-pointer shadow-lg"
                                     >
                                         <Camera className="w-4 h-4" />
                                     </label>
@@ -238,45 +197,36 @@ const ProfilePage = () => {
                                     disabled={!isEditing}
                                 />
                             </div>
-                            <span className="text-sm text-gray-500 mt-2">Shop logo</span>
+                            <span className="text-sm text-muted-foreground mt-2">Shop logo</span>
                         </div>
+
+                        {profile.public_key && (
+                            <div className='flex flex-col gap-4'>
+                                <div>
+                                    <DisplayField
+                                        label='Public Key'
+                                        value={profile.public_key}
+                                        className='text-primary'
+                                    />
+                                </div>
+                            </div>
+                        )}
                         {/* Form Fields */}
                         <div className="space-y-4">
                             {isEditing ? (
                                 <>
-                                    {profile.public_key ? <div className='flex items-center justify-between'>
-                                        {<DisplayField label='Public Key' value={profile.public_key as string} className='w-full' />}
-                                        <div className='flex items-end justify-center'>
-                                            <div className='mr-4'>
-                                                <Label htmlFor="qr_id">QR</Label>
-                                                <Input
-                                                    id="qr_id"
-                                                    name="qr_id"
-                                                    type="qr_id"
-                                                    value={tempProfile.qr_id}
-                                                    onChange={handleInputChange}
-                                                    className="mt-1 mr-4"
-                                                    required
-                                                />
-                                            </div>
-                                            <Button onClick={handleLinkQr} className='mt-1' type='button'>
-                                                Link
-                                            </Button>
-                                        </div>
-                                    </div> : <DisplayField label='QR ID' value={profile.qr_id as string} className='w-full' />}
                                     <div>
                                         <Label htmlFor="email">Email</Label>
                                         <Input
                                             id="email"
                                             name="email"
                                             type="email"
-                                            value={tempProfile.email}
+                                            value={tempProfile.email || ''}
                                             onChange={handleInputChange}
                                             className="mt-1"
                                             required
                                         />
                                     </div>
-
                                     <div>
                                         <Label htmlFor="owner_name">Owner Name</Label>
                                         <Input
@@ -288,7 +238,6 @@ const ProfilePage = () => {
                                             required
                                         />
                                     </div>
-
                                     <div>
                                         <Label htmlFor="shop_name">Shop Name</Label>
                                         <Input
@@ -300,7 +249,6 @@ const ProfilePage = () => {
                                             required
                                         />
                                     </div>
-
                                     <div>
                                         <Label htmlFor="line1">Line 1</Label>
                                         <Input
@@ -356,7 +304,6 @@ const ProfilePage = () => {
                                             required
                                         />
                                     </div>
-
                                     <div>
                                         <Label htmlFor="googleAPI">Google API Key</Label>
                                         <Input
@@ -368,7 +315,6 @@ const ProfilePage = () => {
                                             required
                                         />
                                     </div>
-
                                     <div>
                                         <Label htmlFor="phone">Phone Number</Label>
                                         <Input
@@ -381,7 +327,6 @@ const ProfilePage = () => {
                                             required
                                         />
                                     </div>
-
                                     <div>
                                         <Label>Max Discount</Label>
                                         <div className="flex gap-4">
@@ -399,8 +344,6 @@ const ProfilePage = () => {
                                             ))}
                                         </div>
                                     </div>
-
-                                    {/* Min Order Value */}
                                     <div>
                                         <Label>Minimum Order Value</Label>
                                         <Input
@@ -411,8 +354,6 @@ const ProfilePage = () => {
                                             required
                                         />
                                     </div>
-
-                                    {/* Valid Till (Dropdown) */}
                                     <div>
                                         <Label>Coupon Valid Till (Days)</Label>
                                         <select
@@ -421,6 +362,7 @@ const ProfilePage = () => {
                                             onChange={handleInputChange}
                                             className="w-full p-2 border rounded"
                                         >
+                                            <option value={0}>Select Days</option>
                                             {[7, 14, 30, 60, 90].map((days) => (
                                                 <option key={days} value={days}>
                                                     {days} days
@@ -428,39 +370,55 @@ const ProfilePage = () => {
                                             ))}
                                         </select>
                                     </div>
-
-
                                 </>
                             ) : (
                                 <>
-                                    {profile.public_key && <div className='flex items-center'>
-                                        <DisplayField label="Public Key" className='mr-4' value={profile.public_key as string} />
-                                        <DisplayField label="QR Id" value={profile.qr_id as string} />
-                                    </div>}
                                     <DisplayField label="Email" value={profile.email} />
                                     <DisplayField label="Owner Name" value={profile.owner_name} />
-                                    <DisplayField label="Shop Name" value={profile.shop_name as string} />
-                                    <DisplayField label="Address" value={profile.line1 as string + ', ' + profile.city as string + '-' + profile.pincode as string + ', ' + profile.state as string + ', ' + profile.country as string} />
-                                    {/* <DisplayField label="City" value={profile.city as string} />
-                                    <DisplayField label="State" value={profile.state as string} />
-                                    <DisplayField label="Pin Code" value={profile.pincode as string} />
-                                    <DisplayField label="Country" value={profile.country as string} /> */}
-                                    <DisplayField label="Google API Key" value={profile.googleAPI as string} className={'overflow-hidden'} />
-                                    <DisplayField label="Phone Number" value={profile.phone as string} />
-                                    <DisplayField label="Max Discount" value={profile.maxDiscount?.toString() + " %"} />
-                                    <DisplayField label="Min Order Value" value={profile.minOrderValue?.toString() + " Orders"} />
-                                    <DisplayField label="Coupon Validity" value={profile.couponValidity as string + " Days"} />
+                                    <DisplayField label="Shop Name" value={profile.shop_name} />
+                                    <DisplayField
+                                        label="Address"
+                                        value={[
+                                            profile.line1,
+                                            profile.city,
+                                            profile.pincode,
+                                            profile.state,
+                                            profile.country
+                                        ].filter(Boolean).join(', ')}
+                                    />
+                                    <DisplayField label="Google API Key" value={profile.googleAPI} />
+                                    <DisplayField label="Phone Number" value={profile.phone} />
+                                    <DisplayField
+                                        label="Max Discount"
+                                        value={profile.maxDiscount ? `${profile.maxDiscount}%` : undefined}
+                                    />
+                                    <DisplayField
+                                        label="Min Order Value"
+                                        value={profile.minOrderValue ? `${profile.minOrderValue} Orders` : undefined}
+                                    />
+                                    <DisplayField
+                                        label="Coupon Validity"
+                                        value={profile.couponValidity ? `${profile.couponValidity} Days` : undefined}
+                                    />
                                 </>
                             )}
                         </div>
 
                         {isEditing && (
                             <div className="flex gap-4">
-                                <Button type="submit" className="flex-1 bg-blue-600">
+                                <Button type="submit" className="flex-1">
                                     <Save className="w-4 h-4 mr-2" />
                                     Save Changes
                                 </Button>
-                                <Button type="button" variant="outline" onClick={handleCancel} className="flex-1">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setTempProfile(profile);
+                                        setIsEditing(false);
+                                    }}
+                                    className="flex-1"
+                                >
                                     <X className="w-4 h-4 mr-2" />
                                     Cancel
                                 </Button>
@@ -472,6 +430,7 @@ const ProfilePage = () => {
         </div>
     );
 };
+
 const Profile = () => {
     return (
         <ProfilePage />

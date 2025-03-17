@@ -21,23 +21,26 @@ import DashboardLayout from './layout/Layout';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import ContactUs from './pages/ContactPage';
+import CouponsPage from './pages/Coupons';
+import { useAuthStore } from '@/store';
 interface CustomJwtPayload extends JwtPayload {
   userType?: string;
 }
 
 function App() {
+  const authStore = useAuthStore();
   const HandleUnknownRoute = () => {
-    const token = localStorage.getItem('token');
+    const token = JSON.parse(localStorage.getItem('auth-storage') || '{}').state.token;
+    const clientId = localStorage.getItem('clientId');
     if (!token) return <Navigate to="/login" replace />;
 
     try {
       const decode = jwtDecode<CustomJwtPayload>(token);
       if (decode.exp && Date.now() >= decode.exp * 1000) {
-        localStorage.removeItem('token');
+        authStore.logout();
         return <Navigate to="/login" replace />;
       }
 
-      const clientId = localStorage.getItem('clientId');
       if (!clientId) return <Navigate to="/login" replace />;
 
       return <Navigate to={`/${clientId}`} replace />;
@@ -49,7 +52,7 @@ function App() {
 
   return (
     <>
-      <Toaster position="top-right" />
+      {/* <Toaster position="top-right" /> */}
       <Router>
         <Routes>
           <Route path="/register" element={<Register />} />
@@ -64,7 +67,8 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/:id" element={<Home />} />
             <Route path="/:id/coupon-scanner" element={<CouponScanner />} />
-            <Route path="/coupon/:id" element={<CustomerDetailsPage />} />
+            <Route path="/:id/customer/:couponId" element={<CustomerDetailsPage />} />
+            <Route path="/:id/coupons" element={<CouponsPage />} />
             <Route path="/:id/profile" element={<Profile />} />
             <Route path="/:id/settings" element={<Settings />} />
             <Route path="/payment" element={<PaymentPage />} />

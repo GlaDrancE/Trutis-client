@@ -1,98 +1,144 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import DashboardLayout from "@/layout/Layout";
-import { ExternalLink } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { ExternalLink } from 'lucide-react';
+import { fetchCustomerFromCouponID } from '../../services/api';
 
-interface PurchasedItem {
-    name: string;
-    quantity: number;
-    price: string;
+// Define interfaces based on the API response
+interface Customer {
+  id: string;
+  email: string;
+  name: string;
+  phone: string;
+  DOB: string;
+  reviewDescription?: string;
+  reviewImage: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-interface CustomerData {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    visitDate: string;
-    couponUsed: string;
-    purchaseAmount: string;
-    items: PurchasedItem[];
+interface Coupon {
+  id: string;
+  code: string;
+  validFrom: string;
+  validTill: string;
+  maxDiscount: number;
+  minOrderValue: number;
+  isUsed: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
-// Customer Details Page Component
+
+interface CouponCustomer {
+  customer: Customer | null;
+  coupon: Coupon;
+}
+
 const CustomerDetailsPage: React.FC = () => {
-    const customerData: CustomerData = {
-        name: "John Doe",
-        email: "john@example.com",
-        phone: "+1 234-567-8900",
-        address: "123 Main St, City",
-        visitDate: "2024-02-09",
-        couponUsed: "SUMMER2024",
-        purchaseAmount: "$150.00",
-        items: [
-            { name: "Product 1", quantity: 2, price: "$50.00" },
-            { name: "Product 2", quantity: 1, price: "$50.00" },
-        ]
+  const { couponId } = useParams<{ couponId: string }>();
+  const [couponCustomer, setCouponCustomer] = useState<CouponCustomer | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      try {
+        if (couponId) {
+          const response = await fetchCustomerFromCouponID(couponId);
+          const data = response.data; // { customer: {...}, coupon: {...} }
+          setCouponCustomer(data);
+        } else {
+          console.error('Coupon ID is undefined');
+        }
+      } catch (error) {
+        console.error('Failed to fetch customer:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    return (
-        <DashboardLayout>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                        <span>Customer Details</span>
-                        <ExternalLink className="text-blue-600 cursor-pointer" size={20} />
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <h3 className="font-medium text-gray-500">Personal Information</h3>
-                            <div className="mt-2 space-y-2">
-                                <p><span className="font-medium">Name:</span> {customerData.name}</p>
-                                <p><span className="font-medium">Email:</span> {customerData.email}</p>
-                                <p><span className="font-medium">Phone:</span> {customerData.phone}</p>
-                                <p><span className="font-medium">Address:</span> {customerData.address}</p>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 className="font-medium text-gray-500">Visit Information</h3>
-                            <div className="mt-2 space-y-2">
-                                <p><span className="font-medium">Visit Date:</span> {customerData.visitDate}</p>
-                                <p><span className="font-medium">Coupon Used:</span> {customerData.couponUsed}</p>
-                                <p><span className="font-medium">Purchase Amount:</span> {customerData.purchaseAmount}</p>
-                            </div>
-                        </div>
-                    </div>
+    fetchCustomer();
+  }, [couponId]);
 
-                    <div>
-                        <h3 className="font-medium text-gray-500 mb-2">Purchased Items</h3>
-                        <div className="border rounded-lg overflow-hidden">
-                            <table className="w-full">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-4 py-2 text-left">Item</th>
-                                        <th className="px-4 py-2 text-left">Quantity</th>
-                                        <th className="px-4 py-2 text-left">Price</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {customerData.items.map((item, index) => (
-                                        <tr key={index} className="border-t">
-                                            <td className="px-4 py-2">{item.name}</td>
-                                            <td className="px-4 py-2">{item.quantity}</td>
-                                            <td className="px-4 py-2">{item.price}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </DashboardLayout>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
     );
+  }
+
+  if (!couponCustomer || !couponCustomer.customer) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-background rounded-lg shadow-md">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold">Customer Details</h1>
+              <ExternalLink className="text-blue-600 cursor-pointer" size={20} />
+            </div>
+          </div>
+          <div className="p-6 text-center py-12">
+            <p className="text-gray-400">No customer has used this coupon yet.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { customer, coupon } = couponCustomer;
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-background rounded-lg shadow-md">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold">Customer Details</h1>
+            <ExternalLink className="text-blue-600 cursor-pointer" size={20} />
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="border rounded-lg p-6 space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-medium text-gray-400">Customer Information</h3>
+                <div className="mt-2 space-y-2">
+                  <p><span className="font-medium">Name:</span> {customer.name}</p>
+                  <p><span className="font-medium">Email:</span> {customer.email}</p>
+                  <p><span className="font-medium">Phone:</span> {customer.phone}</p>
+                  <p><span className="font-medium">Date of Birth:</span> {new Date(customer.DOB).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-400">Review Information</h3>
+                <div className="mt-2 space-y-2">
+                  <p><span className="font-medium">Review:</span> {customer.reviewDescription || 'No review provided'}</p>
+                  {customer.reviewImage && (
+                    <div>
+                      <span className="font-medium">Review Image:</span>
+                      <img
+                        src={customer.reviewImage}
+                        alt="Review"
+                        className="mt-2 rounded-lg max-w-full h-full"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-400">
+                Coupon used on: {new Date(customer.createdAt).toLocaleDateString()}
+              </p>
+              <p className="text-sm text-gray-400">
+                Coupon Code: {coupon.code}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-
-export default CustomerDetailsPage
+export default CustomerDetailsPage;
