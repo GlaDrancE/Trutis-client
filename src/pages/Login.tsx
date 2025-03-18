@@ -59,7 +59,7 @@ const LoginForm = () => {
     const handleValidateLogin = async () => {
         try {
             setIsLoading(true)
-            const response = await loginClient(email, password);
+            const response = await loginClient(email, password, "manual");
 
             if (response.status !== 200) {
                 toast.error("Invalid Credentails")

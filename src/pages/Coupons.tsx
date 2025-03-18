@@ -4,12 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import useClient from '../hooks/client-hook';
 import toast from 'react-hot-toast';
 import { redeemCoupon } from '../../services/api';
-import { useCouponStore } from '@/store';
 
 const CouponsPage = () => {
   const navigate = useNavigate();
-  const { coupons, isLoading, client } = useClient();
-  const couponStore = useCouponStore();
+  const { coupons, isLoading, loadCoupons, client } = useClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingRedeems, setLoadingRedeems] = useState<Record<string, boolean>>({});
 
@@ -21,7 +19,7 @@ const CouponsPage = () => {
       if (response.status !== 200) {
         toast.error('Something went wrong');
       } else {
-        await couponStore.loadCoupons(client?.id as string);
+        await loadCoupons();
       }
     } catch (error) {
       console.error(error);
@@ -89,8 +87,8 @@ const CouponsPage = () => {
                   </div>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${coupon.isUsed
-                      ? 'bg-gray-100 text-gray-700'
-                      : 'bg-green-100 text-green-700'
+                        ? 'bg-gray-100 text-gray-700'
+                        : 'bg-green-100 text-green-700'
                       }`}
                   >
                     {coupon.isUsed ? 'Used' : 'Active'}

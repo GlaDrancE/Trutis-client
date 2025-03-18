@@ -12,6 +12,16 @@ const authApi = axios.create({
     baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/auth'
 })
 
+baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:3000/api',
+
+});
+const paymentApi = axios.create({
+    baseURL: import.meta.env.VITE_PAYMENT_URL || 'http://localhost:3000/payment'
+})
+const authApi = axios.create({
+    baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/auth'
+})
+
 
 api.interceptors.request.use(
     (config) => {
@@ -23,6 +33,10 @@ api.interceptors.request.use(
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            config.data = {
+                ...config.data,
+                authProvider: "google"
+            }
             config.data = {
                 ...config.data,
                 authProvider: "google"
@@ -70,12 +84,15 @@ api.interceptors.response.use(
 // Auth
 export const login = (email: string, password: string) =>
     authApi.post("/admin/login", { email, password });
+authApi.post("/admin/login", { email, password });
 
 export const register = (email: string, password: string) =>
     authApi.post("/admin/signup", { email, password });
+authApi.post("/admin/signup", { email, password });
 
 export const sendResetPasswordEmail = (email: string) =>
     authApi.post("/client/sendresetpassword", { email });
+authApi.post("/client/sendresetpassword", { email });
 
 export const resetPassword = (token: string, password: string) =>
     authApi.post("/client/resetpassword", { token, password });
@@ -168,6 +185,17 @@ export const createProducts = (client_id: string) => paymentApi.post("/payment/c
 
 
 
+export const createCheckoutSession = (lookup_key: string, clientId: string) => paymentApi.post("/payment/create-checkout-session", { lookup_key, clientId });
+
+
+export const verifyPaymentAndStore = (session_id: string) => paymentApi.post("/payment/verify", { session_id });
+export const portalSession = (customerId: string) => paymentApi.post("/payment/create-portal-session", { customerId });
+
+// Payments
+export const createProducts = (client_id: string) => paymentApi.post("/payment/create-products", { client_id });
+
+
+
 // OTP
 export const verifyOtp = (data: { email: string; otp: string }) =>
     api.post("/client/verify-otp", data);
@@ -183,7 +211,10 @@ export const generateCoupon = (data: { qr_id: string, code: string, email: strin
 
 // Customers
 export const fetchCustomerFromCoupon = (code: string) => api.post(`/coupon/verify`, { code });
+export const fetchCustomerFromCoupon = (code: string) => api.post(`/coupon/verify`, { code });
 export const getCustomers = (id: string) => api.get(`/forms/get-customers/${id}`);
+export const fetchCustomerFromCouponID = (couponId: string) => api.post(`/coupon/getcustomer`, { couponId });
+export const fetchReviewsFromClientId = (clientId: string) => api.post(`/clients/reviews`, { clientId });
 export const fetchCustomerFromCouponID = (couponId: string) => api.post(`/coupon/getcustomer`, { couponId });
 export const fetchReviewsFromClientId = (clientId: string) => api.post(`/clients/reviews`, { clientId });
 
