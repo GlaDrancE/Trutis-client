@@ -250,7 +250,7 @@ export function ShopDetailsModal() {
                         </Button>
                     </div>
                 ) : (
-                    <Card className='overflow-y-auto w-full min-w-full h-full'>
+                    <Card className='overflow-y-auto w-full min-w-full h-screen'>
                         <CardHeader>
                             <strong>Terms and Conditions</strong>
                         </CardHeader>

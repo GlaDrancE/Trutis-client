@@ -22,6 +22,7 @@ import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import ContactUs from './pages/ContactPage';
 import CouponsPage from './pages/Coupons';
+import ReviewPage from './pages/ReviewPage';
 interface CustomJwtPayload extends JwtPayload {
   userType?: string;
 }
@@ -50,7 +51,7 @@ function App() {
 
   return (
     <>
-      {/* <Toaster position="top-right" /> */}
+      <Toaster position="top-right" />
       <Router>
         <Routes>
           <Route path="/register" element={<Register />} />
@@ -60,7 +61,6 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/add-card" element={<AddCardPage />} />
-          <Route path="/subscription-plans" element={<SubscriptionPlans />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/:id" element={<Home />} />
@@ -69,7 +69,9 @@ function App() {
             <Route path="/:id/coupons" element={<CouponsPage />} />
             <Route path="/:id/profile" element={<Profile />} />
             <Route path="/:id/settings" element={<Settings />} />
-            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/:id/subscription-plans" element={<SubscriptionPlans />} />
+            <Route path="/:id/payment" element={<PaymentPage />} />
+            <Route path="/:id/reviews" element={<ReviewPage />} />
             <Route path="*" element={<HandleUnknownRoute />} />
           </Route>
         </Routes>
