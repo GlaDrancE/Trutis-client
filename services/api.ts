@@ -1,20 +1,21 @@
 import axios from "axios";
 import { Agent, Client, ClientSignUp } from "../types";
-import { useAuthStore } from '../src/store/slices/authStore'
 
-const baseUrl = 'http://localhost:3000/api/api'
 const api = axios.create({
-    baseURL: baseUrl,
+    baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:3000/api',
+
 });
 const paymentApi = axios.create({
-    baseURL: 'http://localhost:3000/payment/payment'
-});
+    baseURL: import.meta.env.VITE_PAYMENT_URL || 'http://localhost:3000/payment'
+})
+const authApi = axios.create({
+    baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/auth'
+})
+
 
 api.interceptors.request.use(
     (config) => {
-        const token = useAuthStore.getState().token
-        const authProvider = useAuthStore.getState().authProvider
-        console.log("Auth Provider: ", authProvider)
+        const token = localStorage.getItem("token");
 
         if (!config.headers) {
             config.headers = new axios.AxiosHeaders();
@@ -22,16 +23,12 @@ api.interceptors.request.use(
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            console.log("Config Data: ", config.data)
-            // if (config.data) {
-            //     config.data = {
-            //         ...config.data,
-            //         authProvider: authProvider
-            //     }
-            // } else {
-            //     config.data = { authProvider }
-            // }
+            config.data = {
+                ...config.data,
+                authProvider: "google"
+            }
         }
+
 
         return config;
     },
@@ -39,15 +36,11 @@ api.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-
-
-// const getRefreshTokenFromCookie = () => {
-//     const cookies = document.cookie.split(';');
-//     const refreshTokenCookie = cookies.find(cookie => cookie.trim().startsWith('refreshToken='));
-//     return refreshTokenCookie ? refreshTokenCookie.split('=')[1].trim() : null;
-// };
-
-
+const getRefreshTokenFromCookie = () => {
+    const cookies = document.cookie.split(';');
+    const refreshTokenCookie = cookies.find(cookie => cookie.trim().startsWith('refreshToken='));
+    return refreshTokenCookie ? refreshTokenCookie.split('=')[1].trim() : null;
+};
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -55,18 +48,17 @@ api.interceptors.response.use(
         if (error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
-                const { data } = await axios.post(`${baseUrl}/token/refresh`, {
-                    withCredentials: true,
+                const { data } = await axios.post('http://your-api-url/token/refresh', {
+                    refreshToken: getRefreshTokenFromCookie(),
                 });
-                console.log("refresh token", data)
                 localStorage.setItem("token", data.accessToken)
                 originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
                 return api(originalRequest);
             } catch (err) {
+                // Handle refresh token expiration (e.g., redirect to login)
                 localStorage.removeItem("token")
                 localStorage.removeItem("refreshToken")
-                console.log("error", err)
-                // window.location.href = "/login"
+                window.location.href = "/login"
             }
         }
         return Promise.reject(error);
@@ -77,30 +69,38 @@ api.interceptors.response.use(
 
 // Auth
 export const login = (email: string, password: string) =>
-    api.post("/auth/admin/login", { email, password });
+    authApi.post("/admin/login", { email, password });
 
 export const register = (email: string, password: string) =>
-    api.post("/auth/admin/signup", { email, password });
+    authApi.post("/admin/signup", { email, password });
 
 export const sendResetPasswordEmail = (email: string) =>
-    api.post("/client/sendresetpassword", { email });
+    authApi.post("/client/sendresetpassword", { email });
 
 export const resetPassword = (token: string, password: string) =>
-    api.post("/client/resetpassword", { token, password });
+    authApi.post("/client/resetpassword", { token, password });
+export const loginAgent = (email: string, password: string) =>
+    authApi.post("/agent/login", { email, password });
+export const createAgent = (data: Omit<Agent, "id" | "created_at">) =>
+    authApi.post("/agents", data);
+export const loginClient = (email: string, password: string, authProvider: string, rememberMe: boolean) =>
+    authApi.post("/client/login", { email, password, authProvider, rememberMe });
+export const createClient = (data: ClientSignUp): Promise<any> => {
+    return authApi.post("/clients/register", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+};
+export const logOutClient = () => authApi.post("/client/logout")
 
 // Agents
 export const getAgents = () => api.get("/agents");
 
-export const createAgent = (data: Omit<Agent, "id" | "created_at">) =>
-    api.post("/agents", data);
 
 export const updateAgent = (id: string, data: Partial<Agent>) =>
     api.put(`/agents/${id}`, data);
 
 export const deleteAgent = (id: string) => api.delete(`/agents/${id}`);
 
-export const loginAgent = (email: string, password: string) =>
-    api.post("/auth/agent/login", { email, password });
 
 export const getAgentClients = (agentId: string) => api.get(`/agent-clients/${agentId}`);
 
@@ -119,15 +119,6 @@ export const getClients = () => api.get("/clients");
 
 export const getClient = (client_id: string) => api.get(`/client/${client_id}`);
 
-export const loginClient = (email: string, password: string, authProvider: string, rememberMe: boolean = useAuthStore.getState().rememberMe) =>
-    api.post("/auth/client/login", { email, password, authProvider, rememberMe });
-export const logOutClient = () => api.post("/auth/client/logout");
-
-export const createClient = (data: ClientSignUp, rememberMe: boolean = useAuthStore.getState().rememberMe): Promise<any> => {
-    return api.post("/auth/clients/register", { ...data, rememberMe }, {
-        headers: { "Content-Type": "multipart/form-data" },
-    });
-};
 export const createClientPublicKey = (clientId: string) => api.post("/client/create-public-key", { clientId });
 export const createGoogleClient = (data: Omit<Client, "id" | "created_at">): Promise<any> => {
     return api.post("/auth/clients/google/register", data);
@@ -162,14 +153,19 @@ export const getQrId = (token: string) => {
     return api.post("/client/getqrid", { token });
 };
 
-
 // Payment Logs
-export const getPaymentLogs = () => paymentApi.get("/payment-logs");
-export const getPlans = () => paymentApi.get("/clients/subscription-plans");
-export const createCheckoutSession = (lookup_key: string, clientId: string) => paymentApi.post("/create-checkout-session", { lookup_key, clientId });
-export const verifyPaymentAndStore = (session_id: string) => paymentApi.post("/verify", { session_id });
-export const portalSession = (customerId: string) => paymentApi.post("/create-portal-session", { customerId });
-export const createProducts = (client_id: string) => paymentApi.post("/create-products", { client_id });
+export const getPaymentLogs = () => api.get("/payment-logs");
+
+export const getPlans = () => api.get("/clients/subscription-plans");
+export const createCheckoutSession = (lookup_key: string, clientId: string) => paymentApi.post("/payment/create-checkout-session", { lookup_key, clientId });
+
+
+export const verifyPaymentAndStore = (session_id: string) => paymentApi.post("/payment/verify", { session_id });
+export const portalSession = (customerId: string) => paymentApi.post("/payment/create-portal-session", { customerId });
+
+// Payments
+export const createProducts = (client_id: string) => paymentApi.post("/payment/create-products", { client_id });
+
 
 
 // OTP
@@ -189,6 +185,7 @@ export const generateCoupon = (data: { qr_id: string, code: string, email: strin
 export const fetchCustomerFromCoupon = (code: string) => api.post(`/coupon/verify`, { code });
 export const getCustomers = (id: string) => api.get(`/forms/get-customers/${id}`);
 export const fetchCustomerFromCouponID = (couponId: string) => api.post(`/coupon/getcustomer`, { couponId });
+export const fetchReviewsFromClientId = (clientId: string) => api.post(`/clients/reviews`, { clientId });
 
 // Admin
 export const getStats = () => api.get("/admin/getStats");
