@@ -52,7 +52,6 @@ const SignUpPage: React.FC = () => {
                 localStorage.setItem("token", response.data.accessToken);
                 authStore.login(response.data.accessToken, "manual", rememberMe)
                 document.cookie = `refreshToken=${response.data.refreshToken}`;
-
                 localStorage.setItem("clientId", response.data.id);
                 navigate(`/${response.data.id}`);
                 storeSetRememberMe(rememberMe);

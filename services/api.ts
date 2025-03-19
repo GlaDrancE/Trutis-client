@@ -3,6 +3,7 @@ import { Agent, Client, ClientSignUp } from "../types";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:3000/api',
+
 });
 const paymentApi = axios.create({
     baseURL: import.meta.env.VITE_PAYMENT_URL || 'http://localhost:3000/payment'
@@ -12,10 +13,10 @@ const authApi = axios.create({
 })
 
 
-
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
+        const authProvider = JSON.parse(localStorage.getItem("auth-storage") as string)?.state.authProvider
 
         if (!config.headers) {
             config.headers = new axios.AxiosHeaders();
@@ -25,11 +26,7 @@ api.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
             config.data = {
                 ...config.data,
-                authProvider: "google"
-            }
-            config.data = {
-                ...config.data,
-                authProvider: "google"
+                authProvider: authProvider
             }
         }
 
@@ -74,18 +71,27 @@ api.interceptors.response.use(
 // Auth
 export const login = (email: string, password: string) =>
     authApi.post("/admin/login", { email, password });
-authApi.post("/admin/login", { email, password });
 
 export const register = (email: string, password: string) =>
     authApi.post("/admin/signup", { email, password });
-authApi.post("/admin/signup", { email, password });
 
 export const sendResetPasswordEmail = (email: string) =>
     authApi.post("/client/sendresetpassword", { email });
-authApi.post("/client/sendresetpassword", { email });
 
 export const resetPassword = (token: string, password: string) =>
-    api.post("/client/resetpassword", { token, password });
+    authApi.post("/client/resetpassword", { token, password });
+export const loginAgent = (email: string, password: string) =>
+    authApi.post("/agent/login", { email, password });
+export const createAgent = (data: Omit<Agent, "id" | "created_at">) =>
+    authApi.post("/agents", data);
+export const loginClient = (email: string, password: string, authProvider: string, rememberMe: boolean) =>
+    authApi.post("/client/login", { email, password, authProvider, rememberMe });
+export const createClient = (data: ClientSignUp): Promise<any> => {
+    return authApi.post("/clients/register", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+};
+export const logOutClient = () => authApi.post("/client/logout")
 
 // Agents
 export const getAgents = () => api.get("/agents");
@@ -127,6 +133,7 @@ export const updateClient = (id: string, data: Partial<Client>) =>
     api.put(`/clients/${id}`, data, {
         headers: { "Content-Type": "multipart/form-data" },
     });
+
 
 export const deleteClient = (id: string) => api.delete(`/clients/${id}`);
 export const uploadToCloudinary = (data: { file: File, upload_preset: string }) => api.post("https://api.cloudinary.com/v1_1/doahncdjq/image/upload", { data })
@@ -179,6 +186,7 @@ export const generateCoupon = (data: { qr_id: string, code: string, email: strin
 // Customers
 export const fetchCustomerFromCoupon = (code: string) => api.post(`/coupon/verify`, { code });
 export const getCustomers = (id: string) => api.get(`/forms/get-customers/${id}`);
+export const getCustomer = (id: string) => api.get(`/forms/get-customer/${id}`)
 export const fetchCustomerFromCouponID = (couponId: string) => api.post(`/coupon/getcustomer`, { couponId });
 export const fetchReviewsFromClientId = (clientId: string) => api.post(`/clients/reviews`, { clientId });
 

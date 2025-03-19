@@ -35,7 +35,7 @@ const SignInPage: React.FC = () => {
         e.preventDefault();
         try {
             setIsLoading(true)
-            const response = await loginClient(email, password, "manual");
+            const response = await loginClient(email, password, "manual", rememberMe);
 
             if (response.status !== 200) {
                 toast.error("Invalid Credentails")

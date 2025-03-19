@@ -83,11 +83,13 @@ const ProfilePage = () => {
         }
 
         try {
+
+            console.log(client)
+            console.log("TEMPPROFILE: ", tempProfile)
             const response = await updateClient(id, {
                 ...tempProfile,
                 logo: client?.logo ? client.logo : file
             });
-            console.log(client)
 
             if (response.status === 200) {
                 setProfile(tempProfile);
@@ -386,7 +388,22 @@ const ProfilePage = () => {
                                             profile.country
                                         ].filter(Boolean).join(', ')}
                                     />
-                                    <DisplayField label="Google API Key" value={profile.googleAPI} />
+
+                                    <div className="space-y-1">
+                                        <Label className="text-sm text-muted-foreground">Google Review Link</Label>
+                                        <div className={cn(
+                                            " font-medium p-2 rounded-md bg-muted",
+                                            "text-foreground",
+                                        )}>
+                                            {
+                                                profile.googleAPI ?
+
+                                                    <a href={profile.googleAPI} target='_blank' rel='noreferrer' className='text-blue-500'>
+                                                        Google Review Link
+                                                    </a> : "Not set"
+                                            }
+                                        </div>
+                                    </div>
                                     <DisplayField label="Phone Number" value={profile.phone} />
                                     <DisplayField
                                         label="Max Discount"
@@ -427,7 +444,7 @@ const ProfilePage = () => {
                     </form>
                 </CardContent>
             </Card>
-        </div>
+        </div >
     );
 };
 
