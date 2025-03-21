@@ -25,6 +25,7 @@
     "chart.js": "^4.4.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "gsap": "^3.12.7",
     "i": "^0.3.7",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.330.0",
@@ -38,7 +39,8 @@
     "react-router-dom": "^7.3.0",
     "remix-themes": "^2.0.4",
     "tailwind-merge": "^2.2.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",

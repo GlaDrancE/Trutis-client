@@ -11,6 +11,9 @@ const paymentApi = axios.create({
 const authApi = axios.create({
     baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/auth'
 })
+const pointsApi = axios.create({
+    baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/points'
+})
 
 
 api.interceptors.request.use(
@@ -186,7 +189,7 @@ export const generateCoupon = (data: { qr_id: string, code: string, email: strin
 // Customers
 export const fetchCustomerFromCoupon = (code: string) => api.post(`/coupon/verify`, { code });
 export const getCustomers = (id: string) => api.get(`/forms/get-customers/${id}`);
-export const getCustomer = (id: string) => api.get(`/forms/get-customer/${id}`)
+export const getCustomer = (id: string, client_id: string) => api.get(`/forms/get-customer/${id}`, { params: { client_id } })
 export const fetchCustomerFromCouponID = (couponId: string) => api.post(`/coupon/getcustomer`, { couponId });
 export const fetchReviewsFromClientId = (clientId: string) => api.post(`/clients/reviews`, { clientId });
 
@@ -197,3 +200,11 @@ export const getStats = () => api.get("/admin/getStats");
 // Forms
 export const getClientFromQR = (qr_id: string) => api.post("/forms/get-client", { qr_id: qr_id });
 export const redeemCoupon = (id: string) => api.post("/forms/redeem-coupon", { id: id });
+
+
+// Points
+export const updatePoints = (data: { customerId: string, name: string, email: string, amount: number, maxDiscount: number, minOrderValue: number, clientId: string, points: number }) =>
+    pointsApi.post("/update-points", data)
+
+export const redeemPoints = (data: { customerId: string, clientId: string, points: number }) =>
+    pointsApi.post("/redeem-points", data)
