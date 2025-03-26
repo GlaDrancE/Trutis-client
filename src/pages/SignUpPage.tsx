@@ -85,6 +85,8 @@ const SignUpPage: React.FC = () => {
         }
     };
     return (
+
+        
         <div className="flex min-h-screen">
             {/* Left side - Form */}
             <div className="w-full md:w-1/2 flex flex-col py-10 px-8 md:p-16">
