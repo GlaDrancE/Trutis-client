@@ -40,7 +40,7 @@ const SignInPage: React.FC = () => {
             if (response.status !== 200) {
                 toast.error("Invalid Credentails")
             }
-            console.log(response.data)
+            // console.log(response.data)
             localStorage.setItem('clientId', response.data.id);
             localStorage.setItem('token', response.data.accessToken)
             authStore.setRememberMe(rememberMe)
@@ -56,6 +56,8 @@ const SignInPage: React.FC = () => {
             setIsLoading(false)
         }
     };
+
+    
     const handleGoogleSignIn = async (crednetialsResponse: any) => {
         try {
             const decode: any = jwtDecode(crednetialsResponse.credential);
