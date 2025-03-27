@@ -26,7 +26,7 @@ const ProtectedRoute = () => {
         const decode = jwtDecode<CustomJwtPayload>(token);
         if (decode.exp && Date.now() >= decode.exp * 1000) {
             console.error('Token has expired');
-            localStorage.removeItem('token');
+            localStorage.removeItem('auth-storage');
             return <Navigate to="/login" replace />;
         }
 

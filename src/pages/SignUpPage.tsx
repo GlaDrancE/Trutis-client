@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { createClient } from "../../services/api";
-import toast from "react-hot-toast";
+import { createClient, generateOtp, verifyOtp } from "../../services/api";
+import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { useAuthStore } from '../store';
+import { useAuthStore } from '../store/index';
 
 const SignUpPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -64,13 +64,10 @@ const SignUpPage: React.FC = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/client/generate-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.text();
-      if (response.ok) {
+      const response = await generateOtp(email);
+
+      const data = await response.data;
+      if (data) {
         toast.success("OTP sent to your email");
         setIsOtpSent(true);
       } else {
@@ -93,14 +90,11 @@ const SignUpPage: React.FC = () => {
     }
     setIsLoading(true);
     try {
-      const verifyResponse = await fetch("http://localhost:3000/api/client/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: otpString }),
-      });
-      const verifyData = await verifyResponse.text();
+      const verifyResponse = await verifyOtp(email, otpString);
 
-      if (verifyResponse.ok && verifyData === "OTP verified successfully") {
+      const verifyData = await verifyResponse.data;
+
+      if (verifyData === "OTP verified successfully") {
         const response = await createClient({
           email,
           owner_name: fullName,
@@ -162,6 +156,7 @@ const SignUpPage: React.FC = () => {
 
   return (
     <div className="flex min-h-screen">
+      <Toaster />
       <div className="w-full md:w-1/2 flex flex-col py-10 px-8 md:p-16">
         <div className="mb-8">
           <button
@@ -276,6 +271,12 @@ const SignUpPage: React.FC = () => {
                       Keep me logged in
                     </label>
                   </div>
+                  <a
+                    href="#"
+                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                  >
+                    Forgot password?
+                  </a>
                 </div>
 
                 <Button
@@ -348,7 +349,7 @@ const SignUpPage: React.FC = () => {
                       size="large"
                       shape="circle"
                       locale="en-US"
-                      text="signup_with"
+                      text="signin_with"
                       context="signup"
                     />
                   </div>

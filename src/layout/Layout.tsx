@@ -31,6 +31,8 @@ import {
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ShopDetailsModal } from '@/components/ShopDetailsModal';
+import { Loader } from '@/components/Loader';
+import { logOutClient } from '../../services/api';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -56,7 +58,7 @@ const notifications = [
         unread: true,
     },
     {
-        
+
         id: 3,
         title: 'System Update',
         message: 'Dashboard v2.0 is now available',
@@ -88,6 +90,7 @@ const navigationItems = {
 
 const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     const { id } = useParams();
+    console.log(id)
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const { client } = useClient();
@@ -112,6 +115,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
         document.documentElement.classList.add(sessionStorage.getItem('theme') || 'light');
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
 
     const toggleTheme = () => {
         setIsDarkMode(!isDarkMode);
@@ -140,8 +144,14 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
         }
     }
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         localStorage.clear();
+        try {
+            await logOutClient();
+            navigate('/login');
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
         navigate('/login');
     };
 
@@ -190,7 +200,9 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
 
                 <main className="md:ml-64 p-4 pb-20 md:pb-4">
-                    {children}
+                    {
+                        client ? <Loader /> : <>{children}</>
+                    }
                 </main>
             </div>
         );
@@ -266,7 +278,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                         <Button variant={'ghost'} className="flex items-center gap-3 mb-4 px-3 py-8 w-full" onClick={() => navigate(`/${id}/profile`)}>
                             <Avatar>
                                 <AvatarImage src={typeof client?.logo === 'string' ? client.logo : undefined} />
-                                <AvatarFallback>PR</AvatarFallback>
+                                <AvatarFallback>{client?.owner_name?.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
                                 <p className="text-sm font-medium">{client?.owner_name}</p>

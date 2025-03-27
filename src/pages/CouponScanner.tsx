@@ -1,7 +1,7 @@
 import DashboardLayout from '../layout/Layout';
 import React, { useState } from 'react';
 import QrReader from 'react-qr-scanner';
-import { fetchCustomerFromCoupon } from '../../services/api'
+import { fetchCustomerFromCoupon, getCustomer } from '../../services/api'
 
 interface CustomerDetails {
   name: string;
@@ -31,14 +31,15 @@ const CouponScanner: React.FC = () => {
     }
   };
 
-  const verifyCoupon = async (code: string) => {
+  const verifyCoupon = async (customerId: string) => {
     try {
       setIsLoading(true);
 
-      const response = await fetchCustomerFromCoupon(code);
+      const response = await getCustomer(customerId);
+      console.log(response.data)
 
       if (response.data.success) {
-        setCustomerDetails(response.data.customer);
+        setCustomerDetails(response.data);
       } else {
         setError('Invalid or expired coupon code');
         setCustomerDetails(null);

@@ -9,10 +9,10 @@ const ProductDisplay = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const location = useLocation();
-  const plan = location.state?.plan || { 
-    name: 'Unknown Plan', 
-    price: 0, 
-    description: 'No description available.' 
+  const plan = location.state?.plan || {
+    name: 'Unknown Plan',
+    price: 0,
+    description: 'No description available.'
   };
   const { client } = useClient();
 
@@ -50,7 +50,7 @@ const ProductDisplay = () => {
             </div>
             <p className="text-blue-100">You're just one step away from accessing all features</p>
           </div>
-          
+
           <div className="p-8">
             <div className="space-y-6">
               <div>
@@ -139,7 +139,7 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string; customer
           <div className="p-8">
             <form onSubmit={handleManageSubscription} method="POST" className="space-y-6">
               <input type="hidden" id="session-id" name="session_id" value={sessionId} />
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="submit"
@@ -149,7 +149,7 @@ const SuccessDisplay = ({ sessionId, customerId }: { sessionId: string; customer
                   <Settings className="w-5 h-5" />
                   Manage Subscription
                 </button>
-                
+
                 <button
                   type="button"
                   className="flex items-center justify-center gap-2 bg-gray-800 text-white py-4 px-6 rounded-xl 
@@ -180,7 +180,7 @@ const Message = ({ message }: { message: string }) => (
           </div>
           <h2 className="text-3xl font-bold">Notice</h2>
         </div>
-        
+
         <div className="p-8 text-center">
           <p className="text-gray-600 text-lg">{message}</p>
         </div>

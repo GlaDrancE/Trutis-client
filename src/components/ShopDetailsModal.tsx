@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader } from './ui/card';
 interface ShopDetails {
     logo: File | null;
     name: string;
+    phone: string;
     line1: string;
     city: string;
     state: string;
@@ -32,6 +33,7 @@ export function ShopDetailsModal() {
     const [shopDetails, setShopDetails] = useState<ShopDetails>({
         logo: null,
         name: '',
+        phone: client?.phone || '',
         line1: '',
         city: '',
         state: '',
@@ -52,6 +54,17 @@ export function ShopDetailsModal() {
                     !client?.googleAPI;
                 setIsDetailsEmpty(isDetailsEmpty);
             }, 2000);
+            setShopDetails({
+                ...shopDetails,
+                name: client?.shop_name || '',
+                line1: client?.line1 || '',
+                city: client?.city || '',
+                phone: client?.phone || '',
+                state: client?.state || '',
+                country: client?.country || '',
+                pincode: client?.pincode || '',
+                googleReviewLink: client?.googleAPI || ''
+            })
         }
         return () => {
             clearTimeout(timeout)
@@ -98,6 +111,7 @@ export function ShopDetailsModal() {
         const isValid = Object.values(shopDetails).every(value =>
             value !== null && (typeof value === 'string' ? value.trim() !== '' : true)
         );
+        console.log(shopDetails)
         if (isValid) {
             setStep('terms');
         } else {
@@ -117,6 +131,10 @@ export function ShopDetailsModal() {
                     state: shopDetails.state,
                     country: shopDetails.country,
                     pincode: shopDetails.pincode,
+                    phone: shopDetails.phone,
+                    email: client?.email,
+                    owner_name: client?.owner_name,
+                    googleAPI: shopDetails.googleReviewLink
                 });
                 toast.success('Shop details updated successfully');
                 setIsOpen(false);
@@ -132,7 +150,7 @@ export function ShopDetailsModal() {
     return (
         <Dialog open={isDetailsEmpty && isOpen} onOpenChange={() => setIsOpen(false)} modal>
             <Toaster />
-            <DialogContent className={`${step === 'details' ? 'sm:max-w-[500px]' : 'max-w-[calc(100vw-2rem)] overflow-auto h-content'}`}>
+            <DialogContent className={`${step === 'details' ? 'sm:max-w-[500px]' : 'max-w-[calc(100vw-2rem)] h-content'}`}>
 
                 <DialogHeader>
                     <DialogTitle>
@@ -148,7 +166,7 @@ export function ShopDetailsModal() {
                                 <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                                     {previewUrl ? (
                                         <img
-                                            src={previewUrl}
+                                            src={client?.logo ? client?.logo as string : previewUrl}
                                             alt="Shop logo preview"
                                             className="w-full h-full object-cover"
                                         />
@@ -178,6 +196,34 @@ export function ShopDetailsModal() {
                             </div>
                         </div>
 
+                        <div className="space-y-2 px-1">
+                            <Label htmlFor="email">Shop Email</Label>
+                            <Input
+                                id="email"
+                                value={client?.email}
+                                placeholder="Enter your shop email"
+                                disabled={client?.email ? true : false}
+                            />
+                        </div>
+                        <div className="space-y-2 px-1">
+                            <Label htmlFor="name">Owner Name</Label>
+                            <Input
+                                id="name"
+                                value={client?.owner_name}
+                                placeholder="Enter your shop owner name"
+                                disabled={client?.owner_name ? true : false}
+                            />
+                        </div>
+                        <div className="space-y-2 px-1">
+                            <Label htmlFor="name">Phone Number</Label>
+                            <Input
+                                id="name"
+                                value={client?.phone ? client?.phone : shopDetails.phone}
+                                onChange={handleInputChange('phone')}
+                                placeholder="Enter your shop phone number"
+                                disabled={client?.phone ? true : false}
+                            />
+                        </div>
                         <div className="space-y-2 px-1">
                             <Label htmlFor="name">Shop Name</Label>
                             <Input
@@ -250,10 +296,7 @@ export function ShopDetailsModal() {
                         </Button>
                     </div>
                 ) : (
-                    <Card className='overflow-y-auto w-full min-w-full h-full'>
-                        <CardHeader>
-                            <strong>Terms and Conditions</strong>
-                        </CardHeader>
+                    <Card className='overflow-y-auto w-full min-w-full h-[calc(100vh-100px)]'>
                         <CardContent>
                             <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-8 mb-12">
                                 <h1 className="text-2xl font-bold text-gray-800 mb-4">Co‑Ownership of Data Agreement</h1>

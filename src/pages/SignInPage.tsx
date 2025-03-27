@@ -9,8 +9,9 @@ import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { createGoogleClient, loginClient } from "../../services/api";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store";
 const SignInPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [email, setEmail] = useState<string>("");
@@ -23,6 +24,7 @@ const SignInPage: React.FC = () => {
     const [slide, setSlide] = useState<number>(1);
     const [otp, setOtp] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const authStore = useAuthStore();
 
 
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -33,13 +35,18 @@ const SignInPage: React.FC = () => {
         e.preventDefault();
         try {
             setIsLoading(true)
-            const response = await loginClient(email, password, "manual");
+            const response = await loginClient(email, password, "manual", rememberMe);
 
             if (response.status !== 200) {
                 toast.error("Invalid Credentails")
             }
             console.log(response.data)
-            localStorage.setItem('token', response.data.accessToken);
+            localStorage.setItem('clientId', response.data.id);
+            localStorage.setItem('token', response.data.accessToken)
+            authStore.setRememberMe(rememberMe)
+            // document.cookie = `refreshToken=${response.data.refreshToken}`;
+            authStore.login(response.data.accessToken, "manual", rememberMe)
+
             navigate(`/${response.data.id}`);
         } catch (error) {
             toast.error('Invalid Credentials');
@@ -53,13 +60,18 @@ const SignInPage: React.FC = () => {
         try {
             const decode: any = jwtDecode(crednetialsResponse.credential);
             console.log("Decode: ", decode);
-            const response = await loginClient(decode.email, decode.sub as string, "google")
+            const response = await loginClient(decode.email, decode.sub as string, "google", rememberMe)
             if (response.status !== 200) {
                 toast.error("Failed to create an account");
                 return;
             }
-            localStorage.setItem('token', crednetialsResponse.credential);
-            document.cookie = `refreshToken=${response.data.refreshToken}`;
+            // localStorage.setItem('token', crednetialsResponse.credential);
+            // document.cookie = `refreshToken=${response.data.refreshToken}`;
+            authStore.login(crednetialsResponse.credential, "google", rememberMe)
+            authStore.setRememberMe(rememberMe)
+
+            localStorage.setItem('token', crednetialsResponse.credential)
+            localStorage.setItem('clientId', response.data.id)
             navigate(`/${response.data.id}`);
 
         } catch (error) {
@@ -69,6 +81,7 @@ const SignInPage: React.FC = () => {
     };
     return (
         <div className="flex min-h-screen">
+            <Toaster />
             {/* Left content */}
             <div className="w-full md:w-1/2 flex flex-col p-8 md:p-16">
                 <div className="mb-8">

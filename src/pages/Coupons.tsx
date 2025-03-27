@@ -37,7 +37,7 @@ const CouponsPage = () => {
     });
   };
 
-  const filteredCoupons = coupons.filter(coupon => 
+  const filteredCoupons = coupons.filter(coupon =>
     coupon.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -86,11 +86,10 @@ const CouponsPage = () => {
                     <span className="text-lg font-semibold">{coupon.code}</span>
                   </div>
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      coupon.isUsed
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${coupon.isUsed
                         ? 'bg-gray-100 text-gray-700'
                         : 'bg-green-100 text-green-700'
-                    }`}
+                      }`}
                   >
                     {coupon.isUsed ? 'Used' : 'Active'}
                   </span>

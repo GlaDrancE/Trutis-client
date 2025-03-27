@@ -20,13 +20,12 @@ interface DataPoint {
 }
 function Home() {
 
-    const { client, customers, coupons, isError, isLoading } = useClient();
+    const { client, customers, coupons, isLoading } = useClient();
     const [months, setMonths] = useState<DataPoint[]>([]);
     const [_coupons, setCoupons] = useState<DataPoint[]>([]);
     const [isDarkMode, setIsDarkMode] = useState(sessionStorage.getItem('theme') === 'dark');
     useEffect(() => {
         setIsDarkMode(sessionStorage.getItem('theme') === 'dark');
-        console.log(sessionStorage.getItem('theme'))
     }, [sessionStorage.getItem('theme')]);
     const filterMonths = () => {
         const monthCounts = new Array(12).fill(0);
@@ -40,7 +39,6 @@ function Home() {
                 customers: month,
             }
         })
-        console.log(months)
         setMonths(months);
     }
     const filterCoupons = () => {
@@ -55,7 +53,6 @@ function Home() {
                 coupons: month,
             }
         })
-        console.log(monthCoupons)
         setCoupons(monthCoupons);
     }
     useEffect(() => {

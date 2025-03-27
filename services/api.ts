@@ -9,7 +9,7 @@ const paymentApi = axios.create({
     baseURL: 'http://localhost:3000/api/v1/payment'
 })
 const authApi = axios.create({
-    baseURL:  'http://localhost:3000/api/v1/auth'
+    baseURL: 'http://localhost:3000/api/v1/auth'
 })
 
 
@@ -171,8 +171,8 @@ export const createProducts = (client_id: string) => paymentApi.post("/payment/c
 
 
 // OTP
-export const verifyOtp = (data: { email: string; otp: string }) =>
-    api.post("/client/verify-otp", data);
+export const verifyOtp = (email: string, otp: string) =>
+    api.post("/client/verify-otp", { email, otp });
 
 export const generateOtp = (email: string) =>
     api.post("/client/generate-otp", { email });

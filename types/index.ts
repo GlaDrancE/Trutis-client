@@ -45,7 +45,7 @@ export interface Client {
   minOrderValue: number;
   ipAddress?: string;
   contractTime?: Date;
-  authProvider?: "google" | "manual";
+  authProvider?: string;
   token?: string;
   plan_id?: string;
   qr_id?: string;
@@ -116,6 +116,7 @@ export interface CustomerData {
   phone: string;
   DOB: string;
   ratings: number;
+  reviewDescription?: string;
   reviewImage: File | any;
   createdAt: Date;
 

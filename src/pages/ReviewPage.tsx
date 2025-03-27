@@ -1,46 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { ThumbsUp, ThumbsDown, Calendar, User, Mail, Phone, Search, Star, Users, MessageSquare } from 'lucide-react';
-import { fetchReviewsFromClientId } from '../../services/api';
-
-interface Customer {
-  id: string;
-  email: string;
-  name: string;
-  phone: string;
-  DOB: string;
-  reviewDescription: string;
-  reviewImage: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useEffect, useState } from 'react';
+import { ThumbsUp, ThumbsDown, User, Mail, Phone, Search, Star, Users, MessageSquare } from 'lucide-react';
+import { useCustomerStore } from '@/store';
+import { CustomerData } from 'types';
 
 const ReviewPage = () => {
-  const [reviews, setReviews] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<CustomerData[]>([]);
   const [filter, setFilter] = useState<'all' | 'liked' | 'disliked'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null); // State for popup image
-  const { clientId } = useParams();
+  const { customers, isLoading } = useCustomerStore();
 
   useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        if (clientId) {
-          const response = await fetchReviewsFromClientId(clientId);
-          console.log(response.data);
-          const data = await response.data;
-          setReviews(data.customers);
-        }
-      } catch (error) {
-        console.error('Failed to fetch reviews:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // const fetchReviews = async () => {
+    //   try {
+    //     if (clientId) {
+    //       const response = await fetchReviewsFromClientId(clientId);
+    //       console.log(response.data);
+    //       const data = await response.data;
+    //       setReviews(data.customers);
+    //     }
+    //   } catch (error) {
+    //     console.error('Failed to fetch reviews:', error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
 
-    fetchReviews();
-  }, [clientId]);
+    // fetchReviews();
+
+    setReviews(customers)
+
+  }, [customers]);
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -79,7 +69,7 @@ const ReviewPage = () => {
     setSelectedImage(null);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
@@ -147,15 +137,14 @@ const ReviewPage = () => {
                 <button
                   key={f}
                   onClick={() => setFilter(f as typeof filter)}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                    filter === f
-                      ? f === 'liked'
-                        ? 'bg-green-600 text-white'
-                        : f === 'disliked'
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${filter === f
+                    ? f === 'liked'
+                      ? 'bg-green-600 text-white'
+                      : f === 'disliked'
                         ? 'bg-red-600 text-white'
                         : 'bg-blue-600 text-white'
-                      : 'bg-gray-50 dark:bg-gray-700 hover:dark:bg-gray-800 dark:text-white text-gray-600 hover:bg-gray-100'
-                  }`}
+                    : 'bg-gray-50 dark:bg-gray-700 hover:dark:bg-gray-800 dark:text-white text-gray-600 hover:bg-gray-100'
+                    }`}
                 >
                   {f.charAt(0).toUpperCase() + f.slice(1)}
                 </button>
@@ -178,7 +167,7 @@ const ReviewPage = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-gray-900 dark:text-white truncate">{review.name}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-300">{formatDate(review.createdAt)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300">{formatDate(review.createdAt.toString())}</p>
                   </div>
                   <div className={`p-1.5 rounded-full ${review.reviewImage ? 'bg-green-100' : 'bg-red-100'}`}>
                     {review.reviewImage ? (
