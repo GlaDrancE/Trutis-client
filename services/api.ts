@@ -86,6 +86,8 @@ export const createAgent = (data: Omit<Agent, "id" | "created_at">) =>
     authApi.post("/agents", data);
 export const loginClient = (email: string, password: string, authProvider: string, rememberMe: boolean) =>
     authApi.post("/client/login", { email, password, authProvider, rememberMe });
+export const staffLogin = (staffId: string, password: string, authProvider: string, rememberMe: boolean) =>
+    authApi.post("/client/staff/login", { staffId, password, authProvider, rememberMe });
 export const createClient = (data: ClientSignUp): Promise<any> => {
     return authApi.post("/clients/register", data, {
         headers: { "Content-Type": "multipart/form-data" },

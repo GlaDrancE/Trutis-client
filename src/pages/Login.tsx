@@ -34,10 +34,14 @@ const LoginForm = () => {
         if (!loginResponse) {
             return;
         }
-        // if (!isValidEmail(email)) {
-        //     handleSubmit();
-        //     return;
-        // }
+
+        
+        if (!isValidEmail(email)) {
+            handleSubmit();
+            return;
+        }
+
+
         handleNext();
         if (email) {
             try {
@@ -79,6 +83,8 @@ const LoginForm = () => {
             setIsLoading(false)
         }
     };
+
+
     const handleSubmit = async () => {
         try {
             const token = localStorage.getItem("token")

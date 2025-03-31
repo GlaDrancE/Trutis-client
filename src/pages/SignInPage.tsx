@@ -8,7 +8,7 @@ import signupBackground from "@/assets/signup-background.jpg";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { createGoogleClient, loginClient } from "../../services/api";
+import { createGoogleClient, loginClient, staffLogin } from "../../services/api";
 import toast, { Toaster } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store";
@@ -29,33 +29,48 @@ const SignInPage: React.FC = () => {
 
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-
+    const isValidEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
 
     const handleValidateLogin = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsLoading(true);
+
         try {
-            setIsLoading(true)
-            const response = await loginClient(email, password, "manual", rememberMe);
-
-            if (response.status !== 200) {
-                toast.error("Invalid Credentails")
+            if (isValidEmail(email)) {
+                const response = await loginClient(email, password, "manual", rememberMe);
+                if (response.status !== 200) {
+                    toast.error("Invalid Credentials");
+                    return;
+                }
+                localStorage.setItem("clientId", response.data.id);
+                localStorage.setItem("token", response.data.accessToken);
+                authStore.setRememberMe(rememberMe);
+                authStore.login(response.data.accessToken, "manual", rememberMe);
+                navigate(`/${response.data.id}`);
+            } else {
+                console.log(email, password)
+                const response = await staffLogin(email, password, "manual", rememberMe);
+                if (response.status !== 200) {
+                    toast.error("Invalid Staff Credentials");
+                    return;
+                }
+                localStorage.setItem("clientId", response.data.id);
+                localStorage.setItem("token", response.data.accessToken);
+                authStore.setRememberMe(rememberMe);
+                authStore.login(response.data.accessToken, "manual", rememberMe);
+                navigate(`/${response.data.id}`);
             }
-            console.log(response.data)
-            localStorage.setItem('clientId', response.data.id);
-            localStorage.setItem('token', response.data.accessToken)
-            authStore.setRememberMe(rememberMe)
-            // document.cookie = `refreshToken=${response.data.refreshToken}`;
-            authStore.login(response.data.accessToken, "manual", rememberMe)
-
-            navigate(`/${response.data.id}`);
         } catch (error) {
-            toast.error('Invalid Credentials');
+            toast.error("Login Failed");
             console.error(error);
-        }
-        finally {
-            setIsLoading(false)
+        } finally {
+            setIsLoading(false);
         }
     };
+
     const handleGoogleSignIn = async (crednetialsResponse: any) => {
         try {
             const decode: any = jwtDecode(crednetialsResponse.credential);
@@ -144,7 +159,7 @@ const SignInPage: React.FC = () => {
                                 </label>
                                 <Input
                                     id="email"
-                                    type="email"
+                                    type="text"
                                     placeholder="mail@simmmple.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
