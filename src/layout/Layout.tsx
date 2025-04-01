@@ -362,10 +362,10 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
                             <Sheet>
                                 <SheetTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                                    {/* <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                                         <Bell className="h-5 w-5" />
                                         <span className="absolute top-2 right-2 h-2 w-2 bg-primary rounded-full" />
-                                    </Button>
+                                    </Button> */}
                                 </SheetTrigger>
                                 <SheetContent>
                                     <SheetHeader>

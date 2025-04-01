@@ -86,7 +86,7 @@ const SignInPage: React.FC = () => {
             <div className="w-full md:w-1/2 flex flex-col p-8 md:p-16">
                 <div className="mb-8">
                     <button
-                        onClick={() => console.log("Back to dashboard")}
+                        onClick={() => window.location.href = "https://entugo.com/in"}
                         className="flex items-center dark:text-white text-sm text-gray-500 hover:text-gray-700"
                     >
                         <svg
@@ -218,9 +218,6 @@ const SignInPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="mt-auto text-center text-xs text-gray-400 py-4">
-                    © 2022 Horizon UI. All Rights Reserved. Made with love by Simmmple!
-                </div>
             </div>
 
             {/* Right gradient background */}

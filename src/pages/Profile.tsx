@@ -10,6 +10,9 @@ import { getClient, linkQRCode, updateClient } from '../../services/api';
 import { Client } from '../../types';
 import useClient from '@/hooks/client-hook';
 import { cn } from '@/lib/utils';
+import { TermsConditionModal } from '@/components/TermsConditionModal';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { getIpData } from '@/lib/getIp';
 
 interface ProfileData {
     email: string;
@@ -31,6 +34,10 @@ const ProfilePage = () => {
     const [profile, setProfile] = useState<Client | undefined>(client);
     const [file, setFile] = useState<File | null>(null);
     const [tempProfile, setTempProfile] = useState<Client | undefined>(client);
+    const [termsShow, setTermsShow] = useState<boolean>(false);
+    const [agreed, setAgreed] = useState<boolean>(false)
+    const [ip, setIP] = useState<string | undefined>(undefined);
+    const [submitLoading, setSubmitLoading] = useState<boolean>(false)
     const navigate = useNavigate();
     const preset = import.meta.env.VITE_UPLOAD_PRESET;
 
@@ -69,8 +76,8 @@ const ProfilePage = () => {
         reader.readAsDataURL(file);
     };
 
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSave = async (e?: React.FormEvent) => {
+        e?.preventDefault();
 
         if (!id) {
             toast.error("Failed to load id, try again");
@@ -81,25 +88,30 @@ const ProfilePage = () => {
             toast.error("Please fill all details");
             return;
         }
-
         try {
-
-            console.log(client)
-            console.log("TEMPPROFILE: ", tempProfile)
             const response = await updateClient(id, {
                 ...tempProfile,
-                logo: client?.logo ? client.logo : file
+                logo: client?.logo ? client.logo : file,
+                ipAddress: ip || undefined
             });
 
             if (response.status === 200) {
                 setProfile(tempProfile);
                 setIsEditing(false);
                 toast.success("Profile updated successfully");
-            } else {
+            }
+            else {
                 toast.error("Failed to save profile, Try Again");
             }
-        } catch (error) {
-            toast.error("Something went wrong");
+
+        } catch (error: any) {
+            if (error.response.data === 'Please sign the Terms & Conditions before updating profile') {
+                toast.error(error.response.data)
+                setTermsShow(true)
+            }
+            else {
+                toast.error("Something went wrong");
+            }
             console.error("Error updating profile:", error);
         }
     };
@@ -150,7 +162,7 @@ const ProfilePage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background p-4 md:p-6">
+        <div className="min-h-screen bg-background p-4 md:p-6 relative">
             <Card className="max-w-2xl mx-auto">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-2xl text-primary">Profile Settings</CardTitle>
@@ -444,6 +456,18 @@ const ProfilePage = () => {
                     </form>
                 </CardContent>
             </Card>
+            <Dialog open={termsShow} onOpenChange={() => setTermsShow(false)} modal>
+                <DialogContent>
+
+                    <DialogHeader>
+                        <DialogTitle>
+                            Terms & Conditions
+                        </DialogTitle>
+
+                    </DialogHeader>
+                    <TermsConditionModal client={profile} agreed={agreed} setAgreed={setAgreed} isLoading={submitLoading} handleFinalSubmit={handleSave} />
+                </DialogContent>
+            </Dialog>
         </div >
     );
 };

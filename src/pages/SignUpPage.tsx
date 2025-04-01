@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { EyeIcon, EyeOffIcon, Link } from "lucide-react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { createClient } from "../../services/api";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useAuthStore } from '../store'
+import { Link } from "react-router-dom";
+import signupBackground from "@/assets/signup-background.jpg";
 
 const SignUpPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -67,7 +69,7 @@ const SignUpPage: React.FC = () => {
             console.error(error);
         }
     };
-    const handleGoogleSignIn = async (credentialResponse: any) => {
+    const handleGoogleSignUp = async (credentialResponse: any) => {
         try {
             const decode: any = jwtDecode(credentialResponse.credential);
             console.log("Decode: ", decode);
@@ -92,12 +94,17 @@ const SignUpPage: React.FC = () => {
                 storeLogin(credentialResponse.credential, 'google', rememberMe);
             }
         } catch (error: any) {
-            toast.error("Error while creating client");
+            if (error.response.data === "User already exists") {
+                toast.error("User already exists");
+            } else {
+                toast.error("Error while creating client");
+            }
             console.error(error);
         }
     };
     return (
         <div className="flex min-h-screen">
+            <Toaster />
             {/* Left side - Form */}
             <div className="w-full md:w-1/2 flex flex-col py-10 px-8 md:p-16">
                 <div className="mb-8">
@@ -164,7 +171,7 @@ const SignUpPage: React.FC = () => {
                             <Input
                                 id="phone"
                                 type="tel"
-                                placeholder="mail@simmmple.com"
+                                placeholder="+91 90132 12390"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                                 className="w-full"
@@ -231,13 +238,13 @@ const SignUpPage: React.FC = () => {
                         <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
                             <div>
                                 <GoogleLogin
-                                    onSuccess={handleGoogleSignIn}
+                                    onSuccess={handleGoogleSignUp}
                                     onError={() => console.log("Login failed")}
                                     theme="outline"
                                     size="large"
                                     shape="circle"
                                     locale="en-US"
-                                    text="signin_with"
+                                    text="signup_with"
                                     context="signup"
                                 />
                             </div>
@@ -254,15 +261,12 @@ const SignUpPage: React.FC = () => {
                     </form>
                 </div>
 
-                <div className="mt-auto text-center text-xs text-gray-400 py-4">
-                    © 2022 Horizon UI. All Rights Reserved. Made with love by Simmmple!
-                </div>
             </div>
 
             {/* Right side - Gradient Background */}
-            <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-purple-300 via-blue-500 to-blue-700 relative">
-                {/* This is a placeholder for any content you might want to add on the gradient side */}
-                <div className="absolute bottom-4 w-full flex justify-center space-x-6 text-sm text-white">
+            <div className="hidden md:block md:w-1/2 relative">
+                <img src={signupBackground} alt="" className="w-full h-full object-cover absolute top-0 left-0 z-10" />
+                <div className="absolute bottom-4 w-full flex justify-center space-x-6 text-sm text-white z-20">
                     <a href="#" className="hover:underline">Marketplace</a>
                     <a href="#" className="hover:underline">License</a>
                     <a href="#" className="hover:underline">Terms of Use</a>
