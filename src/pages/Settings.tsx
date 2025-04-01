@@ -51,7 +51,7 @@ const SettingsPage = () => {
     };
 
     const handleSubscription = () => {
-        window.location.href = '/subscription-plans';
+        window.location.href = `/${client?.id}/subscription-plans`;
     };
 
     const handlePortalSession = async () => {

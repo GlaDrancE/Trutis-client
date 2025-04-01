@@ -1,15 +1,16 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { createClient, generateOtp, verifyOtp } from "../../services/api";
 import toast, { Toaster } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useAuthStore } from '../store';
+import signupBackground from "@/assets/signup-background.jpg";
 
 const SignUpPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -24,7 +25,7 @@ const SignUpPage: React.FC = () => {
     const navigate = useNavigate();
     const { login: storeLogin, setRememberMe: storeSetRememberMe } = useAuthStore();
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const otpRefs = useRef<HTMLInputElement[]>([]);
+    const otpRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null));
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -65,13 +66,11 @@ const SignUpPage: React.FC = () => {
         setIsLoading(true);
         try {
             const response = await generateOtp(email);
-            const data = response.data;
-
             if (response.data) {
                 toast.success("OTP sent to your email");
                 setIsOtpSent(true);
             } else {
-                toast.error(data || "Failed to send OTP");
+                toast.error("Failed to send OTP");
             }
         } catch (error) {
             toast.error("Error generating OTP");
@@ -90,11 +89,8 @@ const SignUpPage: React.FC = () => {
         }
         setIsLoading(true);
         try {
-
             const verifyResponse = await verifyOtp(email, otpString);
-            const verifyData = verifyResponse.data;
-            console.log(verifyResponse)
-            if (verifyData === "OTP verified successfully") {
+            if (verifyResponse.data === "OTP verified successfully") {
                 const response = await createClient({
                     email,
                     owner_name: fullName,
@@ -114,7 +110,7 @@ const SignUpPage: React.FC = () => {
                     toast.error("Error while creating client");
                 }
             } else {
-                toast.error(verifyData || "Failed to verify OTP");
+                toast.error("Failed to verify OTP");
             }
         } catch (error: any) {
             if (error.response?.data === "User already exists") {
@@ -131,26 +127,28 @@ const SignUpPage: React.FC = () => {
     const handleGoogleSignIn = async (credentialResponse: any) => {
         try {
             const decode: any = jwtDecode(credentialResponse.credential);
-            console.log("Decode: ", decode);
             const response: any = await createClient({
                 email: decode.email,
                 owner_name: decode.name,
                 password: decode.sub,
                 phone: "",
             });
-            if (response.status !== 201) {
-                toast.error("Error while creating client");
-            } else {
-                console.log("Client Created");
+            if (response.status === 201) {
                 toast.success("Client created");
                 storeLogin(credentialResponse.credential, "google", rememberMe);
                 localStorage.setItem("token", credentialResponse.credential);
                 localStorage.setItem("clientId", response.data.id);
                 navigate(`/${response.data.id}`);
                 storeSetRememberMe(rememberMe);
+            } else {
+                toast.error("Error while creating client");
             }
         } catch (error: any) {
-            toast.error("Error while creating client");
+            if (error.response?.data === "User already exists") {
+                toast.error("User already exists");
+            } else {
+                toast.error("Error while creating client");
+            }
             console.error(error);
         }
     };
@@ -227,7 +225,7 @@ const SignUpPage: React.FC = () => {
                                     <Input
                                         id="phone"
                                         type="tel"
-                                        placeholder="123-456-7890"
+                                        placeholder="+91 90132 12390"
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         className="w-full"
@@ -281,6 +279,34 @@ const SignUpPage: React.FC = () => {
                                 >
                                     {isLoading ? "Sending OTP..." : "Send OTP"}
                                 </Button>
+
+                                <div className="relative flex items-center mt-4">
+                                    <div className="flex-grow border-t border-gray-200"></div>
+                                    <span className="flex-shrink mx-4 text-gray-400 text-sm">or</span>
+                                    <div className="flex-grow border-t border-gray-200"></div>
+                                </div>
+
+                                <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
+                                    <GoogleLogin
+                                        onSuccess={handleGoogleSignIn}
+                                        onError={() => console.log("Login failed")}
+                                        theme="outline"
+                                        size="large"
+                                        shape="circle"
+                                        locale="en-US"
+                                        text="signup_with"
+                                        context="signup"
+                                    />
+                                </GoogleOAuthProvider>
+
+                                <div className="text-center mt-4">
+                                    <p className="text-sm text-gray-600">
+                                        Already have an account?{" "}
+                                        <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                                            Login
+                                        </Link>
+                                    </p>
+                                </div>
                             </>
                         ) : (
                             <>
@@ -298,7 +324,7 @@ const SignUpPage: React.FC = () => {
                                                 onChange={(e) => handleOtpChange(index, e.target.value)}
                                                 onKeyDown={(e) => handleOtpKeyDown(index, e)}
                                                 onPaste={index === 0 ? handleOtpPaste : undefined}
-                                                ref={(el) => (otpRefs.current[index] = el!)}
+                                                ref={(el) => (otpRefs.current[index] = el)}
                                                 className="w-12 h-12 text-center text-lg font-medium border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
                                             />
                                         ))}
@@ -326,50 +352,13 @@ const SignUpPage: React.FC = () => {
                                 </Button>
                             </>
                         )}
-
-                        {!isOtpSent && (
-                            <>
-                                <div className="relative flex items-center mt-4">
-                                    <div className="flex-grow border-t border-gray-200"></div>
-                                    <span className="flex-shrink mx-4 text-gray-400 text-sm">or</span>
-                                    <div className="flex-grow border-t border-gray-200"></div>
-                                </div>
-
-                                <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
-                                    <div>
-                                        <GoogleLogin
-                                            onSuccess={handleGoogleSignIn}
-                                            onError={() => console.log("Login failed")}
-                                            theme="outline"
-                                            size="large"
-                                            shape="circle"
-                                            locale="en-US"
-                                            text="signup_with"
-                                            context="signup"
-                                        />
-                                    </div>
-                                </GoogleOAuthProvider>
-
-                                <div className="text-center mt-4">
-                                    <p className="text-sm text-gray-600">
-                                        Already have an account?{" "}
-                                        <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                            Login
-                                        </a>
-                                    </p>
-                                </div>
-                            </>
-                        )}
                     </form>
-                </div>
-
-                <div className="mt-auto text-center text-xs text-gray-400 py-4">
-                    © 2022 Horizon UI. All Rights Reserved. Made with love by Simmmple!
                 </div>
             </div>
 
-            <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-purple-300 via-blue-500 to-blue-700 relative">
-                <div className="absolute bottom-4 w-full flex justify-center space-x-6 text-sm text-white">
+            <div className="hidden md:block md:w-1/2 relative">
+                <img src={signupBackground} alt="" className="w-full h-full object-cover absolute top-0 left-0 z-10" />
+                <div className="absolute bottom-4 w-full flex justify-center space-x-6 text-sm text-white z-20">
                     <a href="#" className="hover:underline">Marketplace</a>
                     <a href="#" className="hover:underline">License</a>
                     <a href="#" className="hover:underline">Terms of Use</a>

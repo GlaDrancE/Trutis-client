@@ -24,9 +24,12 @@ import ContactUs from './pages/ContactPage';
 import CouponsPage from './pages/Coupons';
 import ReviewPage from './pages/ReviewPage';
 import { useAuthStore } from './store/slices/authStore';
+
+
 interface CustomJwtPayload extends JwtPayload {
   userType?: string;
 }
+
 
 function App() {
   const authStore = useAuthStore();

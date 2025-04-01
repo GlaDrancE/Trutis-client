@@ -87,6 +87,17 @@ const navigationItems = {
         { icon: HelpCircle, label: 'Help Center', id: 'help', href: '/help-center' },
     ],
 };
+const staffNavigationItems = {
+    main: [
+        { icon: LineChart, label: 'Dashboard', id: 'dashboard', href: '/' },
+        { icon: QrCode, label: 'QR Code', id: 'qr-code', href: '/coupon-scanner' },
+        { icon: Ticket, label: 'Rewards', id: 'coupons', href: '/coupons' },
+        { icon: Star, label: 'Reviews', id: 'reviews', href: '/reviews' },
+    ],
+    settings: [
+        { icon: HelpCircle, label: 'Help Center', id: 'help', href: '/help-center' },
+    ],
+};
 
 const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     const { id } = useParams();
@@ -158,51 +169,180 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     if (userType === 'staff') {
         return (
             <div className="min-h-screen bg-gray-50">
-                <aside className="fixed left-0 top-0 hidden md:flex flex-col w-64 h-screen bg-white border-r">
-                    <div className="p-4">
-                        <h2 className="text-xl font-bold text-blue-600">Trutis Staff</h2>
-                    </div>
-                    <nav className="flex-1 p-4">
-                        <Link to={`/${id}`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
-                            <Home className="text-blue-600" size={20} />
-                            <span>Home</span>
-                        </Link>
-                        {client?.isActive && client?.qr_id && (
-                            <Link to={`/${id}/coupon-scanner`} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg">
-                                <Scan className="text-blue-600" size={20} />
-                                <span>QR Scanner</span>
-                            </Link>
-                        )}
-                        <button onClick={handleLogout} className="flex items-center space-x-2 p-2 hover:bg-blue-50 rounded-lg w-full text-left">
-                            <LogOut className="text-blue-600" size={20} />
-                            <span>Logout</span>
-                        </button>
-                    </nav>
+                {/* Mobile Overlay */}
+                {isMobile && isSidebarOpen && (
+                    <div
+                        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                )}
+
+                {/* Sidebar */}
+                <aside className={`fixed left-0 top-0 z-40 h-screen w-[280px] transform transition-transform duration-200 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                    } bg-card border-r lg:translate-x-0`}>
+                    <ScrollArea className="h-full px-6 py-6">
+                        {/* Logo */}
+                        <div className="flex items-center gap-3 mb-8">
+                            <BarChart className="h-6 w-6 text-primary" />
+                            <span className="text-xl font-bold">Entrego</span>
+                            {isMobile && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="ml-auto lg:hidden"
+                                    onClick={() => setIsSidebarOpen(false)}
+                                >
+                                    <X className="h-5 w-5" />
+                                </Button>
+                            )}
+                        </div>
+
+                        {/* Main Navigation */}
+                        <nav className="space-y-2">
+                            {staffNavigationItems.main.map((item) => (
+                                <Button
+                                    key={item.id}
+                                    variant={activeSection === item.id ? "secondary" : "ghost"}
+                                    className="w-full justify-start gap-3 h-11 transition-colors"
+                                    onClick={() => handleNavigation(item.id, item.href, item.label)}
+                                >
+                                    <item.icon className="h-5 w-5" />
+                                    {item.label}
+                                </Button>
+                            ))}
+                        </nav>
+
+                        {/* Settings Section */}
+                        <div className="mt-8">
+                            <h3 className="text-sm font-medium text-muted-foreground mb-4">Settings</h3>
+                            <nav className="space-y-2">
+                                {staffNavigationItems.settings.map((item) => (
+                                    <Button
+                                        key={item.id}
+                                        variant={activeSection === item.id ? "secondary" : "ghost"}
+                                        className="w-full justify-start gap-3 h-11 transition-colors"
+                                        onClick={() => handleNavigation(item.id, item.href, item.label)}
+                                    >
+                                        <item.icon className="h-5 w-5" />
+                                        {item.label}
+                                    </Button>
+                                ))}
+                                <Button
+                                    variant="ghost"
+                                    className="w-full justify-start gap-3 h-11"
+                                    onClick={handleLogout}
+                                >
+                                    <LogOut className="h-5 w-5" />
+                                    Logout
+                                </Button>
+                            </nav>
+
+                        </div >
+                    </ScrollArea>
                 </aside>
 
-                <div className="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t">
-                    <nav className="flex justify-around p-4">
-                        <Link to={`/${id}`} className="flex flex-col items-center">
-                            <Home className="text-blue-600" size={20} />
-                            <span className="text-xs mt-1">Home</span>
-                        </Link>
-                        {client?.isActive && client?.qr_id && (
-                            <Link to={`/${id}/coupon-scanner`} className="flex flex-col items-center">
-                                <Scan className="text-blue-600" size={20} />
-                                <span className="text-xs mt-1">QR Scanner</span>
-                            </Link>
-                        )}
-                        <button onClick={handleLogout} className="flex flex-col items-center">
-                            <LogOut className="text-blue-600" size={20} />
-                            <span className="text-xs mt-1">Logout</span>
-                        </button>
-                    </nav>
-                </div>
+                {/* 
+            <div className="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t">
+                <nav className="flex justify-around p-4">
+                    <Link to={`/${id}`} className="flex flex-col items-center">
+                        <Home className="text-blue-600" size={20} />
+                        <span className="text-xs mt-1">Home</span>
+                    </Link>
+                    <Link to={`/${id}/profile`} className="flex flex-col items-center">
+                        <User className="text-blue-600" size={20} />
+                        <span>Profile</span>
+                    </Link>
 
-                <main className="md:ml-64 p-4 pb-20 md:pb-4">
-                    {
-                        client ? <Loader /> : <>{children}</>
-                    }
+                    <Link to={`/${id}/coupon-scanner`} className="flex flex-col items-center">
+                        <Scan className="text-blue-600" size={20} />
+                        <span className="text-xs mt-1">QR Scanner</span>
+                    </Link>
+                    <Link to={`/${id}/settings`} className="flex flex-col items-center">
+                        <Settings className="text-blue-600" size={20} />
+                        <span>Settings</span>
+                    </Link>
+                    <button onClick={handleLogout} className="flex flex-col items-center">
+                        <LogOut className="text-blue-600" size={20} />
+                        <span className="text-xs mt-1">Logout</span>
+                    </button>
+                </nav>
+            </div> */}
+
+                <main className={`${isMobile ? 'ml-0' : 'lg:ml-[280px]'} bg-background transition-[margin] duration-200 ease-in-out min-h-screen flex flex-col`}>
+
+                    {/* Header */}
+                    <header className="sticky top-0 z-20 border-b bg-card/80 backdrop-blur-sm">
+                        <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8 gap-4">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="lg:hidden"
+                            >
+                                <Menu className="h-6 w-6" />
+                            </Button>
+
+                            <nav className="hidden sm:flex items-center gap-1 text-sm">
+
+                                {
+                                    breadCrumbs.map((crumb, index) => (
+                                        <Fragment key={crumb.id}>
+                                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                            <Button variant="ghost" className="h-8">{crumb.label}</Button>
+                                        </Fragment>
+                                    ))
+                                }
+                            </nav>
+
+                            <div className="ml-auto flex items-center gap-3">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={toggleTheme}
+                                    className="h-9 w-9"
+                                >
+                                    {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                                </Button>
+
+                                <Sheet>
+                                    <SheetTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                                            <Bell className="h-5 w-5" />
+                                            <span className="absolute top-2 right-2 h-2 w-2 bg-primary rounded-full" />
+                                        </Button>
+                                    </SheetTrigger>
+                                    <SheetContent>
+                                        <SheetHeader>
+                                            <SheetTitle>Notifications</SheetTitle>
+                                        </SheetHeader>
+                                        <ScrollArea className="h-[calc(100vh-5rem)] mt-4">
+                                            {notifications.map((notification) => (
+                                                <div
+                                                    key={notification.id}
+                                                    className={`p-4 mb-2 rounded-lg ${notification.unread ? 'bg-primary/5' : 'bg-background'
+                                                        }`}
+                                                >
+                                                    <div className="flex justify-between items-start mb-1">
+                                                        <h4 className="font-medium">{notification.title}</h4>
+                                                        {notification.unread && (
+                                                            <span className="h-2 w-2 bg-primary rounded-full" />
+                                                        )}
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground mb-1">
+                                                        {notification.message}
+                                                    </p>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {notification.time}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </ScrollArea>
+                                    </SheetContent>
+                                </Sheet>
+                            </div>
+                        </div>
+                    </header>
+                    {children}
                 </main>
             </div>
         );

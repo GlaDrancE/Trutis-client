@@ -88,7 +88,7 @@ const ReviewPage = () => {
             </h1>
           </div>
 
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-3 gap-8 max-sm:gap-1">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-blue-50">
                 <Users className="w-6 h-6 text-blue-600" />

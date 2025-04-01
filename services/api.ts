@@ -2,14 +2,17 @@ import axios from "axios";
 import { Agent, Client, ClientSignUp } from "../types";
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:3000/api',
+    baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:3000/api/v1/api',
 
 });
 const paymentApi = axios.create({
-    baseURL: import.meta.env.VITE_PAYMENT_URL || 'http://localhost:3000/payment'
+    baseURL: import.meta.env.VITE_PAYMENT_URL || 'http://localhost:3000/api/v1/payment'
 })
 const authApi = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/auth'
+    baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/api/v1/auth'
+})
+const pointsApi = axios.create({
+    baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/api/v1/points'
 })
 
 
@@ -86,6 +89,8 @@ export const createAgent = (data: Omit<Agent, "id" | "created_at">) =>
     authApi.post("/agents", data);
 export const loginClient = (email: string, password: string, authProvider: string, rememberMe: boolean) =>
     authApi.post("/client/login", { email, password, authProvider, rememberMe });
+export const staffLogin = (staffId: string, password: string, authProvider: string, rememberMe: boolean) =>
+    authApi.post("/client/staff/login", { staffId, password, authProvider, rememberMe });
 export const createClient = (data: ClientSignUp): Promise<any> => {
     return authApi.post("/clients/register", data, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -155,6 +160,8 @@ export const getQrId = (token: string) => {
     return api.post("/client/getqrid", { token });
 };
 
+
+
 // Payment Logs
 export const getPaymentLogs = () => api.get("/payment-logs");
 
@@ -186,7 +193,7 @@ export const generateCoupon = (data: { qr_id: string, code: string, email: strin
 // Customers
 export const fetchCustomerFromCoupon = (code: string) => api.post(`/coupon/verify`, { code });
 export const getCustomers = (id: string) => api.get(`/forms/get-customers/${id}`);
-export const getCustomer = (id: string) => api.get(`/forms/get-customer/${id}`)
+export const getCustomer = (id: string, client_id: string) => api.get(`/forms/get-customer/${id}`, { params: { client_id } })
 export const fetchCustomerFromCouponID = (couponId: string) => api.post(`/coupon/getcustomer`, { couponId });
 export const fetchReviewsFromClientId = (clientId: string) => api.post(`/clients/reviews`, { clientId });
 
@@ -197,3 +204,11 @@ export const getStats = () => api.get("/admin/getStats");
 // Forms
 export const getClientFromQR = (qr_id: string) => api.post("/forms/get-client", { qr_id: qr_id });
 export const redeemCoupon = (id: string) => api.post("/forms/redeem-coupon", { id: id });
+
+
+// Points
+export const updatePoints = (data: { customerId: string, name: string, email: string, amount: number, maxDiscount: number, minOrderValue: number, clientId: string, points: number }) =>
+    pointsApi.post("/update-points", data)
+
+export const redeemPoints = (data: { customerId: string, clientId: string, points: number }) =>
+    pointsApi.post("/redeem-points", data)

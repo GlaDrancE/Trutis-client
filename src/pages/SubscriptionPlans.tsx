@@ -27,17 +27,10 @@ interface AddonProduct {
 
 const SubscriptionPlans = () => {
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-    const [selectedDuration, setSelectedDuration] = useState<number>(1);
     const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
     const [plans, setPlans] = useState<any[]>([]);
     const { id } = useParams();
     const navigate = useNavigate();
-
-    const durations = [
-        { months: 1, discount: 0 },
-        { months: 6, discount: 10 },
-        { months: 12, discount: 20 },
-    ];
 
     const immediateAddons: AddonProduct[] = [
         {
@@ -135,7 +128,6 @@ const SubscriptionPlans = () => {
         navigate(`/${id}/payment`, {
             state: {
                 plan,
-                duration: selectedDuration,
                 addons: selectedAddons
             }
         });
@@ -161,8 +153,10 @@ const SubscriptionPlans = () => {
         );
     }
 
+    const planDurations = [1, 6, 12]; 
+
     const calculatePrice = (basePrice: number, duration: number) => {
-        const discount = durations.find(d => d.months === duration)?.discount || 0;
+        const discount = duration === 6 ? 10 : duration === 12 ? 20 : 0; // 10% for 6 months, 20% for 12 months
         const monthlyPrice = basePrice * (1 - discount / 100);
         return {
             monthly: monthlyPrice.toFixed(0),
@@ -176,7 +170,7 @@ const SubscriptionPlans = () => {
         <div className="min-h-screen bg-background py-12 px-4">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                    <h1 className="text-5xl font-bold  bg-clip-text  mb-6">
+                    <h1 className="text-5xl font-bold bg-clip-text mb-6">
                         Choose Your Perfect Plan
                     </h1>
                     <p className="text-xl max-w-2xl mx-auto">
@@ -184,34 +178,13 @@ const SubscriptionPlans = () => {
                     </p>
                 </div>
 
-                {/* Combined Plans & Duration Selection */}
+                {/* Plans Section (Removed Duration Selection) */}
                 <div className="mb-20">
-                    <div className="flex justify-center mb-8">
-                        {durations.map(({ months, discount }) => (
-                            <button
-                                key={months}
-                                onClick={() => setSelectedDuration(months)}
-                                className={`
-                  px-8 py-3 text-sm font-medium transition-all
-                  ${selectedDuration === months
-                                        ? 'bg-blue-600 text-white shadow-lg scale-105'
-                                        : 'bg-background  dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'}
-                  ${months === 1 ? 'rounded-l-lg' : months === 12 ? 'rounded-r-lg' : ''}
-                  border border-blue-100
-                `}
-                            >
-                                {months} Month{months > 1 ? 's' : ''}
-                                {discount > 0 && (
-                                    <span className="block text-xs mt-1 font-normal opacity-90">Save {discount}%</span>
-                                )}
-                            </button>
-                        ))}
-                    </div>
-
                     <div className="grid lg:grid-cols-3 gap-8">
                         {plans.map(({ product, price }, index) => {
                             const Icon = planIcons[index];
-                            const prices = calculatePrice(price, selectedDuration);
+                            const duration = planDurations[index]; 
+                            const prices = calculatePrice(price, duration);
                             return (
                                 <div
                                     key={product.id}
@@ -233,21 +206,23 @@ const SubscriptionPlans = () => {
                                     <div className="p-8">
                                         <div className="flex items-center gap-4 mb-6">
                                             <div className="p-3 rounded-xl bg-blue-50">
-                                                <Icon className="w-8 h-8 text-blue-600 " />
+                                                <Icon className="w-8 h-8 text-blue-600" />
                                             </div>
                                             <div>
-                                                <h3 className="text-xl font-bold ">{product.name}</h3>
-                                                <p className="text-sm ">Perfect for growing businesses</p>
+                                                <h3 className="text-xl font-bold">{product.name}</h3>
+                                                <p className="text-sm">
+                                                    {duration === 1 ? '1 Month Plan' : duration === 6 ? '6 Months Plan' : '12 Months Plan'}
+                                                </p>
                                             </div>
                                         </div>
 
                                         <div className="mb-6">
                                             <div className="flex items-baseline gap-2">
-                                                <span className="text-4xl font-bold ">₹{prices.monthly}</span>
+                                                <span className="text-4xl font-bold">₹{prices.monthly}</span>
                                                 <span>/month</span>
                                             </div>
-                                            <p className="text-sm  mt-2">
-                                                {selectedDuration > 1 ? `₹${prices.total} billed every ${selectedDuration} months` : 'Billed monthly'}
+                                            <p className="text-sm mt-2">
+                                                {duration > 1 ? `₹${prices.total} billed every ${duration} months` : 'Billed monthly'}
                                             </p>
                                         </div>
 
@@ -255,7 +230,7 @@ const SubscriptionPlans = () => {
                                             {product.description.split('. ').map((feature: string, i: number) => (
                                                 <div key={i} className="flex items-center gap-3">
                                                     <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                                    <span className="">{feature}</span>
+                                                    <span>{feature}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -313,7 +288,7 @@ const SubscriptionPlans = () => {
                                         )}
                                     </div>
                                     <h3 className="text-lg font-semibold mb-2">{addon.name}</h3>
-                                    <p className=" text-sm mb-4">{addon.description}</p>
+                                    <p className="text-sm mb-4">{addon.description}</p>
                                     <p className="text-lg font-bold">₹{addon.price}</p>
                                 </div>
                             ))}
@@ -347,7 +322,7 @@ const SubscriptionPlans = () => {
                                         </div>
                                     </div>
                                     <h3 className="text-lg font-semibold mb-2">{addon.name}</h3>
-                                    <p className=" text-sm">{addon.description}</p>
+                                    <p className="text-sm">{addon.description}</p>
                                 </div>
                             ))}
                         </div>
@@ -355,10 +330,10 @@ const SubscriptionPlans = () => {
                 </div>
 
                 <div className="text-center mt-16 space-y-4">
-                    <p className="text-lg ">
+                    <p className="text-lg">
                         All plans include a 7-day free trial. No credit card required.
                     </p>
-                    <p className="">
+                    <p>
                         Need help choosing? {' '}
                         <Link to="/contact" className="text-blue-600 hover:underline font-medium">
                             Talk to our experts

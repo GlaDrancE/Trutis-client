@@ -8,10 +8,11 @@ import signupBackground from "@/assets/signup-background.jpg";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { createGoogleClient, loginClient } from "../../services/api";
+import { createGoogleClient, loginClient, staffLogin } from "../../services/api"; 
 import toast, { Toaster } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store";
+
 const SignInPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [email, setEmail] = useState<string>("");
@@ -22,73 +23,82 @@ const SignInPage: React.FC = () => {
         setShowPassword(!showPassword);
     };
     const [slide, setSlide] = useState<number>(1);
-    const [otp, setOtp] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [otp, setOtp] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const authStore = useAuthStore();
-
 
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-
+    const isValidEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
 
     const handleValidateLogin = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsLoading(true);
+
         try {
-            setIsLoading(true)
-            const response = await loginClient(email, password, "manual", rememberMe);
-
-            if (response.status !== 200) {
-                toast.error("Invalid Credentails")
+            if (isValidEmail(email)) {
+                const response = await loginClient(email, password, "manual", rememberMe);
+                if (response.status !== 200) {
+                    toast.error("Invalid Credentials");
+                    setIsLoading(false);
+                    return;
+                }
+                localStorage.setItem("clientId", response.data.id);
+                localStorage.setItem("token", response.data.accessToken);
+                authStore.setRememberMe(rememberMe);
+                authStore.login(response.data.accessToken, "manual", rememberMe);
+                navigate(`/${response.data.id}`);
+            } else {
+                const response = await staffLogin(email, password, "manual", rememberMe);
+                if (response.status !== 200) {
+                    toast.error("Invalid Staff Credentials");
+                    setIsLoading(false);
+                    return;
+                }
+                localStorage.setItem("clientId", response.data.id);
+                localStorage.setItem("token", response.data.accessToken);
+                authStore.setRememberMe(rememberMe);
+                authStore.login(response.data.accessToken, "manual", rememberMe);
+                navigate(`/${response.data.id}`);
             }
-            // console.log(response.data)
-            localStorage.setItem('clientId', response.data.id);
-            localStorage.setItem('token', response.data.accessToken)
-            authStore.setRememberMe(rememberMe)
-            // document.cookie = `refreshToken=${response.data.refreshToken}`;
-            authStore.login(response.data.accessToken, "manual", rememberMe)
-
-            navigate(`/${response.data.id}`);
         } catch (error) {
-            toast.error('Invalid Credentials');
+            toast.error("Login Failed");
             console.error(error);
-        }
-        finally {
-            setIsLoading(false)
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    
     const handleGoogleSignIn = async (crednetialsResponse: any) => {
         try {
             const decode: any = jwtDecode(crednetialsResponse.credential);
             console.log("Decode: ", decode);
-            const response = await loginClient(decode.email, decode.sub as string, "google", rememberMe)
+            const response = await loginClient(decode.email, decode.sub as string, "google", rememberMe);
             if (response.status !== 200) {
                 toast.error("Failed to create an account");
                 return;
             }
-            // localStorage.setItem('token', crednetialsResponse.credential);
-            // document.cookie = `refreshToken=${response.data.refreshToken}`;
-            authStore.login(crednetialsResponse.credential, "google", rememberMe)
-            authStore.setRememberMe(rememberMe)
-
-            localStorage.setItem('token', crednetialsResponse.credential)
-            localStorage.setItem('clientId', response.data.id)
+            authStore.login(crednetialsResponse.credential, "google", rememberMe);
+            authStore.setRememberMe(rememberMe);
+            localStorage.setItem("token", crednetialsResponse.credential);
+            localStorage.setItem("clientId", response.data.id);
             navigate(`/${response.data.id}`);
-
         } catch (error) {
             console.error(error);
             toast.error("Failed to create account");
         }
     };
+
     return (
         <div className="flex min-h-screen">
             <Toaster />
-            {/* Left content */}
             <div className="w-full md:w-1/2 flex flex-col p-8 md:p-16">
                 <div className="mb-8">
                     <button
-                        onClick={() => console.log("Back to dashboard")}
+                        onClick={() => (window.location.href = "https://entugo.com/in")}
                         className="flex items-center dark:text-white text-sm text-gray-500 hover:text-gray-700"
                     >
                         <svg
@@ -115,7 +125,6 @@ const SignInPage: React.FC = () => {
                     </div>
 
                     <div className="mb-6">
-
                         <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
                             <div>
                                 <GoogleLogin
@@ -146,7 +155,7 @@ const SignInPage: React.FC = () => {
                                 </label>
                                 <Input
                                     id="email"
-                                    type="email"
+                                    type="text" 
                                     placeholder="mail@simmmple.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -202,10 +211,12 @@ const SignInPage: React.FC = () => {
                                 </Link>
                             </div>
 
-                            <Button type="submit" className="dark:text-white w-full py-6 bg-indigo-600 hover:bg-indigo-700" disabled={isLoading}>
-                                {
-                                    isLoading ? "Signing In..." : "Sign In"
-                                }
+                            <Button
+                                type="submit"
+                                className="dark:text-white w-full py-6 bg-indigo-600 hover:bg-indigo-700"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? "Signing In..." : "Sign In"}
                             </Button>
                         </div>
                     </form>
@@ -219,13 +230,8 @@ const SignInPage: React.FC = () => {
                         </p>
                     </div>
                 </div>
-
-                <div className="mt-auto text-center text-xs text-gray-400 py-4">
-                    © 2022 Horizon UI. All Rights Reserved. Made with love by Simmmple!
-                </div>
             </div>
 
-            {/* Right gradient background */}
             <div className="hidden md:block md:w-1/2 relative">
                 <img src={signupBackground} alt="" className="w-full h-full object-cover absolute top-0 left-0 z-10" />
                 <div className="absolute bottom-4 left-4 flex space-x-4 text-sm text-white z-20">

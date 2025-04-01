@@ -1,9 +1,11 @@
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { useEffect } from 'react';
-import HomePage from './pages/HomePage';
 import CouponScanner from './pages/CouponScanner';
 import DashboardLayout from './layout/Layout';
+import Home from './pages/Home';
+import CouponsPage from './pages/Coupons';
+import ReviewPage from './pages/ReviewPage';
 
 interface CustomJwtPayload extends JwtPayload {
     userType?: string;
@@ -31,6 +33,7 @@ const ProtectedRoute = () => {
         }
 
         userType = decode.userType;
+        console.log(userType)
         clientId = localStorage.getItem('clientId');
     } catch (error) {
         console.error('Error decoding token:', error);
@@ -49,7 +52,7 @@ const ProtectedRoute = () => {
             return <Navigate to="/login" replace />;
         }
 
-        const allowedPaths = [`/${clientId}`, `/${clientId}/coupon-scanner`];
+        const allowedPaths = [`/${clientId}`, `/${clientId}/coupon-scanner`, `/${clientId}/coupons`, `/${clientId}/reviews`];
         const currentPath = location.pathname;
 
         if (!allowedPaths.includes(currentPath)) {
@@ -57,10 +60,16 @@ const ProtectedRoute = () => {
         }
 
         if (currentPath === `/${clientId}`) {
-            return <HomePage />;
+            return <DashboardLayout><Home /></DashboardLayout>;
         }
         if (currentPath === `/${clientId}/coupon-scanner`) {
-            return <CouponScanner />;
+            return <DashboardLayout><CouponScanner /></DashboardLayout>;
+        }
+        if (currentPath === `/${clientId}/coupons`) {
+            return <DashboardLayout><CouponsPage /></DashboardLayout>;
+        }
+        if (currentPath === `/${clientId}/reviews`) {
+            return <DashboardLayout><ReviewPage /></DashboardLayout>;
         }
 
         return null;

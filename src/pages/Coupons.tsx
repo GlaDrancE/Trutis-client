@@ -4,22 +4,24 @@ import { useNavigate } from 'react-router-dom';
 import useClient from '../hooks/client-hook';
 import toast from 'react-hot-toast';
 import { redeemCoupon } from '../../services/api';
+import { useClientStore } from '@/store/clientStore';
 
 const CouponsPage = () => {
   const navigate = useNavigate();
-  const { coupons, isLoading, loadCoupons, client } = useClient();
+  const { coupons, isLoading, client } = useClient();
+  const clientStore = useClientStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingRedeems, setLoadingRedeems] = useState<Record<string, boolean>>({});
 
   const handleRedeemClick = async (id: string, e: React.MouseEvent): Promise<void> => {
-    e.stopPropagation(); // Prevent navigation when clicking the claim button
+    e.stopPropagation();
     try {
       setLoadingRedeems(prev => ({ ...prev, [id]: true }));
       const response = await redeemCoupon(id);
       if (response.status !== 200) {
         toast.error('Something went wrong');
       } else {
-        await loadCoupons();
+        await clientStore.loadCoupons(client?.id || '');
       }
     } catch (error) {
       console.error(error);
@@ -52,9 +54,10 @@ const CouponsPage = () => {
   return (
     <div className="bg-background container mx-auto px-4 py-8">
       <div className="flex flex-col space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Available Coupons</h1>
-          <span className="bg-blue-100 text-blue-800 text-sm font-medium px-4 py-2 rounded-full">
+        {/* Adjusted Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold">Available Coupons</h1>
+          <span className="bg-blue-100 text-blue-800 text-sm font-medium px-4 py-2 rounded-full self-start sm:self-center">
             {filteredCoupons.length} Active Coupons
           </span>
         </div>
@@ -87,9 +90,9 @@ const CouponsPage = () => {
                   </div>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${coupon.isUsed
-                        ? 'bg-gray-100 text-gray-700'
-                        : 'bg-green-100 text-green-700'
-                      }`}
+                      ? 'bg-gray-100 text-gray-700'
+                      : 'bg-green-100 text-green-700'
+                    }`}
                   >
                     {coupon.isUsed ? 'Used' : 'Active'}
                   </span>
@@ -106,14 +109,14 @@ const CouponsPage = () => {
                   <div className="flex items-center">
                     <DollarSign className="h-4 w-4 mr-2" />
                     <span className="text-sm">
-                      Max discount: {coupon.maxDiscount}₹
+                      Max discount: {coupon.maxDiscount}%
                     </span>
                   </div>
 
                   <div className="flex items-center">
                     <AlertCircle className="h-4 w-4 mr-2" />
                     <span className="text-sm">
-                      Min order: {coupon.minOrderValue} Orders
+                      Min order: {coupon.minOrderValue} ₹
                     </span>
                   </div>
                 </div>
