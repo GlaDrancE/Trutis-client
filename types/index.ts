@@ -24,6 +24,8 @@ export interface ClientSignUp {
   owner_name: string;
   password: string;
   phone: string;
+  ipAddress?: string;
+  authProvider?: string;
 }
 export interface Client {
   id?: string;
@@ -40,6 +42,7 @@ export interface Client {
   country?: string;
   pincode?: string;
   googleAPI?: string;
+  activeDays?: string[];
   maxDiscount: number;
   couponValidity: string;
   minOrderValue: number;

@@ -3,15 +3,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import useClient from '@/hooks/client-hook';
 import { updateClient } from '../../services/api';
 import toast, { Toaster } from 'react-hot-toast';
-import { Loader, Loader2, Upload, X } from 'lucide-react';
+import { Loader2, Upload, X } from 'lucide-react';
 import { useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader } from './ui/card';
 import { TermsConditionModal } from './TermsConditionModal';
-import axios from 'axios';
+import { getIpData } from '@/lib/getIp';
+import { Checkbox } from './ui/checkbox';
+import { Separator } from './ui/separator';
 
 interface ShopDetails {
     logo: File | null;
@@ -23,6 +23,8 @@ interface ShopDetails {
     country: string;
     pincode: string;
     googleReviewLink: string;
+    activeDays: string[];
+    ipAddress: string | undefined;
 }
 
 export function ShopDetailsModal() {
@@ -32,7 +34,7 @@ export function ShopDetailsModal() {
     const [agreed, setAgreed] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string>('');
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [ip, setIP] = useState<string | undefined>(undefined);
+    const [ip, setIp] = useState<string | undefined>(undefined);
     const [shopDetails, setShopDetails] = useState<ShopDetails>({
         logo: null,
         name: '',
@@ -42,6 +44,8 @@ export function ShopDetailsModal() {
         state: '',
         country: '',
         pincode: '',
+        activeDays: [],
+        ipAddress: ip || undefined,
         googleReviewLink: ''
     });
     const [isLoading, setIsLoading] = useState(false);
@@ -50,10 +54,14 @@ export function ShopDetailsModal() {
 
 
 
-
     useEffect(() => {
         let timeout: NodeJS.Timeout;
         if (client) {
+            if (!client.ipAddress) {
+                getIpData().then(ip => {
+                    setIp(ip)
+                })
+            }
             timeout = setTimeout(() => {
                 const isDetailsEmpty = !client?.shop_name || !client?.line1 || !client?.city ||
                     !client?.state || !client?.country || !client?.pincode ||
@@ -66,10 +74,12 @@ export function ShopDetailsModal() {
                 line1: client?.line1 || '',
                 city: client?.city || '',
                 phone: client?.phone || '',
+                activeDays: client?.activeDays || [],
                 state: client?.state || '',
                 country: client?.country || '',
                 pincode: client?.pincode || '',
-                googleReviewLink: client?.googleAPI || ''
+                googleReviewLink: client?.googleAPI || '',
+                ipAddress: ip || undefined
             })
         }
         return () => {
@@ -141,7 +151,8 @@ export function ShopDetailsModal() {
                     email: client?.email,
                     owner_name: client?.owner_name,
                     googleAPI: shopDetails.googleReviewLink,
-                    ipAddress: ip || undefined
+                    ipAddress: ip || undefined,
+                    activeDays: shopDetails.activeDays
                 });
                 toast.success('Shop details updated successfully');
                 setIsOpen(false);
@@ -153,6 +164,19 @@ export function ShopDetailsModal() {
             }
         }
     };
+    const handleSelectActiveDays = (day: string) => {
+        if (shopDetails.activeDays.includes(day)) {
+            setShopDetails(prev => ({
+                ...prev,
+                activeDays: prev.activeDays.filter(d => d !== day)
+            }))
+        } else {
+            setShopDetails(prev => ({
+                ...prev,
+                activeDays: [...prev.activeDays, day]
+            }))
+        }
+    }
 
     return (
         <Dialog open={isDetailsEmpty && isOpen} onOpenChange={() => setIsOpen(false)} modal>
@@ -239,6 +263,31 @@ export function ShopDetailsModal() {
                                 onChange={handleInputChange('name')}
                                 placeholder="Enter your shop name"
                             />
+                        </div>
+
+                        <div className=''>
+                            <Separator className='my-2' />
+
+                            <Label htmlFor="activeDays mb-2 block">Active Days</Label>
+                            <div className='flex flex-wrap gap-2 mt-2'>
+                                {
+                                    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => (
+                                        <div key={index}>
+                                            <Checkbox
+                                                id={day}
+                                                checked={shopDetails.activeDays.includes(day)}
+                                                className='hidden'
+                                            />
+
+                                            <Button variant={`${shopDetails.activeDays.includes(day) ? 'default' : 'outline'}`} className='w-full' onClick={() => handleSelectActiveDays(day)}>
+
+                                                {day}
+                                            </Button>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                            <Separator className='my-2' />
                         </div>
                         <div className="space-y-2 px-1">
                             <Label htmlFor="line1">Address Line 1</Label>

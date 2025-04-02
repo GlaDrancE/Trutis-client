@@ -8,7 +8,7 @@ import signupBackground from "@/assets/signup-background.jpg";
 import { GoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { createGoogleClient, loginClient, staffLogin } from "../../services/api"; 
+import { createGoogleClient, loginClient, staffLogin } from "../../services/api";
 import toast, { Toaster } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store";
@@ -52,7 +52,7 @@ const SignInPage: React.FC = () => {
                 authStore.login(response.data.accessToken, "manual", rememberMe);
                 navigate(`/${response.data.id}`);
             } else {
-                const response = await staffLogin(email, password, "manual", rememberMe);
+                const response = await loginClient(email, password, "manual", rememberMe);
                 if (response.status !== 200) {
                     toast.error("Invalid Staff Credentials");
                     setIsLoading(false);
@@ -64,8 +64,18 @@ const SignInPage: React.FC = () => {
                 authStore.login(response.data.accessToken, "manual", rememberMe);
                 navigate(`/${response.data.id}`);
             }
-        } catch (error) {
-            toast.error("Login Failed");
+        } catch (error: any) {
+            switch (error.response?.status) {
+                case 400:
+                    toast.error("User already exists");
+                    break;
+                case 401:
+                    toast.error("Invalid email or password");
+                    break;
+                default:
+                    toast.error("Error while creating client");
+                    break;
+            }
             console.error(error);
         } finally {
             setIsLoading(false);
@@ -86,9 +96,19 @@ const SignInPage: React.FC = () => {
             localStorage.setItem("token", crednetialsResponse.credential);
             localStorage.setItem("clientId", response.data.id);
             navigate(`/${response.data.id}`);
-        } catch (error) {
+        } catch (error: any) {
+            switch (error.response?.status) {
+                case 400:
+                    toast.error("User already exists");
+                    break;
+                case 401:
+                    toast.error("Invalid email or password");
+                    break;
+                default:
+                    toast.error("Error while signing in");
+                    break;
+            }
             console.error(error);
-            toast.error("Failed to create account");
         }
     };
 
@@ -155,7 +175,7 @@ const SignInPage: React.FC = () => {
                                 </label>
                                 <Input
                                     id="email"
-                                    type="text" 
+                                    type="text"
                                     placeholder="mail@simmmple.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}

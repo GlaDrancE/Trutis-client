@@ -11,6 +11,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useAuthStore } from '../store';
 import signupBackground from "@/assets/signup-background.jpg";
+import { getIpData } from "@/lib/getIp";
 
 const SignUpPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -26,6 +27,10 @@ const SignUpPage: React.FC = () => {
     const { login: storeLogin, setRememberMe: storeSetRememberMe } = useAuthStore();
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     const otpRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null));
+    const [ip, setIp] = useState<string>("");
+    getIpData().then(ip => {
+        setIp(ip)
+    })
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -96,6 +101,8 @@ const SignUpPage: React.FC = () => {
                     owner_name: fullName,
                     password,
                     phone,
+                    ipAddress: ip,
+                    authProvider: "manual",
                 });
 
                 if (response.status === 201) {
@@ -132,6 +139,8 @@ const SignUpPage: React.FC = () => {
                 owner_name: decode.name,
                 password: decode.sub,
                 phone: "",
+                ipAddress: ip,
+                authProvider: "google",
             });
             if (response.status === 201) {
                 toast.success("Client created");
@@ -144,6 +153,7 @@ const SignUpPage: React.FC = () => {
                 toast.error("Error while creating client");
             }
         } catch (error: any) {
+
             if (error.response?.data === "User already exists") {
                 toast.error("User already exists");
             } else {
