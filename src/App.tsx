@@ -12,8 +12,10 @@ import { Settings } from './pages/Settings';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import AddCardPage from './pages/AddCard';
-import SubscriptionPlans from './pages/SubscriptionPlans';
-import PaymentPage from './pages/PaymentPage';
+// import SubscriptionPlans from './pages/SubscriptionPlans';
+import SubscriptionPlans from './pages/RozorpaySubscriptionPlans';
+// import PaymentPage from './pages/PaymentPage';
+import PaymentPage from './pages/RozorpayPaymentPage';
 import CouponScanner from './pages/CouponScanner';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import Home from './pages/Home';
@@ -74,6 +76,8 @@ function App() {
             <Route path="/:id/coupons" element={<CouponsPage />} />
             <Route path="/:id/profile" element={<Profile />} />
             <Route path="/:id/settings" element={<Settings />} />
+            {/* <Route path="/:id/subscription-plans" element={<SubscriptionPlans />} />
+            <Route path="/payment" element={<PaymentPage />} /> */}
             <Route path="/:id/subscription-plans" element={<SubscriptionPlans />} />
             <Route path="/:id/payment" element={<PaymentPage />} />
             <Route path="/:id/reviews" element={<ReviewPage />} />

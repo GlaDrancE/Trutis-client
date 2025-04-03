@@ -212,3 +212,18 @@ export const updatePoints = (data: { customerId: string, name: string, email: st
 
 export const redeemPoints = (data: { customerId: string, clientId: string, points: number }) =>
     pointsApi.post("/redeem-points", data)
+
+
+// payment
+export const getSubscriptionPlans = (client_id: string) =>
+    paymentApi.post("/payment/plans", { client_id });
+
+export const createRazorpayOrder = (data: {
+    amount: number;
+    currency: string;
+    receipt: string;
+    clientId: string;
+}) => paymentApi.post("/payment/create-order", data);
+
+export const verifyRazorpayPayment = (data: { order_id: string, razorpay_payment_id: string, razorpay_signature: string }) =>
+    paymentApi.post("/payment/verify", data);
