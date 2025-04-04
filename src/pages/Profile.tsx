@@ -36,7 +36,6 @@ const ProfilePage = () => {
     const [tempProfile, setTempProfile] = useState<Client | undefined>(client);
     const [termsShow, setTermsShow] = useState<boolean>(false);
     const [agreed, setAgreed] = useState<boolean>(false)
-    const [ip, setIP] = useState<string | undefined>(undefined);
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
     const navigate = useNavigate();
     const preset = import.meta.env.VITE_UPLOAD_PRESET;
@@ -88,12 +87,14 @@ const ProfilePage = () => {
             toast.error("Please fill all details");
             return;
         }
+        const ip = await getIpData();
         try {
             const response = await updateClient(id, {
                 ...tempProfile,
                 logo: client?.logo ? client.logo : file,
-                ipAddress: ip || undefined
+                ipAddress: client?.ipAddress || ip
             });
+            console.log(ip)
 
             if (response.status === 200) {
                 setProfile(tempProfile);

@@ -20,7 +20,7 @@ export const BarGraph: React.FC<DataPointProps> = ({
     series,
     title,
     height = "400px",
-    darkMode = false
+    darkMode = sessionStorage.getItem('theme') === 'dark'
 }) => {
 
 
@@ -45,9 +45,7 @@ export const BarGraph: React.FC<DataPointProps> = ({
     // Prepare chart data whenever inputs change
     useEffect(() => {
         if (!data || data.length === 0) return;
-
         const labels = data.map(item => item[xAxisKey]);
-
         const datasets = series.map(item => ({
             label: item.label,
             data: data.map(d => d[item.dataKey]),
@@ -57,7 +55,6 @@ export const BarGraph: React.FC<DataPointProps> = ({
             borderRadius: item.borderRadius !== undefined ? item.borderRadius : 4,
             borderSkipped: false
         }));
-
         setChartData({ labels, datasets: datasets as any });
     }, [data, xAxisKey, series]);
 

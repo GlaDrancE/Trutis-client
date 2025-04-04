@@ -24,6 +24,7 @@ import ContactUs from './pages/ContactPage';
 import CouponsPage from './pages/Coupons';
 import ReviewPage from './pages/ReviewPage';
 import { useAuthStore } from './store/slices/authStore';
+import { ThemeProvider } from './context/theme-context';
 
 
 interface CustomJwtPayload extends JwtPayload {
@@ -58,28 +59,30 @@ function App() {
     <>
       {/* <Toaster position="top-right" /> */}
       <Router>
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/public_key" element={<PublicID />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
-          <Route path="/login" element={<SignInPage />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/add-card" element={<AddCardPage />} />
-          <Route path="/contact-us" element={<ContactUs />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path="/:id" element={<Home />} />
-            <Route path="/:id/coupon-scanner" element={<CouponScanner />} />
-            <Route path="/:id/customer/:couponId" element={<CustomerDetailsPage />} />
-            <Route path="/:id/coupons" element={<CouponsPage />} />
-            <Route path="/:id/profile" element={<Profile />} />
-            <Route path="/:id/settings" element={<Settings />} />
-            <Route path="/:id/subscription-plans" element={<SubscriptionPlans />} />
-            <Route path="/:id/payment" element={<PaymentPage />} />
-            <Route path="/:id/reviews" element={<ReviewPage />} />
-            <Route path="*" element={<HandleUnknownRoute />} />
-          </Route>
-        </Routes>
+        <ThemeProvider>
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/public_key" element={<PublicID />} />
+            <Route path="/sign-up" element={<SignUpPage />} />
+            <Route path="/login" element={<SignInPage />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/add-card" element={<AddCardPage />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/:id" element={<Home />} />
+              <Route path="/:id/coupon-scanner" element={<CouponScanner />} />
+              <Route path="/:id/customer/:couponId" element={<CustomerDetailsPage />} />
+              <Route path="/:id/coupons" element={<CouponsPage />} />
+              <Route path="/:id/profile" element={<Profile />} />
+              <Route path="/:id/settings" element={<Settings />} />
+              <Route path="/:id/subscription-plans" element={<SubscriptionPlans />} />
+              <Route path="/:id/payment" element={<PaymentPage />} />
+              <Route path="/:id/reviews" element={<ReviewPage />} />
+              <Route path="*" element={<HandleUnknownRoute />} />
+            </Route>
+          </Routes>
+        </ThemeProvider>
       </Router>
     </>
   );

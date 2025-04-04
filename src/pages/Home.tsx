@@ -1,32 +1,26 @@
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import useClient from "@/hooks/client-hook";
 import { cn } from "@/lib/utils";
 import LineGraph from "@/components/LineGraph";
 import { useEffect, useState } from "react";
 import { BarGraph } from "../components/BarGraph";
+import { useTheme } from "@/context/theme-context";
 
-const trafficData = [
-    { name: 'Google', value: 45 },
-    { name: 'YouTube', value: 25 },
-    { name: 'Instagram', value: 15 },
-    { name: 'Pinterest', value: 8 },
-    { name: 'Facebook', value: 5 },
-    { name: 'Twitter', value: 2 },
-];
+
 interface DataPoint {
     [key: string]: any; // Allow for additional properties
 }
 function Home() {
 
-    const { client, customers, coupons, isLoading } = useClient();
+    const { customers, coupons } = useClient();
     const [months, setMonths] = useState<DataPoint[]>([]);
     const [_coupons, setCoupons] = useState<DataPoint[]>([]);
     const [isDarkMode, setIsDarkMode] = useState(sessionStorage.getItem('theme') === 'dark');
+    const { theme } = useTheme();
     useEffect(() => {
-        setIsDarkMode(sessionStorage.getItem('theme') === 'dark');
-    }, [sessionStorage.getItem('theme')]);
+        setIsDarkMode(theme === 'dark');
+    }, [theme]);
+    console.log(theme)
     const filterMonths = () => {
         const monthCounts = new Array(12).fill(0);
         customers.forEach(customer => {

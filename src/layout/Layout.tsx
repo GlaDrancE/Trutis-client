@@ -33,6 +33,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ShopDetailsModal } from '@/components/ShopDetailsModal';
 import { Loader } from '@/components/Loader';
 import { logOutClient } from '../../services/api';
+import { useTheme } from '@/context/theme-context';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -83,7 +84,7 @@ const navigationItems = {
     ],
     settings: [
         { icon: Settings, label: 'Settings', id: 'settings', href: '/settings' },
-        { icon: Bell, label: 'Notification', id: 'notifications', href: '/notifaction' },
+        // { icon: Bell, label: 'Notification', id: 'notifications', href: '/notifaction' },
         { icon: HelpCircle, label: 'Help Center', id: 'help', href: '/help-center' },
     ],
 };
@@ -109,6 +110,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     const [isMobile, setIsMobile] = useState(false);
     const [activeSection, setActiveSection] = useState('');
     const [breadCrumbs, setBreadCrumbs] = useState<{ id: string, label: string }[]>([{ id: 'dashboard', label: "Dashboard" }]);
+    const { theme, setTheme } = useTheme();
 
 
 
@@ -130,8 +132,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     const toggleTheme = () => {
         setIsDarkMode(!isDarkMode);
         const theme = sessionStorage.getItem('theme');
-        sessionStorage.setItem('theme', theme === 'dark' ? 'light' : 'dark');
-        document.documentElement.classList.toggle('dark');
+        setTheme(theme === 'dark' ? 'light' : 'dark');
     };
 
     const handleNavigation = (sectionId: string, href: string, label: string) => {
@@ -499,7 +500,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                                 {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                             </Button>
 
-                            <Sheet>
+                            {/* <Sheet>
                                 <SheetTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                                         <Bell className="h-5 w-5" />
@@ -533,7 +534,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                                         ))}
                                     </ScrollArea>
                                 </SheetContent>
-                            </Sheet>
+                            </Sheet> */}
                         </div>
                     </div>
                 </header>

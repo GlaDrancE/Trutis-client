@@ -85,7 +85,6 @@ const SignInPage: React.FC = () => {
     const handleGoogleSignIn = async (crednetialsResponse: any) => {
         try {
             const decode: any = jwtDecode(crednetialsResponse.credential);
-            console.log("Decode: ", decode);
             const response = await loginClient(decode.email, decode.sub as string, "google", rememberMe);
             if (response.status !== 200) {
                 toast.error("Failed to create an account");
