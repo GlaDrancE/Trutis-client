@@ -3,7 +3,6 @@ import { Agent, Client, ClientSignUp } from "../types";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:3000/api/v1/api',
-
 });
 const paymentApi = axios.create({
     baseURL: import.meta.env.VITE_PAYMENT_URL || 'http://localhost:3000/api/v1/payment'
@@ -214,16 +213,25 @@ export const redeemPoints = (data: { customerId: string, clientId: string, point
     pointsApi.post("/redeem-points", data)
 
 
-// payment
+export const verifyRazorpayPayment = (data: { order_id: string, razorpay_payment_id: string, razorpay_signature: string }) =>
+    paymentApi.post("/payment/verify", data);
+
 export const getSubscriptionPlans = (client_id: string) =>
-    paymentApi.post("/payment/plans", { client_id });
+    paymentApi.post('/payment/plans', { client_id });
+
+export const createRazorpaySubscription = (data: {
+    plan_id: string;
+    clientId: string;
+    addons?: string[];
+    duration?: number;
+}) => paymentApi.post('/payment/create-subscription', data);
 
 export const createRazorpayOrder = (data: {
     amount: number;
     currency: string;
     receipt: string;
     clientId: string;
-}) => paymentApi.post("/payment/create-order", data);
+}) => paymentApi.post('/payment/create-order', data);
 
-export const verifyRazorpayPayment = (data: { order_id: string, razorpay_payment_id: string, razorpay_signature: string }) =>
-    paymentApi.post("/payment/verify", data);
+export const getSubscriptionStatus = (data: { subscription_id: string; client_id: string }) =>
+    paymentApi.post('/payment/status', data);

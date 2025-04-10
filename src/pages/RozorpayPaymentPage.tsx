@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { verifyRazorpayPayment } from '../../services/api';
+import { getSubscriptionStatus } from '../../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { CheckCircle2, AlertCircle, Home } from 'lucide-react';
 
-const SuccessDisplay = ({ orderId, clientId }: { orderId: string; clientId: string }) => {
+const SuccessDisplay = ({ clientId }: { clientId: string }) => {
   return (
     <div className="h-[90vh] bg-background flex items-center justify-center p-6">
       <Toaster />
@@ -16,8 +16,8 @@ const SuccessDisplay = ({ orderId, clientId }: { orderId: string; clientId: stri
                 <CheckCircle2 className="w-12 h-12" />
               </div>
             </div>
-            <h2 className="text-3xl font-bold mb-2">Payment Successful! 🎉</h2>
-            <p className="text-green-100">Your subscription has been activated successfully</p>
+            <h2 className="text-3xl font-bold mb-2">Subscription Activated! 🎉</h2>
+            <p className="text-green-100">Your subscription is now active</p>
           </div>
 
           <div className="p-8">
@@ -62,29 +62,26 @@ const PaymentPage = () => {
   const [searchParams] = useSearchParams();
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
-  const [orderId, setOrderId] = useState('');
   const [clientId, setClientId] = useState('');
   const [loading, setLoading] = useState(true);
   const hasVerified = useRef(false);
 
   useEffect(() => {
-    const order_id = searchParams.get('order_id');
     const successParam = searchParams.get('success');
+    const subscription_id = searchParams.get('subscription_id');
     const client_id = searchParams.get('client_id');
-    const razorpay_payment_id = searchParams.get('razorpay_payment_id');
-    const razorpay_signature = searchParams.get('razorpay_signature');
 
-    if (!hasVerified.current && successParam === 'true' && order_id && client_id && razorpay_payment_id && razorpay_signature) {
-      verifyPayment(order_id, razorpay_payment_id, razorpay_signature);
+    if (!hasVerified.current && successParam === 'true' && subscription_id && client_id) {
+      checkSubscriptionStatus(subscription_id, client_id);
       setClientId(client_id);
       hasVerified.current = true;
     } else if (successParam === 'false' || searchParams.get('cancel')) {
       setSuccess(false);
-      setMessage('Payment canceled or failed. Please try again.');
+      setMessage('Subscription canceled or failed. Please try again.');
       setLoading(false);
     } else {
       setLoading(false);
-      setMessage('Invalid payment state. Please try again.');
+      setMessage('Invalid subscription state. Please try again.');
     }
 
     return () => {
@@ -92,25 +89,20 @@ const PaymentPage = () => {
     };
   }, [searchParams]);
 
-  const verifyPayment = async (order_id: string, razorpay_payment_id: string, razorpay_signature: string) => {
+  const checkSubscriptionStatus = async (subscription_id: string, client_id: string) => {
     try {
-      const response = await verifyRazorpayPayment({
-        order_id,
-        razorpay_payment_id,
-        razorpay_signature,
-      });
-      if (response.data.success) {
+      const response = await getSubscriptionStatus({ subscription_id, client_id });
+      if (response.data.isActive) {
         setSuccess(true);
-        setOrderId(order_id);
-        toast.success('Payment verified successfully!');
+        toast.success('Subscription activated successfully!');
       } else {
         setSuccess(false);
-        setMessage('Payment verification failed. Please contact support.');
+        setMessage('Subscription not activated. Please contact support.');
       }
     } catch (error) {
-      console.error('Error verifying payment:', error);
+      console.error('Error checking subscription status:', error);
       setSuccess(false);
-      setMessage('Error verifying payment. Please try again.');
+      setMessage('Error verifying subscription. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -124,8 +116,8 @@ const PaymentPage = () => {
     );
   }
 
-  if (success && orderId) {
-    return <SuccessDisplay orderId={orderId} clientId={clientId} />;
+  if (success) {
+    return <SuccessDisplay clientId={clientId} />;
   } else {
     return <Message message={message} />;
   }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getSubscriptionPlans, createRazorpayOrder } from '../../services/api';
+import { getSubscriptionPlans, createRazorpaySubscription } from '../../services/api';
 import {
   QrCode,
   Palette,
@@ -17,12 +17,6 @@ import {
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
-
 interface AddonProduct {
   id: string;
   name: string;
@@ -37,6 +31,7 @@ interface Product {
   name: string;
   description: string;
   default_price: string;
+  level: number;
 }
 
 interface Plan {
@@ -48,7 +43,6 @@ const SubscriptionPlans: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [razorpayLoaded, setRazorpayLoaded] = useState<boolean>(false);
   const { id } = useParams<{ id: string }>();
 
   const immediateAddons: AddonProduct[] = [
@@ -134,7 +128,10 @@ const SubscriptionPlans: React.FC = () => {
       if (id) {
         const response = await getSubscriptionPlans(id);
         if (response.status === 200) {
-          setPlans(response.data.products);
+          const sortedPlans = response.data.products.sort(
+            (a: Plan, b: Plan) => a.product.level - b.product.level
+          );
+          setPlans(sortedPlans);
         }
       }
     } catch (error) {
@@ -143,67 +140,31 @@ const SubscriptionPlans: React.FC = () => {
     }
   };
 
-  const handlePlanSelection = async (plan: { name: string; price: number; description: string; default_price: string }, duration: number) => {
+  const handlePlanSelection = async (
+    plan: { name: string; price: number; description: string; default_price: string },
+    duration: number
+  ) => {
     setSelectedPlan(plan.default_price);
-    console.log(plan);
     try {
-      if (!razorpayLoaded) {
-        toast.error('Payment gateway not loaded. Please try again.');
-        return;
-      }
-
       const addonTotal = immediateAddons
         .filter(addon => selectedAddons.includes(addon.id))
         .reduce((sum, addon) => sum + addon.price, 0);
 
-      const response = await createRazorpayOrder({
-        amount: ((plan.price + addonTotal) * 100),
-        currency: 'INR',
-        receipt: `receipt_${id}_${Date.now()}`,
+      const response = await createRazorpaySubscription({
+        plan_id: plan.default_price,
         clientId: id || '',
+        addons: selectedAddons,
+        duration,
       });
 
-      if (response.data.order) {
-        const order = response.data.order;
-        const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-          amount: order.amount,
-          currency: order.currency,
-          name: 'Entugo',
-          description: `Subscription: ${plan.name}`,
-          order_id: order.id,
-          handler: function (response: any) {
-            toast.success('Payment successful!');
-            window.location.href = `/${id}/payment?success=true&order_id=${order.id}&client_id=${id}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}`;
-          },
-          prefill: {
-            name: 'Customer Name',
-            email: 'customer@example.com',
-            contact: '9999999999',
-          },
-          notes: {
-            client_id: id,
-            plan_id: plan.default_price,
-            addons: JSON.stringify(selectedAddons),
-            duration: duration.toString(),
-          },
-          theme: {
-            color: '#3399cc',
-          },
-        };
-
-        const rzp1 = new window.Razorpay(options);
-        rzp1.on('payment.failed', function (response: any) {
-          toast.error('Payment failed. Please try again.');
-          console.error('Payment failed:', response.error);
-        });
-        rzp1.open();
+      if (response.data.short_url) {
+        window.location.href = response.data.short_url;
       } else {
-        toast.error('Failed to create payment order. Please try again.');
+        toast.error('Failed to create subscription. Please try again.');
       }
     } catch (error) {
-      console.error('Error initiating payment:', error);
-      toast.error('Error initiating payment. Please try again.');
+      console.error('Error initiating subscription:', error);
+      toast.error('Error initiating subscription. Please try again.');
     }
   };
 
@@ -217,23 +178,6 @@ const SubscriptionPlans: React.FC = () => {
     getPlans();
   }, []);
 
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.async = true;
-    script.onload = () => {
-      setRazorpayLoaded(true);
-    };
-    script.onerror = () => {
-      toast.error('Failed to load payment gateway. Please try again.');
-      setRazorpayLoaded(false);
-    };
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
   if (plans.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -243,18 +187,15 @@ const SubscriptionPlans: React.FC = () => {
   }
 
   const planDurations: number[] = [1, 6, 12];
+  const planIcons = [Shield, Zap, Crown];
 
   const calculatePrice = (basePrice: number, duration: number) => {
-    console.log(basePrice, duration);
     const monthlyPrice = basePrice / duration;
-
     return {
       monthly: monthlyPrice.toFixed(0),
       total: basePrice.toFixed(0),
     };
   };
-
-  const planIcons = [Shield, Zap, Crown];
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
@@ -273,7 +214,7 @@ const SubscriptionPlans: React.FC = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             {plans.map(({ product, price }, index) => {
               const Icon = planIcons[index];
-              const duration = planDurations[index];
+              const duration = planDurations[product.level - 1];
               const prices = calculatePrice(price, duration);
               return (
                 <div
@@ -287,7 +228,7 @@ const SubscriptionPlans: React.FC = () => {
                     }
                   `}
                 >
-                  {index === 1 && (
+                  {product.level === 2 && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <span className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-1 rounded-full text-sm text-white font-medium">
                         Most Popular
