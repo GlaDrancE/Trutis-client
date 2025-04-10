@@ -153,7 +153,7 @@ const SubscriptionPlans = () => {
         );
     }
 
-    const planDurations = [1, 6, 12]; 
+    const planDurations = [1, 6, 12];
 
     const calculatePrice = (basePrice: number, duration: number) => {
         const discount = duration === 6 ? 10 : duration === 12 ? 20 : 0; // 10% for 6 months, 20% for 12 months
@@ -183,7 +183,7 @@ const SubscriptionPlans = () => {
                     <div className="grid lg:grid-cols-3 gap-8">
                         {plans.map(({ product, price }, index) => {
                             const Icon = planIcons[index];
-                            const duration = planDurations[index]; 
+                            const duration = planDurations[index];
                             const prices = calculatePrice(price, duration);
                             return (
                                 <div
