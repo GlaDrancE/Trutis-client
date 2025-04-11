@@ -138,6 +138,10 @@ export const updateClient = (id: string, data: Partial<Client>) =>
     api.put(`/clients/${id}`, data, {
         headers: { "Content-Type": "multipart/form-data" },
     });
+export const updateClientIp = (id: string, ip: string) =>
+    api.put(`/clients/ip/${id}`, { ip: ip }, {
+        headers: { "Content-Type": "application/json" },
+    });
 
 
 export const deleteClient = (id: string) => api.delete(`/clients/${id}`);

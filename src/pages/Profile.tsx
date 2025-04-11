@@ -6,30 +6,17 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { getClient, linkQRCode, updateClient } from '../../services/api';
+import { getClient, linkQRCode, updateClient, updateClientIp } from '../../services/api';
 import { Client } from '../../types';
-import useClient from '@/hooks/client-hook';
 import { cn } from '@/lib/utils';
 import { TermsConditionModal } from '@/components/TermsConditionModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { getIpData } from '@/lib/getIp';
-
-interface ProfileData {
-    email: string;
-    owner_name: string;
-    shop_name: string;
-    address: string;
-    googleAPI: string;
-    phone: string;
-    logo: string;
-}
-interface ProfileProps {
-    client: Client | undefined;
-}
+import useClient from '@/hooks/client-hook';
 
 const ProfilePage = () => {
     const { id } = useParams();
-    const { client, isLoading } = useClient();
+    const { client, isLoading, loadClient } = useClient();
     const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState<Client | undefined>(client);
     const [file, setFile] = useState<File | null>(null);
@@ -37,8 +24,6 @@ const ProfilePage = () => {
     const [termsShow, setTermsShow] = useState<boolean>(false);
     const [agreed, setAgreed] = useState<boolean>(false)
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
-    const navigate = useNavigate();
-    const preset = import.meta.env.VITE_UPLOAD_PRESET;
 
     useEffect(() => {
         if (client) {
@@ -75,6 +60,22 @@ const ProfilePage = () => {
         reader.readAsDataURL(file);
     };
 
+    const handleTerms = async () => {
+        const ip_address = await getIpData();
+        try {
+            const response = await updateClientIp(client?.id as string, ip_address);
+            if (response.status === 200) {
+                loadClient(client?.id as string)
+                setTermsShow(false)
+            }
+            else {
+                toast.error("Failed to update profile, Try again");
+            }
+
+        } catch (error) {
+            toast.error("Failed to update profile, Try again");
+        }
+    }
     const handleSave = async (e?: React.FormEvent) => {
         e?.preventDefault();
 
@@ -87,18 +88,19 @@ const ProfilePage = () => {
             toast.error("Please fill all details");
             return;
         }
-        const ip = await getIpData();
+
         try {
             const response = await updateClient(id, {
                 ...tempProfile,
                 logo: client?.logo ? client.logo : file,
-                ipAddress: client?.ipAddress || ip
+                ipAddress: client?.ipAddress
             });
-            console.log(ip)
 
             if (response.status === 200) {
                 setProfile(tempProfile);
                 setIsEditing(false);
+                setTermsShow(false)
+
                 toast.success("Profile updated successfully");
             }
             else {
@@ -466,7 +468,7 @@ const ProfilePage = () => {
                         </DialogTitle>
 
                     </DialogHeader>
-                    <TermsConditionModal client={profile} agreed={agreed} setAgreed={setAgreed} isLoading={submitLoading} handleFinalSubmit={handleSave} />
+                    <TermsConditionModal client={profile} agreed={agreed} setAgreed={setAgreed} isLoading={submitLoading} handleFinalSubmit={handleTerms} />
                 </DialogContent>
             </Dialog>
         </div >
