@@ -42,6 +42,7 @@ interface Product {
 interface Plan {
   product: Product;
   price: number;
+  duration: number; // Added to match backend response
 }
 
 const SubscriptionPlans: React.FC = () => {
@@ -135,6 +136,7 @@ const SubscriptionPlans: React.FC = () => {
         const response = await getSubscriptionPlans(id);
         if (response.status === 200) {
           setPlans(response.data.products);
+          console.log(response.data.products)
         }
       }
     } catch (error) {
@@ -176,11 +178,6 @@ const SubscriptionPlans: React.FC = () => {
             toast.success('Payment successful!');
             window.location.href = `/${id}/payment?success=true&order_id=${order.id}&client_id=${id}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}`;
           },
-          prefill: {
-            name: 'Customer Name',
-            email: 'customer@example.com',
-            contact: '9999999999',
-          },
           notes: {
             client_id: id,
             plan_id: plan.default_price,
@@ -201,9 +198,9 @@ const SubscriptionPlans: React.FC = () => {
       } else {
         toast.error('Failed to create payment order. Please try again.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error initiating payment:', error);
-      toast.error('Error initiating payment. Please try again.');
+      toast.error(error.response.data.message || 'Error initiating payment. Please try again.');
     }
   };
 
@@ -214,7 +211,7 @@ const SubscriptionPlans: React.FC = () => {
   };
 
   useEffect(() => {
-    getPlans();
+    getPlans().then(() => console.log('Plans:', plans));
   }, []);
 
   useEffect(() => {
@@ -242,18 +239,6 @@ const SubscriptionPlans: React.FC = () => {
     );
   }
 
-  const planDurations: number[] = [1, 6, 12];
-
-  const calculatePrice = (basePrice: number, duration: number) => {
-    console.log(basePrice, duration);
-    const monthlyPrice = basePrice / duration;
-
-    return {
-      monthly: monthlyPrice.toFixed(0),
-      total: basePrice.toFixed(0),
-    };
-  };
-
   const planIcons = [Shield, Zap, Crown];
 
   return (
@@ -271,19 +256,17 @@ const SubscriptionPlans: React.FC = () => {
 
         <div className="mb-20">
           <div className="grid lg:grid-cols-3 gap-8">
-            {plans.map(({ product, price }, index) => {
-              const Icon = planIcons[index];
-              const duration = planDurations[index];
-              const prices = calculatePrice(price, duration);
+            {plans.map(({ product, price, duration }, index) => {
+              const Icon = planIcons[index % planIcons.length];
+              const prices = calculatePrice(price, duration || 1);
               return (
                 <div
                   key={product.id}
                   className={`
                     relative bg-background rounded-2xl transition-all duration-300 transform
-                    ${
-                      selectedPlan === product.default_price
-                        ? 'ring-4 ring-blue-400 shadow-2xl scale-105'
-                        : 'hover:shadow-xl hover:scale-102 border border-gray-100'
+                    ${selectedPlan === product.default_price
+                      ? 'ring-4 ring-blue-400 shadow-2xl scale-105'
+                      : 'hover:shadow-xl hover:scale-102 border border-gray-100'
                     }
                   `}
                 >
@@ -338,15 +321,14 @@ const SubscriptionPlans: React.FC = () => {
                             description: product.description,
                             default_price: product.default_price,
                           },
-                          duration
+                          duration || 1
                         )
                       }
                       className={`
                         w-full py-4 rounded-xl font-semibold transition-all duration-300
-                        ${
-                          selectedPlan === product.default_price
-                            ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-700 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-900'
-                            : 'bg-blue-50 text-blue-600 hover:bg-blue-100 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-900'
+                        ${selectedPlan === product.default_price
+                          ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-700 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-900'
+                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-900'
                         }
                       `}
                     >
@@ -369,10 +351,9 @@ const SubscriptionPlans: React.FC = () => {
                   onClick={() => toggleAddon(addon.id)}
                   className={`
                     cursor-pointer rounded-xl p-6 transition-all duration-300 transform
-                    ${
-                      selectedAddons.includes(addon.id)
-                        ? 'bg-background border-2 border-blue-500 shadow-lg scale-105'
-                        : 'bg-background border border-gray-200 hover:border-blue-200 hover:shadow'
+                    ${selectedAddons.includes(addon.id)
+                      ? 'bg-background border-2 border-blue-500 shadow-lg scale-105'
+                      : 'bg-background border border-gray-200 hover:border-blue-200 hover:shadow'
                     }
                   `}
                 >
@@ -401,10 +382,9 @@ const SubscriptionPlans: React.FC = () => {
                   onClick={() => toggleAddon(addon.id)}
                   className={`
                     cursor-pointer rounded-xl p-6 transition-all duration-300 transform
-                    ${
-                      selectedAddons.includes(addon.id)
-                        ? 'bg-background border-2 border-blue-500 shadow-lg scale-105'
-                        : 'bg-background border border-gray-200 hover:border-blue-200 hover:shadow'
+                    ${selectedAddons.includes(addon.id)
+                      ? 'bg-background border-2 border-blue-500 shadow-lg scale-105'
+                      : 'bg-background border border-gray-200 hover:border-blue-200 hover:shadow'
                     }
                   `}
                 >
@@ -435,6 +415,16 @@ const SubscriptionPlans: React.FC = () => {
       </div>
     </div>
   );
+};
+
+const calculatePrice = (basePrice: number, duration: number) => {
+  console.log(basePrice, duration);
+  const monthlyPrice = basePrice / duration;
+
+  return {
+    monthly: monthlyPrice.toFixed(0),
+    total: basePrice.toFixed(0),
+  };
 };
 
 export default SubscriptionPlans;

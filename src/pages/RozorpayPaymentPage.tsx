@@ -75,6 +75,7 @@ const PaymentPage = () => {
     const razorpay_signature = searchParams.get('razorpay_signature');
 
     if (!hasVerified.current && successParam === 'true' && order_id && client_id && razorpay_payment_id && razorpay_signature) {
+      console.log("zala verify")
       verifyPayment(order_id, razorpay_payment_id, razorpay_signature);
       setClientId(client_id);
       hasVerified.current = true;
@@ -102,7 +103,6 @@ const PaymentPage = () => {
       if (response.data.success) {
         setSuccess(true);
         setOrderId(order_id);
-        toast.success('Payment verified successfully!');
       } else {
         setSuccess(false);
         setMessage('Payment verification failed. Please contact support.');
