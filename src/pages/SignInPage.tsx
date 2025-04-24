@@ -52,7 +52,7 @@ const SignInPage: React.FC = () => {
                 authStore.login(response.data.accessToken, "manual", rememberMe);
                 navigate(`/${response.data.id}`);
             } else {
-                const response = await loginClient(email, password, "manual", rememberMe);
+                const response = await staffLogin(email, password, "manual", rememberMe);
                 if (response.status !== 200) {
                     toast.error("Invalid Staff Credentials");
                     setIsLoading(false);
@@ -170,7 +170,7 @@ const SignInPage: React.FC = () => {
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <label htmlFor="email" className="dark:text-white block text-sm font-medium text-gray-700">
-                                    Email<span className="text-blue-600">*</span>
+                                    EMAIL/ID<span className="text-blue-600">*</span>
                                 </label>
                                 <Input
                                     id="email"

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,26 +11,75 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useAuthStore } from '../store';
 import signupBackground from "@/assets/signup-background.jpg";
-import { getIpData } from "@/lib/getIp";
 
 const SignUpPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [fullName, setFullName] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [phone, setPhone] = useState<string>("");
+    const [countryCode, setCountryCode] = useState<string>("+91");
+    const [countryCodes, setCountryCodes] = useState<{ code: string; label: string }[]>([]);
+    const [isLoadingCountryCodes, setIsLoadingCountryCodes] = useState<boolean>(true);
     const [password, setPassword] = useState<string>("");
     const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
     const [rememberMe, setRememberMe] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isOtpSent, setIsOtpSent] = useState<boolean>(false);
+    const [canResendOtp, setCanResendOtp] = useState<boolean>(true);
+    const [resendTimer, setResendTimer] = useState<number>(0);
     const navigate = useNavigate();
     const { login: storeLogin, setRememberMe: storeSetRememberMe } = useAuthStore();
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     const otpRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null));
-    const [ip, setIp] = useState<string>("");
-    getIpData().then(ip => {
-        setIp(ip)
-    })
+
+    useEffect(() => {
+        const fetchCountryCodes = async () => {
+            try {
+                setIsLoadingCountryCodes(true);
+                const response = await fetch('https://restcountries.com/v3.1/all?fields=name,idd');
+                const data = await response.json();
+
+                const codes = data
+                    .map((country: any) => {
+                        const dialCode = `${country?.idd?.root || ''}${country?.idd?.suffixes?.[0] || ''}`;
+                        if (!dialCode) return null;
+                        return {
+                            code: dialCode,
+                            label: `${dialCode} (${country.name.common})`,
+                        };
+                    })
+                    .filter((country: any) => country !== null)
+                    .sort((a: any, b: any) => a.label.localeCompare(b.label));
+
+                setCountryCodes(codes);
+
+
+                const defaultCountry = codes.find((c: any) => c.code === "+91");
+                if (!defaultCountry && codes.length > 0) {
+                    setCountryCode(codes[0].code);
+                }
+            } catch (error) {
+                console.error("Error fetching country codes:", error);
+                setCountryCodes([{ code: "+91", label: "+91 (India)" }]);
+            } finally {
+                setIsLoadingCountryCodes(false);
+            }
+        };
+
+        fetchCountryCodes();
+    }, []);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (resendTimer > 0) {
+            interval = setInterval(() => {
+                setResendTimer((prev) => prev - 1);
+            }, 1000);
+        } else if (resendTimer === 0 && !canResendOtp) {
+            setCanResendOtp(true);
+        }
+        return () => clearInterval(interval);
+    }, [resendTimer, canResendOtp]);
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -74,6 +123,28 @@ const SignUpPage: React.FC = () => {
             if (response.data) {
                 toast.success("OTP sent to your email");
                 setIsOtpSent(true);
+                setCanResendOtp(false);
+                setResendTimer(60);
+            } else {
+                toast.error("Failed to send OTP");
+            }
+        } catch (error) {
+            toast.error("Error generating OTP");
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleResendOtp = async () => {
+        if (!canResendOtp) return;
+        setIsLoading(true);
+        try {
+            const response = await generateOtp(email);
+            if (response.data) {
+                toast.success("New OTP sent to your email");
+                setCanResendOtp(false);
+                setResendTimer(60);
             } else {
                 toast.error("Failed to send OTP");
             }
@@ -96,13 +167,12 @@ const SignUpPage: React.FC = () => {
         try {
             const verifyResponse = await verifyOtp(email, otpString);
             if (verifyResponse.data === "OTP verified successfully") {
+                const fullPhoneNumber = `${countryCode}${phone}`;
                 const response = await createClient({
                     email,
                     owner_name: fullName,
                     password,
-                    phone,
-                    ipAddress: ip,
-                    authProvider: "manual",
+                    phone: fullPhoneNumber,
                 });
 
                 if (response.status === 201) {
@@ -139,8 +209,6 @@ const SignUpPage: React.FC = () => {
                 owner_name: decode.name,
                 password: decode.sub,
                 phone: "",
-                ipAddress: ip,
-                authProvider: "google",
             });
             if (response.status === 201) {
                 toast.success("Client created");
@@ -153,7 +221,6 @@ const SignUpPage: React.FC = () => {
                 toast.error("Error while creating client");
             }
         } catch (error: any) {
-
             if (error.response?.data === "User already exists") {
                 toast.error("User already exists");
             } else {
@@ -232,14 +299,32 @@ const SignUpPage: React.FC = () => {
                                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                                         Phone
                                     </label>
-                                    <Input
-                                        id="phone"
-                                        type="tel"
-                                        placeholder="+91 90132 12390"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        className="w-full"
-                                    />
+                                    <div className="flex gap-2">
+                                        <select
+                                            value={countryCode}
+                                            onChange={(e) => setCountryCode(e.target.value)}
+                                            className="w-2/5 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
+                                            disabled={isLoadingCountryCodes}
+                                        >
+                                            {isLoadingCountryCodes ? (
+                                                <option value="">Loading...</option>
+                                            ) : (
+                                                countryCodes.map((country) => (
+                                                    <option key={country.code} value={country.code}>
+                                                        {country.label}
+                                                    </option>
+                                                ))
+                                            )}
+                                        </select>
+                                        <Input
+                                            id="phone"
+                                            type="tel"
+                                            placeholder="90132 12390"
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
+                                            className="w-full"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">
@@ -339,6 +424,9 @@ const SignUpPage: React.FC = () => {
                                             />
                                         ))}
                                     </div>
+                                    <p className="text-sm text-gray-500 text-center mt-2">
+                                        Check your Junk or Spam folder if the OTP email is not in your inbox.
+                                    </p>
                                 </div>
 
                                 <Button
@@ -360,6 +448,24 @@ const SignUpPage: React.FC = () => {
                                 >
                                     Back to Form
                                 </Button>
+
+                                {isOtpSent && (
+                                    <div className="text-center mt-4">
+                                        {canResendOtp ? (
+                                            <button
+                                                type="button"
+                                                onClick={handleResendOtp}
+                                                className="text-sm text-indigo-600 hover:text-indigo-500"
+                                            >
+                                                Resend OTP
+                                            </button>
+                                        ) : (
+                                            <p className="text-sm text-gray-500">
+                                                Resend OTP in {resendTimer} seconds
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             </>
                         )}
                     </form>

@@ -135,8 +135,10 @@ const SubscriptionPlans: React.FC = () => {
       if (id) {
         const response = await getSubscriptionPlans(id);
         if (response.status === 200) {
-          setPlans(response.data.products);
-          console.log(response.data.products)
+          const sortedPlans = response.data.products.sort(
+            (a: Plan, b: Plan) => a.duration - b.duration
+          );
+          setPlans(sortedPlans);
         }
       }
     } catch (error) {

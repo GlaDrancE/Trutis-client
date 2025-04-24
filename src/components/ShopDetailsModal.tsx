@@ -52,20 +52,17 @@ export function ShopDetailsModal() {
     const [isDetailsEmpty, setIsDetailsEmpty] = useState(false);
     const [isOpen, setIsOpen] = useState(true);
 
-
-
     useEffect(() => {
         let timeout: NodeJS.Timeout;
         if (client) {
             if (!client.ipAddress) {
                 getIpData().then(ip => {
-                    setIp(ip)
-                })
+                    setIp(ip);
+                });
             }
             timeout = setTimeout(() => {
                 const isDetailsEmpty = !client?.shop_name || !client?.line1 || !client?.city ||
-                    !client?.state || !client?.country || !client?.pincode ||
-                    !client?.googleAPI;
+                    !client?.state || !client?.country || !client?.pincode;
                 setIsDetailsEmpty(isDetailsEmpty);
             }, 2000);
             setShopDetails({
@@ -80,12 +77,11 @@ export function ShopDetailsModal() {
                 pincode: client?.pincode || '',
                 googleReviewLink: client?.googleAPI || '',
                 ipAddress: ip || undefined
-            })
+            });
         }
         return () => {
-            clearTimeout(timeout)
-
-        }
+            clearTimeout(timeout);
+        };
     }, [client]);
 
     const handleInputChange = (field: keyof ShopDetails) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +92,6 @@ export function ShopDetailsModal() {
                     ...prev,
                     logo: file
                 }));
-                // Create preview URL
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     setPreviewUrl(reader.result as string);
@@ -123,15 +118,26 @@ export function ShopDetailsModal() {
     };
 
     const handleDetailsSubmit = () => {
-        // Validate all fields are filled
-        const isValid = Object.values(shopDetails).every(value =>
-            value !== null && (typeof value === 'string' ? value.trim() !== '' : true)
+
+        const requiredFields = {
+            name: shopDetails.name,
+            phone: shopDetails.phone,
+            line1: shopDetails.line1,
+            city: shopDetails.city,
+            state: shopDetails.state,
+            country: shopDetails.country,
+            pincode: shopDetails.pincode,
+            activeDays: shopDetails.activeDays.length > 0
+        };
+
+        const isValid = Object.values(requiredFields).every(value =>
+            typeof value === 'string' ? value.trim() !== '' : value
         );
-        console.log(shopDetails)
+
         if (isValid) {
             setStep('terms');
         } else {
-            toast.error('Please fill all the fields');
+            toast.error('Please fill all required fields');
         }
     };
 
@@ -164,25 +170,25 @@ export function ShopDetailsModal() {
             }
         }
     };
+
     const handleSelectActiveDays = (day: string) => {
         if (shopDetails.activeDays.includes(day)) {
             setShopDetails(prev => ({
                 ...prev,
                 activeDays: prev.activeDays.filter(d => d !== day)
-            }))
+            }));
         } else {
             setShopDetails(prev => ({
                 ...prev,
                 activeDays: [...prev.activeDays, day]
-            }))
+            }));
         }
-    }
+    };
 
     return (
         <Dialog open={isDetailsEmpty && isOpen} onOpenChange={() => setIsOpen(false)} modal>
             <Toaster />
             <DialogContent className={`${step === 'details' ? 'sm:max-w-[500px]' : 'max-w-[calc(100vw-2rem)] h-content'}`}>
-
                 <DialogHeader>
                     <DialogTitle>
                         {step === 'details' ? 'Complete Your Shop Details' : 'Terms & Conditions'}
@@ -215,7 +221,7 @@ export function ShopDetailsModal() {
                                 )}
                             </div>
                             <div className="space-y-2 w-full px-1">
-                                <Label htmlFor="logo">Shop Logo</Label>
+                                <Label htmlFor="logo">Shop Logo (Optional)</Label>
                                 <Input
                                     ref={fileInputRef}
                                     id="logo"
@@ -267,25 +273,24 @@ export function ShopDetailsModal() {
 
                         <div className=''>
                             <Separator className='my-2' />
-
                             <Label htmlFor="activeDays mb-2 block">Active Days</Label>
                             <div className='flex flex-wrap gap-2 mt-2'>
-                                {
-                                    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => (
-                                        <div key={index}>
-                                            <Checkbox
-                                                id={day}
-                                                checked={shopDetails.activeDays.includes(day)}
-                                                className='hidden'
-                                            />
-
-                                            <Button variant={`${shopDetails.activeDays.includes(day) ? 'default' : 'outline'}`} className='w-full' onClick={() => handleSelectActiveDays(day)}>
-
-                                                {day}
-                                            </Button>
-                                        </div>
-                                    ))
-                                }
+                                {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => (
+                                    <div key={index}>
+                                        <Checkbox
+                                            id={day}
+                                            checked={shopDetails.activeDays.includes(day)}
+                                            className='hidden'
+                                        />
+                                        <Button
+                                            variant={`${shopDetails.activeDays.includes(day) ? 'default' : 'outline'}`}
+                                            className='w-full'
+                                            onClick={() => handleSelectActiveDays(day)}
+                                        >
+                                            {day}
+                                        </Button>
+                                    </div>
+                                ))}
                             </div>
                             <Separator className='my-2' />
                         </div>
@@ -339,7 +344,7 @@ export function ShopDetailsModal() {
                             </div>
                         </div>
                         <div className="space-y-2 px-1">
-                            <Label htmlFor="googleReview">Google Review Link</Label>
+                            <Label htmlFor="googleReview">Google Review Link (Optional)</Label>
                             <Input
                                 id="googleReview"
                                 value={shopDetails.googleReviewLink}
@@ -357,4 +362,4 @@ export function ShopDetailsModal() {
             </DialogContent>
         </Dialog>
     );
-} 
+}

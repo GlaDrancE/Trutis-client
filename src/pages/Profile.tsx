@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Camera, Edit2, Loader2, Save, X } from 'lucide-react';
+import { Camera, Edit2, Loader2, Save, X, Link } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,8 +22,11 @@ const ProfilePage = () => {
     const [file, setFile] = useState<File | null>(null);
     const [tempProfile, setTempProfile] = useState<Client | undefined>(client);
     const [termsShow, setTermsShow] = useState<boolean>(false);
-    const [agreed, setAgreed] = useState<boolean>(false)
-    const [submitLoading, setSubmitLoading] = useState<boolean>(false)
+    const [agreed, setAgreed] = useState<boolean>(false);
+    const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+    const [qrDialogOpen, setQrDialogOpen] = useState<boolean>(false);
+    const [qrCode, setQrCode] = useState<string>('');
+    const [qrLoading, setQrLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (client) {
@@ -65,17 +68,16 @@ const ProfilePage = () => {
         try {
             const response = await updateClientIp(client?.id as string, ip_address);
             if (response.status === 200) {
-                loadClient(client?.id as string)
-                setTermsShow(false)
-            }
-            else {
+                loadClient(client?.id as string);
+                setTermsShow(false);
+            } else {
                 toast.error("Failed to update profile, Try again");
             }
-
         } catch (error) {
             toast.error("Failed to update profile, Try again");
         }
-    }
+    };
+
     const handleSave = async (e?: React.FormEvent) => {
         e?.preventDefault();
 
@@ -99,20 +101,16 @@ const ProfilePage = () => {
             if (response.status === 200) {
                 setProfile(tempProfile);
                 setIsEditing(false);
-                setTermsShow(false)
-
+                setTermsShow(false);
                 toast.success("Profile updated successfully");
-            }
-            else {
+            } else {
                 toast.error("Failed to save profile, Try Again");
             }
-
         } catch (error: any) {
             if (error.response.data === 'Please sign the Terms & Conditions before updating profile') {
-                toast.error(error.response.data)
-                setTermsShow(true)
-            }
-            else {
+                toast.error(error.response.data);
+                setTermsShow(true);
+            } else {
                 toast.error("Something went wrong");
             }
             console.error("Error updating profile:", error);
@@ -125,21 +123,38 @@ const ProfilePage = () => {
             return;
         }
 
-        if (!tempProfile.qr_id) {
-            toast.error("QR ID is required");
+        if (!qrCode) {
+            toast.error("QR Code is required");
             return;
         }
 
         try {
-            const linkQR = await linkQRCode(tempProfile.public_key, tempProfile.qr_id);
+            setQrLoading(true);
+            const linkQR = await linkQRCode(tempProfile.public_key, qrCode);
             if (linkQR.status === 200) {
                 toast.success("QR Linked successfully");
+                setQrDialogOpen(false);
+                setQrCode('');
+
+                if (tempProfile.id) {
+                    loadClient(tempProfile.id);
+                }
             } else {
                 toast.error("Failed to link QR, Try again");
             }
-        } catch (error) {
-            toast.error("Failed to link QR, Try again");
+        } catch (error: any) {
+            if (error.response?.status === 400) {
+                toast.error(error.response.data.error || "Client ID and QR Code are required");
+            } else if (error.response?.status === 404) {
+                toast.error(error.response.data.error || "Invalid QR Code");
+            } else if (error.response?.status === 500) {
+                toast.error("An unexpected error occurred. Please try again later.");
+            } else {
+                toast.error("Failed to link QR Code, Try again");
+            }
             console.error("Error linking QR:", error);
+        } finally {
+            setQrLoading(false);
         }
     };
 
@@ -218,16 +233,31 @@ const ProfilePage = () => {
                         </div>
 
                         {profile.public_key && (
-                            <div className='flex flex-col gap-4'>
-                                <div>
-                                    <DisplayField
-                                        label='Public Key'
-                                        value={profile.public_key}
-                                        className='text-primary'
-                                    />
+                            <div className="flex flex-col gap-4">
+                                <div className="flex gap-4">
+                                    <div className="flex-1">
+                                        <DisplayField
+                                            label="Public Key"
+                                            value={profile.public_key}
+                                            className="text-primary"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col justify-end">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setQrDialogOpen(true)}
+                                            className="flex gap-2"
+                                        >
+                                            <Link className="w-4 h-4" />
+                                            Link QR Code
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         )}
+                        
+
                         {/* Form Fields */}
                         <div className="space-y-4">
                             {isEditing ? (
@@ -403,7 +433,6 @@ const ProfilePage = () => {
                                             profile.country
                                         ].filter(Boolean).join(', ')}
                                     />
-
                                     <div className="space-y-1">
                                         <Label className="text-sm text-muted-foreground">Google Review Link</Label>
                                         <div className={cn(
@@ -412,7 +441,6 @@ const ProfilePage = () => {
                                         )}>
                                             {
                                                 profile.googleAPI ?
-
                                                     <a href={profile.googleAPI} target='_blank' rel='noreferrer' className='text-blue-500'>
                                                         Google Review Link
                                                     </a> : "Not set"
@@ -459,25 +487,76 @@ const ProfilePage = () => {
                     </form>
                 </CardContent>
             </Card>
+
+            {/* Terms & Conditions Dialog */}
             <Dialog open={termsShow} onOpenChange={() => setTermsShow(false)} modal>
                 <DialogContent>
-
                     <DialogHeader>
-                        <DialogTitle>
-                            Terms & Conditions
-                        </DialogTitle>
-
+                        <DialogTitle>Terms & Conditions</DialogTitle>
                     </DialogHeader>
-                    <TermsConditionModal client={profile} agreed={agreed} setAgreed={setAgreed} isLoading={submitLoading} handleFinalSubmit={handleTerms} />
+                    <TermsConditionModal
+                        client={profile}
+                        agreed={agreed}
+                        setAgreed={setAgreed}
+                        isLoading={submitLoading}
+                        handleFinalSubmit={handleTerms}
+                    />
                 </DialogContent>
             </Dialog>
-        </div >
+
+            {/* QR Code Link Dialog */}
+            <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen} modal>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Link QR Code</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div>
+                            <Label htmlFor="qrCode">Enter QR Code</Label>
+                            <Input
+                                id="qrCode"
+                                value={qrCode}
+                                onChange={(e) => setQrCode(e.target.value)}
+                                placeholder="Enter QR code"
+                                className="mt-1"
+                            />
+                        </div>
+                        <div className="flex gap-4">
+                            <Button
+                                onClick={handleLinkQr}
+                                disabled={qrLoading}
+                                className="flex-1"
+                            >
+                                {qrLoading ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                    <Link className="w-4 h-4 mr-2" />
+                                )}
+                                {qrLoading ? 'Linking...' : 'Link QR Code'}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setQrDialogOpen(false);
+                                    setQrCode('');
+                                }}
+                                className="flex-1"
+                            >
+                                <X className="w-4 h-4 mr-2" />
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </div>
     );
 };
 
 const Profile = () => {
     return (
         <ProfilePage />
-    )
-}
+    );
+};
+
 export default Profile;

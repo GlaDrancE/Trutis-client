@@ -33,7 +33,6 @@ const ProtectedRoute = () => {
         }
 
         userType = decode.userType;
-        console.log(userType)
         clientId = localStorage.getItem('clientId');
     } catch (error) {
         console.error('Error decoding token:', error);

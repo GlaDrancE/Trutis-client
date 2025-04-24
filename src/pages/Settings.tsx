@@ -9,14 +9,14 @@ import { Save, Edit2, Lock, Loader2 } from 'lucide-react';
 import useClient from '@/hooks/client-hook';
 import { portalSession, updateStaff } from '../../services/api';
 import toast from 'react-hot-toast';
+
 const SettingsPage = () => {
     const [isEnabled, setIsEnabled] = useState(false);
     const [credentials, setCredentials] = useState<{ id: string; password: string } | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedCredentials, setEditedCredentials] = useState({ id: '', password: '' });
-    const { client } = useClient();
     const [isLoading, setIsLoading] = useState(false);
-
+    const { client } = useClient();
 
     useEffect(() => {
         console.log(client)
@@ -38,7 +38,7 @@ const SettingsPage = () => {
     };
 
     const handleEdit = async () => {
-        if (client?.id) {
+        if (isEditing && client?.id) {
             setCredentials(editedCredentials);
             const saveCredentials = await updateStaff({ client_id: client?.id, staff_id: editedCredentials.id, staff_password: editedCredentials.password });
             if (saveCredentials.status === 201) {
@@ -48,6 +48,11 @@ const SettingsPage = () => {
             }
         }
         setIsEditing(!isEditing);
+    };
+
+    const handleCancel = () => {
+        setEditedCredentials(credentials || { id: '', password: '' });
+        setIsEditing(false);
     };
 
     const handleSubscription = () => {
@@ -67,6 +72,7 @@ const SettingsPage = () => {
             toast.error('Failed to load manage subscription page');
         }
     };
+
     const changeStaffStatus = async () => {
         try {
             if (client?.id) {
@@ -84,12 +90,12 @@ const SettingsPage = () => {
             toast.error('Failed to change staff status');
             setIsLoading(false);
         }
-    }
+    };
+
     useEffect(() => {
         if (client) {
             if (client.staffId && client.staffPassword) {
                 setCredentials({ id: client.staffId, password: client.staffPassword });
-                // setIsEnabled(client.staffStatus || true);
                 setEditedCredentials({ id: client.staffId, password: client.staffPassword });
             }
             setIsEnabled(client.staffStatus || false)
@@ -121,7 +127,7 @@ const SettingsPage = () => {
                     </div>
 
                     <CardHeader>
-                        <CardTitle className="text-2xl text-foreground"> Settings</CardTitle>
+                        <CardTitle className="text-2xl text-foreground">Settings</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {/* Enable/Disable Switch */}
@@ -152,14 +158,16 @@ const SettingsPage = () => {
                             <div className="space-y-4 p-4 bg-secondary rounded-lg">
                                 <div className="flex justify-between items-center mb-4">
                                     <h4 className="text-lg font-medium text-muted-foreground">Generated Credentials</h4>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={handleEdit}
-                                        className="text-primary hover:text-primary/80"
-                                    >
-                                        {isEditing ? <Save className="h-4 w-4" /> : <Edit2 className="h-4 w-4" />}
-                                    </Button>
+                                    {!isEditing && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setIsEditing(true)}
+                                            className="text-primary hover:text-primary/80"
+                                        >
+                                            <Edit2 className="h-4 w-4" />
+                                        </Button>
+                                    )}
                                 </div>
 
                                 <div className="space-y-4">
@@ -172,7 +180,7 @@ const SettingsPage = () => {
                                                 className="border-blue-200 focus:border-blue-400"
                                             />
                                         ) : (
-                                            <div className="flex items-center space-x-2 p-2 rounded border ">
+                                            <div className="flex items-center space-x-2 p-2 rounded border">
                                                 <span className="text-foreground">{credentials.id}</span>
                                             </div>
                                         )}
@@ -193,6 +201,27 @@ const SettingsPage = () => {
                                                 <span className="text-foreground">{credentials.password}</span>
                                             </div>
                                         )}
+                                        {isEditing && (
+                                            <div className="flex space-x-2 mt-2">
+                                                <Button
+                                                    variant="default"
+                                                    size="sm"
+                                                    onClick={handleEdit}
+                                                    className="bg-primary hover:bg-primary/80"
+                                                >
+                                                    <Save className="h-4 w-4 " />
+                                                    Save
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleCancel}
+                                                    className="text-gray-500 hover:text-gray-700"
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -200,9 +229,10 @@ const SettingsPage = () => {
                     </CardContent>
                 </div>
             </Card>
-        </div >
+        </div>
     );
 };
+
 export const Settings = () => {
     return (
         <SettingsPage />

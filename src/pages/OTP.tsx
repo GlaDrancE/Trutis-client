@@ -98,6 +98,7 @@ const OTPPage = () => {
         </div>
     );
 }
+
 export const OTPForm = () => {
     return
     (

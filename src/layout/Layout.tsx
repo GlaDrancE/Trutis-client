@@ -40,7 +40,7 @@ interface LayoutProps {
 }
 
 interface CustomJwtPayload extends JwtPayload {
-    type?: string;
+    userType?: string;
 }
 
 const notifications = [
@@ -88,6 +88,7 @@ const navigationItems = {
         { icon: HelpCircle, label: 'Help Center', id: 'help', href: '/help-center' },
     ],
 };
+
 const staffNavigationItems = {
     main: [
         { icon: LineChart, label: 'Dashboard', id: 'dashboard', href: '/' },
@@ -149,7 +150,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     if (token) {
         try {
             const decode = jwtDecode<CustomJwtPayload>(token);
-            userType = decode.type;
+            userType = decode.userType;
         } catch (error) {
             console.error('Error decoding token:', error);
         }

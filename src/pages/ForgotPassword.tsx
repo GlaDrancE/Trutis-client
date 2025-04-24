@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { sendResetPasswordEmail } from '../../services/api';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,25 @@ import { ArrowLeft } from 'lucide-react';
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
+    const [canResendLink, setCanResendLink] = useState<boolean>(true);
+    const [resendTimer, setResendTimer] = useState<number>(0);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (resendTimer > 0) {
+            interval = setInterval(() => {
+                setResendTimer((prev) => prev - 1);
+            }, 1000);
+        } else if (resendTimer === 0 && !canResendLink) {
+            setCanResendLink(true);
+        }
+        return () => clearInterval(interval);
+    }, [resendTimer, canResendLink]);
+
+    useEffect(() => {
+        setCanResendLink(true);
+        setResendTimer(0);
+    }, [email]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -18,6 +37,8 @@ const ForgotPassword = () => {
             const response = await sendResetPasswordEmail(email);
             if (response.status === 200) {
                 toast.success('Reset link sent to your email');
+                setCanResendLink(false);
+                setResendTimer(60);
             } else {
                 toast.error(response.data.message || 'Failed to send reset link');
             }
@@ -31,6 +52,7 @@ const ForgotPassword = () => {
 
     return (
         <div className="flex min-h-screen">
+            <Toaster />
             {/* Left content */}
             <div className="w-full md:w-1/2 flex flex-col p-8 md:p-16">
                 <div className="mb-8">
@@ -66,14 +88,21 @@ const ForgotPassword = () => {
                                     required
                                     className="w-full py-5 rounded-2xl"
                                 />
+                                <p className="text-sm text-gray-500">
+                                    Check your Junk or Spam folder if the reset email is not in your inbox.
+                                </p>
                             </div>
 
-                            <Button 
-                                type="submit" 
-                                className="w-full py-6 bg-indigo-600 dark:text-white hover:bg-indigo-700" 
-                                disabled={loading}
+                            <Button
+                                type="submit"
+                                className="w-full py-6 bg-indigo-600 dark:text-white hover:bg-indigo-700"
+                                disabled={loading || !canResendLink}
                             >
-                                {loading ? "Sending Reset Link..." : "Send Reset Link"}
+                                {loading
+                                    ? "Sending Reset Link..."
+                                    : !canResendLink
+                                        ? `Wait ${resendTimer} seconds`
+                                        : "Send Reset Link"}
                             </Button>
                         </div>
                     </form>

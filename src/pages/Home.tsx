@@ -20,7 +20,7 @@ function Home() {
     useEffect(() => {
         setIsDarkMode(theme === 'dark');
     }, [theme]);
-    console.log(theme)
+    // console.log(theme)
     const filterMonths = () => {
         const monthCounts = new Array(12).fill(0);
         customers.forEach(customer => {
