@@ -115,8 +115,6 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
 
 
-
-    // Handle responsive sidebar behavior
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth < 1024);

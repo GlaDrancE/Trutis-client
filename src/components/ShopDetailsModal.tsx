@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useClient from '@/hooks/client-hook';
 import { updateClient } from '../../services/api';
 import toast, { Toaster } from 'react-hot-toast';
-import { Loader2, Upload, X } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { Upload, X } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { TermsConditionModal } from './TermsConditionModal';
 import { getIpData } from '@/lib/getIp';
 import { Checkbox } from './ui/checkbox';
@@ -30,7 +30,8 @@ interface ShopDetails {
 export function ShopDetailsModal() {
     const { client } = useClient();
     const { id } = useParams();
-    const [step, setStep] = useState<'details' | 'terms'>('details');
+    const navigate = useNavigate();
+    const [step, setStep] = useState<'basic' | 'logoReview' | 'terms'>('basic');
     const [agreed, setAgreed] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string>('');
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +51,8 @@ export function ShopDetailsModal() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [isDetailsEmpty, setIsDetailsEmpty] = useState(false);
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
+    const [isSubscriptionPopupOpen, setIsSubscriptionPopupOpen] = useState(false);
 
     useEffect(() => {
         let timeout: NodeJS.Timeout;
@@ -64,6 +66,14 @@ export function ShopDetailsModal() {
                 const isDetailsEmpty = !client?.shop_name || !client?.line1 || !client?.city ||
                     !client?.state || !client?.country || !client?.pincode;
                 setIsDetailsEmpty(isDetailsEmpty);
+
+                if (isDetailsEmpty) {
+                    setIsOpen(true);
+                }
+
+                else if (!client.isActive) {
+                    setIsSubscriptionPopupOpen(true);
+                }
             }, 2000);
             setShopDetails({
                 ...shopDetails,
@@ -117,8 +127,21 @@ export function ShopDetailsModal() {
         }
     };
 
-    const handleDetailsSubmit = () => {
+    const handleSelectActiveDays = (day: string) => {
+        if (shopDetails.activeDays.includes(day)) {
+            setShopDetails(prev => ({
+                ...prev,
+                activeDays: prev.activeDays.filter(d => d !== day)
+            }));
+        } else {
+            setShopDetails(prev => ({
+                ...prev,
+                activeDays: [...prev.activeDays, day]
+            }));
+        }
+    };
 
+    const handleBasicSubmit = () => {
         const requiredFields = {
             name: shopDetails.name,
             phone: shopDetails.phone,
@@ -135,10 +158,14 @@ export function ShopDetailsModal() {
         );
 
         if (isValid) {
-            setStep('terms');
+            setStep('logoReview');
         } else {
             toast.error('Please fill all required fields');
         }
+    };
+
+    const handleLogoReviewSubmit = () => {
+        setStep('terms');
     };
 
     const handleFinalSubmit = async () => {
@@ -162,6 +189,10 @@ export function ShopDetailsModal() {
                 });
                 toast.success('Shop details updated successfully');
                 setIsOpen(false);
+                setIsDetailsEmpty(false); 
+                if (!client?.isActive) {
+                    setIsSubscriptionPopupOpen(true);
+                }
             } catch (error) {
                 console.error('Error updating shop details:', error);
                 toast.error('Error updating shop details');
@@ -171,195 +202,239 @@ export function ShopDetailsModal() {
         }
     };
 
-    const handleSelectActiveDays = (day: string) => {
-        if (shopDetails.activeDays.includes(day)) {
-            setShopDetails(prev => ({
-                ...prev,
-                activeDays: prev.activeDays.filter(d => d !== day)
-            }));
-        } else {
-            setShopDetails(prev => ({
-                ...prev,
-                activeDays: [...prev.activeDays, day]
-            }));
+    const handleBuySubscription = () => {
+        setIsSubscriptionPopupOpen(false);
+        navigate(`/${id}/subscription-plans`);
+    };
+
+    const handleCloseShopDetailsModal = () => {
+        setIsOpen(false);
+        if (!client?.isActive && !isSubscriptionPopupOpen) {
+            setIsSubscriptionPopupOpen(true);
         }
     };
 
     return (
-        <Dialog open={isDetailsEmpty && isOpen} onOpenChange={() => setIsOpen(false)} modal>
-            <Toaster />
-            <DialogContent className={`${step === 'details' ? 'sm:max-w-[500px]' : 'max-w-[calc(100vw-2rem)] h-content'}`}>
-                <DialogHeader>
-                    <DialogTitle>
-                        {step === 'details' ? 'Complete Your Shop Details' : 'Terms & Conditions'}
-                    </DialogTitle>
-                </DialogHeader>
-
-                {step === 'details' ? (
-                    <div className="space-y-4 py-4 h-[calc(100vh-100px)] overflow-y-auto no-scrollbar ">
-                        {/* Image Preview Section */}
-                        <div className="flex flex-col items-center justify-center space-y-4">
-                            <div className="relative">
-                                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                                    {previewUrl ? (
-                                        <img
-                                            src={client?.logo ? client?.logo as string : previewUrl}
-                                            alt="Shop logo preview"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <Upload className="w-8 h-8 text-gray-400" />
-                                    )}
-                                </div>
-                                {previewUrl && (
-                                    <button
-                                        onClick={handleRemoveImage}
-                                        className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </button>
-                                )}
+        <>
+            <Dialog open={isOpen} onOpenChange={handleCloseShopDetailsModal} modal>
+                <Toaster />
+                <DialogContent className="sm:max-w-[1000px] max-h-[100vh]">
+                    <div className={`grid ${step === 'terms' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'} gap-4 h-full`}>
+                        {step !== 'terms' && (
+                            <div className="col-span-1 bg-background p-4 rounded-lg flex flex-col justify-center items-start">
+                                <h2 className="text-xl font-bold mb-2">Branch Information</h2>
+                                <p className="text-sm text-gray-600">Fill the business information of your branch</p>
                             </div>
-                            <div className="space-y-2 w-full px-1">
-                                <Label htmlFor="logo">Shop Logo (Optional)</Label>
-                                <Input
-                                    ref={fileInputRef}
-                                    id="logo"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleInputChange('logo')}
-                                    className="cursor-pointer"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2 px-1">
-                            <Label htmlFor="email">Shop Email</Label>
-                            <Input
-                                id="email"
-                                value={client?.email}
-                                placeholder="Enter your shop email"
-                                disabled={client?.email ? true : false}
-                            />
-                        </div>
-                        <div className="space-y-2 px-1">
-                            <Label htmlFor="name">Owner Name</Label>
-                            <Input
-                                id="name"
-                                value={client?.owner_name}
-                                placeholder="Enter your shop owner name"
-                                disabled={client?.owner_name ? true : false}
-                            />
-                        </div>
-                        <div className="space-y-2 px-1">
-                            <Label htmlFor="name">Phone Number</Label>
-                            <Input
-                                id="name"
-                                value={client?.phone ? client?.phone : shopDetails.phone}
-                                onChange={handleInputChange('phone')}
-                                placeholder="Enter your shop phone number"
-                                disabled={client?.phone ? true : false}
-                            />
-                        </div>
-                        <div className="space-y-2 px-1">
-                            <Label htmlFor="name">Shop Name</Label>
-                            <Input
-                                id="name"
-                                value={shopDetails.name}
-                                onChange={handleInputChange('name')}
-                                placeholder="Enter your shop name"
-                            />
-                        </div>
-
-                        <div className=''>
-                            <Separator className='my-2' />
-                            <Label htmlFor="activeDays mb-2 block">Active Days</Label>
-                            <div className='flex flex-wrap gap-2 mt-2'>
-                                {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => (
-                                    <div key={index}>
-                                        <Checkbox
-                                            id={day}
-                                            checked={shopDetails.activeDays.includes(day)}
-                                            className='hidden'
+                        )}
+                        <div className="col-span-1 md:col-span-2 md:px-1 overflow-y-auto max-h-[70vh]">
+                            {step === 'basic' && (
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold">Contact Information</h3>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email">Shop Email</Label>
+                                        <Input
+                                            id="email"
+                                            value={client?.email}
+                                            placeholder="Enter your shop email"
+                                            disabled={client?.email ? true : false}
                                         />
-                                        <Button
-                                            variant={`${shopDetails.activeDays.includes(day) ? 'default' : 'outline'}`}
-                                            className='w-full'
-                                            onClick={() => handleSelectActiveDays(day)}
-                                        >
-                                            {day}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="ownerName">Owner Name</Label>
+                                        <Input
+                                            id="ownerName"
+                                            value={client?.owner_name}
+                                            placeholder="Enter your shop owner name"
+                                            disabled={client?.owner_name ? true : false}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="phone">Phone Number</Label>
+                                        <Input
+                                            id="phone"
+                                            value={client?.phone ? client.phone : shopDetails.phone}
+                                            onChange={handleInputChange('phone')}
+                                            placeholder="Enter your shop phone number"
+                                            disabled={client?.phone ? true : false}
+                                        />
+                                    </div>
+                                    <Separator />
+                                    <h3 className="text-lg font-semibold">Shop Details</h3>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="shopName">Shop Name</Label>
+                                        <Input
+                                            id="shopName"
+                                            value={shopDetails.name}
+                                            onChange={handleInputChange('name')}
+                                            placeholder="Enter your shop name"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="activeDays" className="mb-2 block">Active Days</Label>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => (
+                                                <div key={index}>
+                                                    <Checkbox
+                                                        id={day}
+                                                        checked={shopDetails.activeDays.includes(day)}
+                                                        className="hidden"
+                                                    />
+                                                    <Button
+                                                        variant={`${shopDetails.activeDays.includes(day) ? 'default' : 'outline'}`}
+                                                        className="w-full"
+                                                        onClick={() => handleSelectActiveDays(day)}
+                                                    >
+                                                        {day}
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <Separator />
+                                    <h3 className="text-lg font-semibold">Address</h3>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="line1">Address Line 1</Label>
+                                        <Input
+                                            id="line1"
+                                            value={shopDetails.line1}
+                                            onChange={handleInputChange('line1')}
+                                            placeholder="Enter your address"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="city">City</Label>
+                                            <Input
+                                                id="city"
+                                                value={shopDetails.city}
+                                                onChange={handleInputChange('city')}
+                                                placeholder="Enter city"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="state">State</Label>
+                                            <Input
+                                                id="state"
+                                                value={shopDetails.state}
+                                                onChange={handleInputChange('state')}
+                                                placeholder="Enter state"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="country">Country</Label>
+                                            <Input
+                                                id="country"
+                                                value={shopDetails.country}
+                                                onChange={handleInputChange('country')}
+                                                placeholder="Enter country"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="pincode">Pincode</Label>
+                                            <Input
+                                                id="pincode"
+                                                value={shopDetails.pincode}
+                                                onChange={handleInputChange('pincode')}
+                                                placeholder="Enter pincode"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Button className="w-full" onClick={handleBasicSubmit}>
+                                            Next
                                         </Button>
                                     </div>
-                                ))}
-                            </div>
-                            <Separator className='my-2' />
-                        </div>
-                        <div className="space-y-2 px-1">
-                            <Label htmlFor="line1">Address Line 1</Label>
-                            <Input
-                                id="line1"
-                                value={shopDetails.line1}
-                                onChange={handleInputChange('line1')}
-                                placeholder="Enter your address"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 px-1">
-                            <div className="space-y-2">
-                                <Label htmlFor="city">City</Label>
-                                <Input
-                                    id="city"
-                                    value={shopDetails.city}
-                                    onChange={handleInputChange('city')}
-                                    placeholder="Enter city"
+                                </div>
+                            )}
+                            {step === 'logoReview' && (
+                                <div className="space-y-4 mt-2">
+                                    <div className="flex flex-col items-center justify-center space-y-4">
+                                        <div className="relative">
+                                            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                                                {previewUrl ? (
+                                                    <img
+                                                        src={client?.logo ? client?.logo as string : previewUrl}
+                                                        alt="Shop logo preview"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <Upload className="w-8 h-8 text-gray-400" />
+                                                )}
+                                            </div>
+                                            {previewUrl && (
+                                                <button
+                                                    onClick={handleRemoveImage}
+                                                    className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="space-y-2 w-full px-1">
+                                            <Label htmlFor="logo">Shop Logo (Optional)</Label>
+                                            <Input
+                                                ref={fileInputRef}
+                                                id="logo"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleInputChange('logo')}
+                                                className="cursor-pointer"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2 px-1">
+                                        <Label htmlFor="googleReview">Google Review Link (Optional)</Label>
+                                        <Input
+                                            id="googleReview"
+                                            value={shopDetails.googleReviewLink}
+                                            onChange={handleInputChange('googleReviewLink')}
+                                            placeholder="Enter your Google Review link"
+                                        />
+                                        <a
+                                            href="https://support.google.com/business/answer/7035772"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm ml-2 text-blue-500 hover:underline"
+                                        >
+                                            How to get Google Review link?
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <Button className="w-full" onClick={handleLogoReviewSubmit}>
+                                            Next
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                            {step === 'terms' && (
+                                <TermsConditionModal
+                                    client={client}
+                                    agreed={agreed}
+                                    setAgreed={setAgreed}
+                                    isLoading={isLoading}
+                                    handleFinalSubmit={handleFinalSubmit}
                                 />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="state">State</Label>
-                                <Input
-                                    id="state"
-                                    value={shopDetails.state}
-                                    onChange={handleInputChange('state')}
-                                    placeholder="Enter state"
-                                />
-                            </div>
+                            )}
                         </div>
-                        <div className="grid grid-cols-2 gap-4 px-1">
-                            <div className="space-y-2">
-                                <Label htmlFor="country">Country</Label>
-                                <Input
-                                    id="country"
-                                    value={shopDetails.country}
-                                    onChange={handleInputChange('country')}
-                                    placeholder="Enter country"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="pincode">Pincode</Label>
-                                <Input
-                                    id="pincode"
-                                    value={shopDetails.pincode}
-                                    onChange={handleInputChange('pincode')}
-                                    placeholder="Enter pincode"
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-2 px-1">
-                            <Label htmlFor="googleReview">Google Review Link (Optional)</Label>
-                            <Input
-                                id="googleReview"
-                                value={shopDetails.googleReviewLink}
-                                onChange={handleInputChange('googleReviewLink')}
-                                placeholder="Enter your Google Review link"
-                            />
-                        </div>
-                        <Button className="w-full" onClick={handleDetailsSubmit}>
-                            {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Continue'}
-                        </Button>
                     </div>
-                ) : (
-                    <TermsConditionModal client={client} agreed={agreed} setAgreed={setAgreed} isLoading={isLoading} handleFinalSubmit={handleFinalSubmit} />
-                )}
-            </DialogContent>
-        </Dialog>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isSubscriptionPopupOpen} onOpenChange={setIsSubscriptionPopupOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Subscription Required</DialogTitle>
+                        <DialogDescription>
+                            Your account is not active. Please buy a subscription plan to continue.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={handleBuySubscription}>Buy Subscription</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }
