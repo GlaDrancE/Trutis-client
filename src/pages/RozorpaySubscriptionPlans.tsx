@@ -42,7 +42,7 @@ interface Product {
 interface Plan {
   product: Product;
   price: number;
-  duration: number; // Added to match backend response
+  duration: number;
 }
 
 const SubscriptionPlans: React.FC = () => {
@@ -265,16 +265,16 @@ const SubscriptionPlans: React.FC = () => {
                 <div
                   key={product.id}
                   className={`
-                    relative bg-background rounded-2xl transition-all duration-300 transform
+                    relative ${index == 1 ? `bg-premium text-white` : 'bg-whitebackground text-black dark:text-white'} rounded-2xl transition-all duration-300 transform
                     ${selectedPlan === product.default_price
-                      ? 'ring-4 ring-blue-400 shadow-2xl scale-105'
-                      : 'hover:shadow-xl hover:scale-102 border border-gray-100'
+                      ? 'ring-4 shadow-2xl scale-105'
+                      : 'hover:shadow-xl hover:scale-102 border dark:border-gray-100'
                     }
                   `}
                 >
                   {index === 1 && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-1 rounded-full text-sm text-white font-medium">
+                      <span className="bg-foreground text-whitebackground px-4 py-1 rounded-full text-sm font-medium">
                         Most Popular
                       </span>
                     </div>
@@ -308,7 +308,7 @@ const SubscriptionPlans: React.FC = () => {
                     <div className="space-y-4 mb-8">
                       {product.description.split('. ').map((feature: string, i: number) => (
                         <div key={i} className="flex items-center gap-3">
-                          <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                          <CheckCircle2 className={`w-5 h-5 ${index == 1 ? 'text-white' : 'text-green-500'} flex-shrink-0`} />
                           <span>{feature}</span>
                         </div>
                       ))}
@@ -327,11 +327,7 @@ const SubscriptionPlans: React.FC = () => {
                         )
                       }
                       className={`
-                        w-full py-4 rounded-xl font-semibold transition-all duration-300
-                        ${selectedPlan === product.default_price
-                          ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-700 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-900'
-                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-900'
-                        }
+                        w-full py-4 rounded-xl font-semibold transition-all duration-300  ${index == 1 ? `bg-whitebackground text-black dark:text-white` : 'bg-premium text-white'}  
                       `}
                     >
                       {selectedPlan === product.default_price ? 'Selected' : 'Get Started'}
@@ -355,7 +351,7 @@ const SubscriptionPlans: React.FC = () => {
                     cursor-pointer rounded-xl p-6 transition-all duration-300 transform
                     ${selectedAddons.includes(addon.id)
                       ? 'bg-background border-2 border-blue-500 shadow-lg scale-105'
-                      : 'bg-background border border-gray-200 hover:border-blue-200 hover:shadow'
+                      : 'bg-background border dark:border-gray-200 hover:border-blue-200 hover:shadow'
                     }
                   `}
                 >
@@ -386,7 +382,7 @@ const SubscriptionPlans: React.FC = () => {
                     cursor-pointer rounded-xl p-6 transition-all duration-300 transform
                     ${selectedAddons.includes(addon.id)
                       ? 'bg-background border-2 border-blue-500 shadow-lg scale-105'
-                      : 'bg-background border border-gray-200 hover:border-blue-200 hover:shadow'
+                      : 'bg-background border dark:border-gray-200 hover:border-blue-200 hover:shadow'
                     }
                   `}
                 >

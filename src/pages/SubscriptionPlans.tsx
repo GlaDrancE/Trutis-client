@@ -247,7 +247,7 @@ const SubscriptionPlans = () => {
                         ${selectedPlan === product.default_price
                                                     ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-700 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-900'
                                                     : 'bg-blue-50 text-blue-600 hover:bg-blue-100 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-900'}
-                      `}
+                        `}
                                         >
                                             {selectedPlan === product.default_price ? 'Selected' : 'Get Started'}
                                         </button>
