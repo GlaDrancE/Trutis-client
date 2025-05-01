@@ -37,7 +37,7 @@ interface CustomJwtPayload extends JwtPayload {
 function App() {
   const authStore = useAuthStore();
   const HandleUnknownRoute = () => {
-    const token = JSON.parse(localStorage.getItem('auth-storage') || '{}').state.token;
+    const token = JSON.parse(localStorage.getItem('auth-storage') || '{}');
     const clientId = localStorage.getItem('clientId');
     if (!token) return <Navigate to="/login" replace />;
 
