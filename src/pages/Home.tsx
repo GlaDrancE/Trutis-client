@@ -77,14 +77,14 @@ function Home() {
 
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background rounded-full">
 
             {/* Main Content */}
-            <main className=''>
+            <main className='rounded-full'>
 
 
                 {/* Page Content */}
-                <div className="flex-1 p-4 sm:p-6 lg:p-8">
+                <div className="flex-1 p-4 sm:p-6 lg:p-8 rounded-full">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
                         <h1 className="text-2xl font-bold">Overview</h1>
                         {/* <Button variant="outline">Today</Button> */}
@@ -98,14 +98,14 @@ function Home() {
                             { label: 'Coupons', value: coupons.length, trend: '+28.6%', bg: '--home-card-background-1' },
                             { label: 'Active Subscribers', value: "123", trend: '+4.3%', bg: '--home-card-background-2' },
                         ].map((stat, index) => (
-                            <Card key={index} className={cn("p-5 sm:p-6 shadow-none", stat.bg === '--home-card-background-1' ? 'bg-home-card-background-1' : 'bg-home-card-background-2')}>
+                            <Card key={index} className={cn("p-5 sm:p-6 shadow-none", "bg-gradient-to-r from-[#d5d6eb] to-[#998ade]")}>
 
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <p className="text-sm text-muted-foreground">{stat.label}</p>
-                                        <h3 className="text-xl sm:text-2xl font-bold mt-1 text-foreground">{stat.value}</h3>
+                                        <p className="text-sm text-black">{stat.label}</p>
+                                        <h3 className="text-xl sm:text-2xl font-bold mt-1 text-black">{stat.value}</h3>
                                     </div>
-                                    <span className={`text-sm ${stat.trend.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
+                                    <span className={`text-sm ${stat.trend.startsWith('+') ? 'text-green-800' : 'text-red-700'}`}>
                                         {stat.trend}
                                     </span>
                                 </div>

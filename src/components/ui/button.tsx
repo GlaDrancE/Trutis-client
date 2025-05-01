@@ -19,7 +19,8 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        premium: "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700",
+        premium:
+          "bg-gradient-to-r from-[hsla(237,100%,76%,1)] to-[hsla(251,100%,55%,1)] text-white hover:from-[hsla(237,100%,66%,1)] hover:to-[hsla(251,100%,45%,1)]",
         redeem: "bg-green-500 text-white shadow-sm hover:bg-green-600",
       },
       size: {
@@ -34,7 +35,7 @@ const buttonVariants = cva(
       size: "default",
     },
   }
-)
+);
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,

@@ -231,13 +231,13 @@ const SignUpPage: React.FC = () => {
     };
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-whitebackground text-foreground">
             <Toaster position="top-right" />
             <div className="w-full md:w-1/2 flex flex-col py-10 px-8 md:p-16">
                 <div className="mb-8">
                     <button
-                        onClick={() => console.log("Back to dashboard")}
-                        className="flex items-center text-sm text-gray-500 hover:text-gray-700"
+                        onClick={() => window.location.href = "https://entugo.com/in"}
+                        className="flex items-center text-sm  hover:"
                     >
                         <svg
                             className="w-4 h-4 mr-2"
@@ -252,14 +252,14 @@ const SignUpPage: React.FC = () => {
                                 d="M15 19l-7-7 7-7"
                             />
                         </svg>
-                        Back to Entgo
+                        Back to Entugo
                     </button>
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-800 mb-2">Sign Up</h1>
-                        <p className="text-gray-500">
+                        <h1 className="text-3xl font-bold  mb-2">Sign Up</h1>
+                        <p className="">
                             {isOtpSent ? "Enter the OTP sent to your email" : "Create your account"}
                         </p>
                     </div>
@@ -268,7 +268,7 @@ const SignUpPage: React.FC = () => {
                         {!isOtpSent ? (
                             <>
                                 <div className="space-y-2">
-                                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                                    <label htmlFor="fullName" className="block text-sm font-medium ">
                                         Full Name
                                     </label>
                                     <Input
@@ -282,7 +282,7 @@ const SignUpPage: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                                    <label htmlFor="email" className="block text-sm font-medium ">
                                         Email
                                     </label>
                                     <Input
@@ -296,14 +296,14 @@ const SignUpPage: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                                    <label htmlFor="phone" className="block text-sm font-medium ">
                                         Phone
                                     </label>
                                     <div className="flex gap-2">
                                         <select
                                             value={countryCode}
                                             onChange={(e) => setCountryCode(e.target.value)}
-                                            className="w-2/5 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
+                                            className="w-2/5 border dark:text-black border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
                                             disabled={isLoadingCountryCodes}
                                         >
                                             {isLoadingCountryCodes ? (
@@ -328,7 +328,7 @@ const SignUpPage: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                    <label htmlFor="password" className="block text-sm font-medium ">
                                         Password<span className="text-indigo-600">*</span>
                                     </label>
                                     <div className="relative">
@@ -344,7 +344,7 @@ const SignUpPage: React.FC = () => {
                                         <button
                                             type="button"
                                             onClick={togglePasswordVisibility}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 "
                                         >
                                             {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                                         </button>
@@ -369,7 +369,7 @@ const SignUpPage: React.FC = () => {
 
                                 <Button
                                     type="submit"
-                                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 dark:text-white"
                                     disabled={isLoading}
                                 >
                                     {isLoading ? "Sending OTP..." : "Send OTP"}
@@ -377,7 +377,7 @@ const SignUpPage: React.FC = () => {
 
                                 <div className="relative flex items-center mt-4">
                                     <div className="flex-grow border-t border-gray-200"></div>
-                                    <span className="flex-shrink mx-4 text-gray-400 text-sm">or</span>
+                                    <span className="flex-shrink mx-4  text-sm">or</span>
                                     <div className="flex-grow border-t border-gray-200"></div>
                                 </div>
 
@@ -395,7 +395,7 @@ const SignUpPage: React.FC = () => {
                                 </GoogleOAuthProvider>
 
                                 <div className="text-center mt-4">
-                                    <p className="text-sm text-gray-600">
+                                    <p className="text-sm ">
                                         Already have an account?{" "}
                                         <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
                                             Login
@@ -406,7 +406,7 @@ const SignUpPage: React.FC = () => {
                         ) : (
                             <>
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700 text-center">
+                                    <label className="block text-sm font-medium  text-center">
                                         Enter OTP
                                     </label>
                                     <div className="flex justify-center gap-2">
@@ -424,7 +424,7 @@ const SignUpPage: React.FC = () => {
                                             />
                                         ))}
                                     </div>
-                                    <p className="text-sm text-gray-500 text-center mt-2">
+                                    <p className="text-sm  text-center mt-2">
                                         Check your Junk or Spam folder if the OTP email is not in your inbox.
                                     </p>
                                 </div>
@@ -460,7 +460,7 @@ const SignUpPage: React.FC = () => {
                                                 Resend OTP
                                             </button>
                                         ) : (
-                                            <p className="text-sm text-gray-500">
+                                            <p className="text-sm ">
                                                 Resend OTP in {resendTimer} seconds
                                             </p>
                                         )}

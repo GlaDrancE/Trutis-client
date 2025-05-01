@@ -178,12 +178,12 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
                 {/* Sidebar */}
                 <aside className={`fixed left-0 top-0 z-40 h-screen w-[280px] transform transition-transform duration-200 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                    } bg-card border-r lg:translate-x-0`}>
+                    } bg-card lg:translate-x-0`}>
                     <ScrollArea className="h-full px-6 py-6">
                         {/* Logo */}
                         <div className="flex items-center gap-3 mb-8">
                             <BarChart className="h-6 w-6 text-primary" />
-                            <span className="text-xl font-bold">Entrego</span>
+                            <span className="text-xl font-bold">Entugo</span>
                             {isMobile && (
                                 <Button
                                     variant="ghost"
@@ -270,7 +270,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                 <main className={`${isMobile ? 'ml-0' : 'lg:ml-[280px]'} bg-background transition-[margin] duration-200 ease-in-out min-h-screen flex flex-col`}>
 
                     {/* Header */}
-                    <header className="sticky top-0 z-20 border-b bg-card/80 backdrop-blur-sm">
+                    <header className="sticky top-0 z-20 bg-card/80 backdrop-blur-sm">
                         <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8 gap-4">
                             <Button
                                 variant="ghost"
@@ -360,17 +360,17 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* Sidebar */}
             <aside className={`fixed left-0 top-0 z-40 h-screen w-[280px] transform transition-transform duration-200 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                } bg-card border-r lg:translate-x-0`}>
+                } bg-card  lg:translate-x-0`}>
                 <ScrollArea className="h-full px-6 py-6">
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-8">
                         <BarChart className="h-6 w-6 text-primary" />
-                        <span className="text-xl font-bold">Entrego</span>
+                        <span className="text-xl font-bold">Entugo</span>
                         {isMobile && (
                             <Button
-                                variant="ghost"
+                                variant="premium"
                                 size="icon"
-                                className="ml-auto lg:hidden"
+                                className="ml-auto lg:hidden rounded-md"
                                 onClick={() => setIsSidebarOpen(false)}
                             >
                                 <X className="h-5 w-5" />
@@ -383,7 +383,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                         {navigationItems.main.map((item) => (
                             <Button
                                 key={item.id}
-                                variant={activeSection === item.id ? "secondary" : "ghost"}
+                                variant={activeSection === item.id ? "premium" : "ghost"}
                                 className="w-full justify-start gap-3 h-11 transition-colors"
                                 onClick={() => handleNavigation(item.id, item.href, item.label)}
                             >
@@ -414,14 +414,14 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                     {/* Account Section */}
                     <div className="mt-8">
                         <h3 className="text-sm font-medium text-muted-foreground mb-4">Account</h3>
-                        <Button variant={'ghost'} className="flex items-center gap-3 mb-4 px-3 py-8 w-full" onClick={() => navigate(`/${id}/profile`)}>
-                            <Avatar>
+                        <Button variant={'premium'} className="w-full flex items-center gap-3 mb-4 px-3 py-8 text-white" onClick={() => navigate(`/${id}/profile`)}>
+                            <Avatar className='text-foreground'>
                                 <AvatarImage src={typeof client?.logo === 'string' ? client.logo : undefined} />
                                 <AvatarFallback>{client?.owner_name?.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="text-sm font-medium">{client?.owner_name}</p>
-                                <p className="text-xs text-muted-foreground">{client?.email}</p>
+                                <p className="text-sm font-medium text-white">{client?.owner_name}</p>
+                                <p className="text-xs text-muted-foreground text-white">{client?.email.split("@")[0]}</p>
                             </div>
                         </Button>
                         <Button
@@ -466,7 +466,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
             <main className={`${isMobile ? 'ml-0' : 'lg:ml-[280px]'} bg-background transition-[margin] duration-200 ease-in-out min-h-screen flex flex-col`}>
 
                 {/* Header */}
-                <header className="sticky top-0 z-20 border-b bg-card/80 backdrop-blur-sm">
+                <header className="sticky top-0 z-20 bg-card/80 backdrop-blur-sm">
                     <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8 gap-4">
                         <Button
                             variant="ghost"

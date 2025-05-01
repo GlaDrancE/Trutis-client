@@ -112,13 +112,13 @@ const SignInPage: React.FC = () => {
     };
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-whitebackground text-foreground">
             <Toaster />
             <div className="w-full md:w-1/2 flex flex-col p-8 md:p-16">
                 <div className="mb-8">
                     <button
                         onClick={() => (window.location.href = "https://entugo.com/in")}
-                        className="flex items-center dark:text-white text-sm text-gray-500 hover:text-gray-700"
+                        className="flex items-center  text-sm  "
                     >
                         <svg
                             className="w-4 h-4 mr-2"
@@ -133,14 +133,14 @@ const SignInPage: React.FC = () => {
                                 d="M15 19l-7-7 7-7"
                             />
                         </svg>
-                        Back to Entgo
+                        Back to Entugo
                     </button>
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
                     <div className="text-center sm:text-left">
-                        <h1 className="text-3xl font-bold dark:text-white text-gray-800 mb-2">Sign In</h1>
-                        <p className="text-gray-500 mb-8 dark:text-white">Enter your email and password to sign in!</p>
+                        <h1 className="text-3xl font-bold   mb-2">Sign In</h1>
+                        <p className=" mb-8 ">Enter your email and password to sign in!</p>
                     </div>
 
                     <div className="mb-6">
@@ -162,14 +162,14 @@ const SignInPage: React.FC = () => {
 
                     <div className="flex items-center mb-6">
                         <div className="flex-1 h-px bg-gray-200"></div>
-                        <span className="px-4 text-sm text-gray-500">or</span>
+                        <span className="px-4 text-sm ">or</span>
                         <div className="flex-1 h-px bg-gray-200"></div>
                     </div>
 
                     <form onSubmit={handleValidateLogin}>
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label htmlFor="email" className="dark:text-white block text-sm font-medium text-gray-700">
+                                <label htmlFor="email" className=" block text-sm font-medium ">
                                     EMAIL/ID<span className="text-blue-600">*</span>
                                 </label>
                                 <Input
@@ -184,7 +184,7 @@ const SignInPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label htmlFor="password" className="dark:text-white block text-sm font-medium text-gray-700">
+                                <label htmlFor="password" className=" block text-sm font-medium ">
                                     Password<span className="text-blue-600">*</span>
                                 </label>
                                 <div className="relative">
@@ -200,7 +200,7 @@ const SignInPage: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={togglePasswordVisibility}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 "
                                     >
                                         {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                                     </button>
@@ -232,7 +232,7 @@ const SignInPage: React.FC = () => {
 
                             <Button
                                 type="submit"
-                                className="dark:text-white w-full py-6 bg-indigo-600 hover:bg-indigo-700"
+                                className=" w-full py-6 bg-indigo-600 hover:bg-indigo-700"
                                 disabled={isLoading}
                             >
                                 {isLoading ? "Signing In..." : "Sign In"}
@@ -241,7 +241,7 @@ const SignInPage: React.FC = () => {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                        <p className="text-sm  dark:">
                             Not registered yet?{" "}
                             <Link to="/sign-up" className="font-medium text-indigo-600 hover:text-indigo-500">
                                 Create an Account

@@ -221,7 +221,7 @@ export function ShopDetailsModal() {
                 <DialogContent className="sm:max-w-[1000px] max-h-[100vh]">
                     <div className={`grid ${step === 'terms' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'} gap-4 h-full`}>
                         {step !== 'terms' && (
-                            <div className="col-span-1 bg-background p-4 rounded-lg flex flex-col justify-center items-start">
+                            <div className="col-span-1 bg-whitebackground p-4 rounded-lg flex flex-col justify-center items-start">
                                 <h2 className="text-xl font-bold mb-2">Branch Information</h2>
                                 <p className="text-sm text-gray-600">Fill the business information of your branch</p>
                             </div>
