@@ -12,7 +12,7 @@ const authApi = axios.create({
     baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/api/v1/auth'
 })
 const pointsApi = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/api/v1/points'
+    baseURL: import.meta.env.VITE_POINT_URL || 'http://localhost:3000/api/v1/points'
 })
 
 
