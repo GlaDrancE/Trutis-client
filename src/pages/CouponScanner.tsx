@@ -74,14 +74,14 @@ const CouponScanner: React.FC = () => {
       setIsLoading(prev => ({ ...prev, coupon: true }));
 
       const response = await getCustomer(code, client_id);
-      console.log(response.data.customer.CustomersCoupons[0].Coupons)
+      console.log(response.data.customer)
 
       if (response.status !== 200) {
         setError('Invalid or expired coupon code');
         setCustomerDetails(null);
       } else {
         setCustomerDetails(response.data);
-        setCoupons(response.data.customer.CustomersCoupons[0].Coupons);
+        setCoupons(response.data.customer.CustomersCoupons.Coupons);
 
 
       }
