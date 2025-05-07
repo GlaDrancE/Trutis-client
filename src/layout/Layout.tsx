@@ -91,7 +91,7 @@ const navigationItems = {
 
 const staffNavigationItems = {
     main: [
-        { icon: LineChart, label: 'Dashboard', id: 'dashboard', href: '/' },
+        { icon: LineChart, label: 'Dashboard', id: 'dashboard', href: '' },
         { icon: QrCode, label: 'QR Code', id: 'qr-code', href: '/coupon-scanner' },
         { icon: Ticket, label: 'Rewards', id: 'coupons', href: '/coupons' },
         { icon: Star, label: 'Reviews', id: 'reviews', href: '/reviews' },
@@ -157,6 +157,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     const handleLogout = async () => {
         localStorage.clear();
         try {
+            sessionStorage.removeItem('hasShownSubscriptionPopup');
             await logOutClient();
             navigate('/login');
         } catch (error) {
@@ -201,7 +202,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                             {staffNavigationItems.main.map((item) => (
                                 <Button
                                     key={item.id}
-                                    variant={activeSection === item.id ? "secondary" : "ghost"}
+                                    variant={activeSection === item.id ? "premium" : "ghost"}
                                     className="w-full justify-start gap-3 h-11 transition-colors"
                                     onClick={() => handleNavigation(item.id, item.href, item.label)}
                                 >
@@ -218,7 +219,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                                 {staffNavigationItems.settings.map((item) => (
                                     <Button
                                         key={item.id}
-                                        variant={activeSection === item.id ? "secondary" : "ghost"}
+                                        variant={activeSection === item.id ? "premium" : "ghost"}
                                         className="w-full justify-start gap-3 h-11 transition-colors"
                                         onClick={() => handleNavigation(item.id, item.href, item.label)}
                                     >
@@ -303,7 +304,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                                     {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                                 </Button>
 
-                                <Sheet>
+                                {/* <Sheet>
                                     <SheetTrigger asChild>
                                         <Button variant="ghost" size="icon" className="h-9 w-9 relative">
                                             <Bell className="h-5 w-5" />
@@ -337,7 +338,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                                             ))}
                                         </ScrollArea>
                                     </SheetContent>
-                                </Sheet>
+                                </Sheet> */}
                             </div>
                         </div>
                     </header>
@@ -400,7 +401,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                             {navigationItems.settings.map((item) => (
                                 <Button
                                     key={item.id}
-                                    variant={activeSection === item.id ? "secondary" : "ghost"}
+                                    variant={activeSection === item.id ? "premium" : "ghost"}
                                     className="w-full justify-start gap-3 h-11 transition-colors"
                                     onClick={() => handleNavigation(item.id, item.href, item.label)}
                                 >

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useClient from '@/hooks/client-hook';
-import { updateClient } from '../../services/api';
+import { logOutClient, updateClient } from '../../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { Upload, X } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { TermsConditionModal } from './TermsConditionModal';
 import { getIpData } from '@/lib/getIp';
 import { Checkbox } from './ui/checkbox';
 import { Separator } from './ui/separator';
+import entugo_logo from '../assets/entugo_logo.png';
 
 interface ShopDetails {
     logo: File | null;
@@ -53,6 +54,9 @@ export function ShopDetailsModal() {
     const [isDetailsEmpty, setIsDetailsEmpty] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [isSubscriptionPopupOpen, setIsSubscriptionPopupOpen] = useState(false);
+    const [hasShownSubscriptionPopup, setHasShownSubscriptionPopup] = useState(
+        sessionStorage.getItem('hasShownSubscriptionPopup') === 'true'
+    );
 
     useEffect(() => {
         let timeout: NodeJS.Timeout;
@@ -69,10 +73,10 @@ export function ShopDetailsModal() {
 
                 if (isDetailsEmpty) {
                     setIsOpen(true);
-                }
-
-                else if (!client.isActive) {
+                } else if (!client.isActive && !hasShownSubscriptionPopup) {
                     setIsSubscriptionPopupOpen(true);
+                    setHasShownSubscriptionPopup(true);
+                    sessionStorage.setItem('hasShownSubscriptionPopup', 'true');
                 }
             }, 2000);
             setShopDetails({
@@ -142,6 +146,10 @@ export function ShopDetailsModal() {
     };
 
     const handleBasicSubmit = () => {
+        if (shopDetails.pincode.length != 6) {
+            toast.error("Please Enter Correct PinCode!");
+            return;
+        }
         const requiredFields = {
             name: shopDetails.name,
             phone: shopDetails.phone,
@@ -171,6 +179,7 @@ export function ShopDetailsModal() {
     const handleFinalSubmit = async () => {
         if (agreed) {
             try {
+
                 setIsLoading(true);
                 await updateClient(id as string, {
                     shop_name: shopDetails.name,
@@ -189,9 +198,11 @@ export function ShopDetailsModal() {
                 });
                 toast.success('Shop details updated successfully');
                 setIsOpen(false);
-                setIsDetailsEmpty(false); 
-                if (!client?.isActive) {
+                setIsDetailsEmpty(false);
+                if (!client?.isActive && !hasShownSubscriptionPopup) {
                     setIsSubscriptionPopupOpen(true);
+                    setHasShownSubscriptionPopup(true);
+                    sessionStorage.setItem('hasShownSubscriptionPopup', 'true');
                 }
             } catch (error) {
                 console.error('Error updating shop details:', error);
@@ -209,8 +220,11 @@ export function ShopDetailsModal() {
 
     const handleCloseShopDetailsModal = () => {
         setIsOpen(false);
-        if (!client?.isActive && !isSubscriptionPopupOpen) {
+        setStep("basic");
+        if (!client?.isActive && !hasShownSubscriptionPopup) {
             setIsSubscriptionPopupOpen(true);
+            setHasShownSubscriptionPopup(true);
+            sessionStorage.setItem('hasShownSubscriptionPopup', 'true');
         }
     };
 
@@ -221,9 +235,20 @@ export function ShopDetailsModal() {
                 <DialogContent className="sm:max-w-[1000px] max-h-[100vh]">
                     <div className={`grid ${step === 'terms' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'} gap-4 h-full`}>
                         {step !== 'terms' && (
-                            <div className="col-span-1 bg-whitebackground p-4 rounded-lg flex flex-col justify-center items-start">
+                            <div className="col-span-1 bg-whitebackground p-4 rounded-lg flex flex-col justify-center items-center">
+                                <div className="mb-4">
+                                    <div className="w-full h-w-full rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
+                                        <img
+                                            src={entugo_logo}
+                                            alt="Branch Information Logo"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
                                 <h2 className="text-xl font-bold mb-2">Branch Information</h2>
-                                <p className="text-sm text-gray-600">Fill the business information of your branch</p>
+                                <p className="text-sm text-gray-600 text-center">
+                                    Fill the business information of your branch
+                                </p>
                             </div>
                         )}
                         <div className="col-span-1 md:col-span-2 md:px-1 overflow-y-auto max-h-[70vh]">
@@ -275,7 +300,7 @@ export function ShopDetailsModal() {
                                             {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => (
                                                 <div key={index}>
                                                     <Checkbox
-                                                        id={day}
+                                                        id="activeDays"
                                                         checked={shopDetails.activeDays.includes(day)}
                                                         className="hidden"
                                                     />
@@ -373,7 +398,7 @@ export function ShopDetailsModal() {
                                             )}
                                         </div>
                                         <div className="space-y-2 w-full px-1">
-                                            <Label htmlFor="logo">Shop Logo (Optional)</Label>
+                                            <Label htmlFor="logo">Shop Logo</Label>
                                             <Input
                                                 ref={fileInputRef}
                                                 id="logo"
@@ -385,7 +410,7 @@ export function ShopDetailsModal() {
                                         </div>
                                     </div>
                                     <div className="space-y-2 px-1">
-                                        <Label htmlFor="googleReview">Google Review Link (Optional)</Label>
+                                        <Label htmlFor="googleReview">Google Review Link</Label>
                                         <Input
                                             id="googleReview"
                                             value={shopDetails.googleReviewLink}
@@ -401,9 +426,16 @@ export function ShopDetailsModal() {
                                             How to get Google Review link?
                                         </a>
                                     </div>
-                                    <div>
+                                    <div className="flex space-x-2">
                                         <Button className="w-full" onClick={handleLogoReviewSubmit}>
                                             Next
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full text-gray-500 hover:text-gray-700"
+                                            onClick={handleLogoReviewSubmit}
+                                        >
+                                            Skip
                                         </Button>
                                     </div>
                                 </div>

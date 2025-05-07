@@ -319,7 +319,7 @@ const SignUpPage: React.FC = () => {
                                         <Input
                                             id="phone"
                                             type="tel"
-                                            placeholder="90132 12390"
+                                            placeholder="99999 99999"
                                             value={phone}
                                             onChange={(e) => setPhone(e.target.value)}
                                             className="w-full"

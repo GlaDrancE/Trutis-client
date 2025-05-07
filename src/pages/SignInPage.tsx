@@ -62,7 +62,7 @@ const SignInPage: React.FC = () => {
                 localStorage.setItem("token", response.data.accessToken);
                 authStore.setRememberMe(rememberMe);
                 authStore.login(response.data.accessToken, "manual", rememberMe);
-                navigate(`/${response.data.id}`);
+                navigate(`/${response.data.id}/coupon-scanner`);
             }
         } catch (error: any) {
             switch (error.response?.status) {

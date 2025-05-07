@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import DashboardLayout from '../layout/Layout'
+import React, { useEffect, useState } from 'react';
+import DashboardLayout from '../layout/Layout';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
-import { Save, Edit2, Lock, Loader2 } from 'lucide-react';
+import { Save, Edit2, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import useClient from '@/hooks/client-hook';
 import { portalSession, updateStaff } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -16,10 +16,11 @@ const SettingsPage = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedCredentials, setEditedCredentials] = useState({ id: '', password: '' });
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const { client } = useClient();
 
     useEffect(() => {
-        console.log(client)
+        console.log(client);
     }, [client]);
 
     const generateCredentials = async () => {
@@ -59,19 +60,19 @@ const SettingsPage = () => {
         window.location.href = `/${client?.id}/subscription-plans`;
     };
 
-    const handlePortalSession = async () => {
-        try {
-            const session = await portalSession(client?.customer_id as string);
-            console.log(client)
-            if (session.status === 200) {
-                window.location.href = session.data.url;
-            } else {
-                toast.error('Failed to load manage subscription page');
-            }
-        } catch (error) {
-            toast.error('Failed to load manage subscription page');
-        }
-    };
+    // const handlePortalSession = async () => {
+    //     try {
+    //         const session = await portalSession(client?.customer_id as string);
+    //         console.log(client)
+    //         if (session.status === 200) {
+    //             window.location.href = session.data.url;
+    //         } else {
+    //             toast.error('Failed to load manage subscription page');
+    //         }
+    //     } catch (error) {
+    //         toast.error('Failed to load manage subscription page');
+    //     }
+    // };
 
     const changeStaffStatus = async () => {
         try {
@@ -98,7 +99,7 @@ const SettingsPage = () => {
                 setCredentials({ id: client.staffId, password: client.staffPassword });
                 setEditedCredentials({ id: client.staffId, password: client.staffPassword });
             }
-            setIsEnabled(client.staffStatus || false)
+            setIsEnabled(client.staffStatus || false);
         }
     }, [client]);
 
@@ -107,7 +108,7 @@ const SettingsPage = () => {
             <Card className="bg-card">
                 <div className="max-w-full mx-auto shadow-lg p-4">
                     {/* Subscription Button */}
-                    <div className="mb-6 flex justify-end">
+                    {/* <div className="mb-6 flex justify-end">
                         {
                             !client?.isActive && !client?.customer_id ?
                                 <Button
@@ -124,7 +125,7 @@ const SettingsPage = () => {
                                     Manage Subscription
                                 </Button>
                         }
-                    </div>
+                    </div> */}
 
                     <CardHeader>
                         <CardTitle className="text-2xl text-foreground">Settings</CardTitle>
@@ -189,16 +190,36 @@ const SettingsPage = () => {
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium text-muted-foreground">Password</label>
                                         {isEditing ? (
-                                            <Input
-                                                value={editedCredentials.password}
-                                                onChange={(e) => setEditedCredentials(prev => ({ ...prev, password: e.target.value }))}
-                                                className="border-blue-200 focus:border-blue-400"
-                                                type="password"
-                                            />
+                                            <div className="relative">
+                                                <Input
+                                                    value={editedCredentials.password}
+                                                    onChange={(e) => setEditedCredentials(prev => ({ ...prev, password: e.target.value }))}
+                                                    className="border-blue-200 focus:border-blue-400 pr-10"
+                                                    type={showPassword ? 'text' : 'password'}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                                >
+                                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                </button>
+                                            </div>
                                         ) : (
-                                            <div className="flex items-center space-x-2 p-2 rounded border">
+                                            <div className="relative flex items-center space-x-2 p-2 rounded border">
                                                 <Lock className="h-4 w-4 text-foreground" />
-                                                <span className="text-foreground">{credentials.password}</span>
+                                                <span className="text-foreground">
+                                                    {showPassword ? credentials.password : '•'.repeat(credentials.password.length)}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                                >
+                                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                </button>
                                             </div>
                                         )}
                                         {isEditing && (
@@ -236,5 +257,5 @@ const SettingsPage = () => {
 export const Settings = () => {
     return (
         <SettingsPage />
-    )
-}
+    );
+};

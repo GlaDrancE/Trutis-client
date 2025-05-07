@@ -274,6 +274,9 @@ const CouponScanner: React.FC = () => {
                           <div className='flex justify-center mb-8'>
                             <Button variant='default' className='w-full' onClick={() => handleRedeemPoints(points)}>Redeem Points</Button>
                           </div>
+                          <div className='flex justify-center mb-8'>
+                            <Button variant='default' className='w-full' onClick={() => openRedeemModal()}>Add Points</Button>
+                          </div>
                         </div>
                       ) : (
                         <div className='flex justify-center mb-8'>
