@@ -271,7 +271,7 @@ const CouponScanner: React.FC = () => {
                             </div>
                           </div>
 
-                          <div className='flex justify-center mb-8'>
+                          <div className='flex justify-center mb-3'>
                             <Button variant='default' className='w-full' onClick={() => handleRedeemPoints(points)}>Redeem Points</Button>
                           </div>
                           <div className='flex justify-center mb-8'>

@@ -12,6 +12,8 @@ const CoinRedeemSuccess: React.FC<CoinRedeemProps> = ({ amount, name, onClose })
   const checkmarkRef = useRef<SVGSVGElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
 
+  const formattedAmount = parseFloat(amount.toFixed(1)).toString();
+
   useEffect(() => {
     if (!circleRef.current || !checkmarkRef.current || !textRef.current) return;
 
@@ -87,7 +89,7 @@ const CoinRedeemSuccess: React.FC<CoinRedeemProps> = ({ amount, name, onClose })
           <div ref={textRef} className="text-center">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Redemption Successful!</h2>
             <p className="text-lg text-gray-600 mb-6">
-              {amount} Tugo Coins have been added to <strong>{name}'s</strong> account
+              {formattedAmount} Tugo Coins have been added to <strong>{name}'s</strong> account
             </p>
             <button
               onClick={onClose}

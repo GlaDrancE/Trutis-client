@@ -39,9 +39,17 @@ const ProfilePage = () => {
         const { name, value, type } = e.target;
         if (!tempProfile) return;
 
+        if (name === 'tugoCoinPercentage') {
+            const numValue = Number(value);
+            if (numValue < 0 || numValue > 100) {
+                toast.error("Tugo Coin Percentage must be between 0 and 100");
+                return;
+            }
+        }
+
         setTempProfile(prev => ({
             ...prev!,
-            [name]: type === "radio" || name === 'minOrderValue' || name === 'couponValidity'
+            [name]: type === "radio" || name === 'minOrderValue' || name === 'couponValidity' || name === 'tugoCoinPercentage'
                 ? Number(value)
                 : value,
         }));
@@ -61,6 +69,22 @@ const ProfilePage = () => {
             } : undefined);
         };
         reader.readAsDataURL(file);
+    };
+
+    const handleSelectActiveDays = (day: string) => {
+        if (!tempProfile) return;
+
+        if (tempProfile.activeDays?.includes(day)) {
+            setTempProfile(prev => ({
+                ...prev!,
+                activeDays: prev!.activeDays!.filter(d => d !== day)
+            }));
+        } else {
+            setTempProfile(prev => ({
+                ...prev!,
+                activeDays: [...prev!.activeDays!, day]
+            }));
+        }
     };
 
     const handleTerms = async () => {
@@ -92,10 +116,13 @@ const ProfilePage = () => {
         }
 
         try {
+            console.log("tempProfile.activeDays ", tempProfile.activeDays);
             const response = await updateClient(id, {
                 ...tempProfile,
                 logo: client?.logo ? client.logo : file,
-                ipAddress: client?.ipAddress
+                ipAddress: client?.ipAddress,
+                activeDays: tempProfile.activeDays,
+                tugoCoinPercentage: tempProfile.tugoCoinPercentage 
             });
 
             if (response.status === 200) {
@@ -158,7 +185,7 @@ const ProfilePage = () => {
         }
     };
 
-    const DisplayField = ({ label, value, className }: { label: string; value?: string | number; className?: string }) => (
+    const DisplayField = ({ label, value, className }: { label: string; value?: string | number | string[]; className?: string }) => (
         <div className="space-y-1">
             <Label className="text-sm text-muted-foreground">{label}</Label>
             <div className={cn(
@@ -166,7 +193,7 @@ const ProfilePage = () => {
                 "text-foreground",
                 className
             )}>
-                {value || 'Not set'}
+                {Array.isArray(value) ? (value.length > 0 ? value.join(', ') : 'Not set') : (value || 'Not set')}
             </div>
         </div>
     );
@@ -256,7 +283,6 @@ const ProfilePage = () => {
                                 </div>
                             </div>
                         )}
-                        
 
                         {/* Form Fields */}
                         <div className="space-y-4">
@@ -308,7 +334,7 @@ const ProfilePage = () => {
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor="city">City </Label>
+                                        <Label htmlFor="city">City</Label>
                                         <Input
                                             id="city"
                                             name="city"
@@ -319,7 +345,7 @@ const ProfilePage = () => {
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor="pincode">Pincode </Label>
+                                        <Label htmlFor="pincode">Pincode</Label>
                                         <Input
                                             id="pincode"
                                             name="pincode"
@@ -330,7 +356,7 @@ const ProfilePage = () => {
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor="state">State </Label>
+                                        <Label htmlFor="state">State</Label>
                                         <Input
                                             id="state"
                                             name="state"
@@ -341,7 +367,7 @@ const ProfilePage = () => {
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor="country">Country </Label>
+                                        <Label htmlFor="country">Country</Label>
                                         <Input
                                             id="country"
                                             name="country"
@@ -375,6 +401,22 @@ const ProfilePage = () => {
                                         />
                                     </div>
                                     <div>
+                                        <Label>Active Days</Label>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => (
+                                                <Button
+                                                    type="button"
+                                                    key={index}
+                                                    variant={tempProfile.activeDays?.includes(day) ? 'default' : 'outline'}
+                                                    className="w-24"
+                                                    onClick={() => handleSelectActiveDays(day)}
+                                                >
+                                                    {day}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
                                         <Label>Max Discount</Label>
                                         <div className="flex gap-4">
                                             {[10, 20, 30].map((discount) => (
@@ -392,6 +434,20 @@ const ProfilePage = () => {
                                         </div>
                                     </div>
                                     <div>
+                                        <Label>Tugo Coin Percentage</Label>
+                                        <Input
+                                            name="tugoCoinPercentage"
+                                            type="number"
+                                            value={tempProfile.tugoCoinPercentage || ''}
+                                            onChange={handleInputChange}
+                                            placeholder="Enter percentage (0-100)"
+                                            min="0"
+                                            max="100"
+                                            step="1"
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                    <div>
                                         <Label>Minimum Order Value</Label>
                                         <Input
                                             name="minOrderValue"
@@ -399,6 +455,7 @@ const ProfilePage = () => {
                                             value={tempProfile.minOrderValue}
                                             onChange={handleInputChange}
                                             required
+                                            className="mt-1"
                                         />
                                     </div>
                                     <div>
@@ -436,7 +493,7 @@ const ProfilePage = () => {
                                     <div className="space-y-1">
                                         <Label className="text-sm text-muted-foreground">Google Review Link</Label>
                                         <div className={cn(
-                                            " font-medium p-2 rounded-md bg-muted",
+                                            "font-medium p-2 rounded-md bg-muted",
                                             "text-foreground",
                                         )}>
                                             {
@@ -448,9 +505,14 @@ const ProfilePage = () => {
                                         </div>
                                     </div>
                                     <DisplayField label="Phone Number" value={profile.phone} />
+                                    <DisplayField label="Active Days" value={profile.activeDays} />
                                     <DisplayField
                                         label="Max Discount"
                                         value={profile.maxDiscount ? `${profile.maxDiscount}%` : undefined}
+                                    />
+                                    <DisplayField
+                                        label="Tugo Coin Percentage"
+                                        value={profile.tugoCoinPercentage ? `${profile.tugoCoinPercentage}%` : undefined}
                                     />
                                     <DisplayField
                                         label="Min Order Value"

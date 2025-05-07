@@ -12,7 +12,9 @@ import { TermsConditionModal } from './TermsConditionModal';
 import { getIpData } from '@/lib/getIp';
 import { Checkbox } from './ui/checkbox';
 import { Separator } from './ui/separator';
-import entugo_logo from '../assets/entugo_logo.png';
+import entugo_logo_dark from '../assets/entugo_logo_dark.png';
+import entugo_logo_light from '../assets/entugo_logo_light.png';
+import { useTheme } from '@/context/theme-context';
 
 interface ShopDetails {
     logo: File | null;
@@ -57,6 +59,7 @@ export function ShopDetailsModal() {
     const [hasShownSubscriptionPopup, setHasShownSubscriptionPopup] = useState(
         sessionStorage.getItem('hasShownSubscriptionPopup') === 'true'
     );
+    const { theme } = useTheme();
 
     useEffect(() => {
         let timeout: NodeJS.Timeout;
@@ -146,7 +149,7 @@ export function ShopDetailsModal() {
     };
 
     const handleBasicSubmit = () => {
-        if (shopDetails.pincode.length != 6) {
+        if (shopDetails.pincode.length !== 6) {
             toast.error("Please Enter Correct PinCode!");
             return;
         }
@@ -179,7 +182,6 @@ export function ShopDetailsModal() {
     const handleFinalSubmit = async () => {
         if (agreed) {
             try {
-
                 setIsLoading(true);
                 await updateClient(id as string, {
                     shop_name: shopDetails.name,
@@ -237,11 +239,12 @@ export function ShopDetailsModal() {
                         {step !== 'terms' && (
                             <div className="col-span-1 bg-whitebackground p-4 rounded-lg flex flex-col justify-center items-center">
                                 <div className="mb-4">
-                                    <div className="w-full h-w-full rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
+                                    <div className="w-full h-w-full rounded-2xl overflow-hidden flex items-center justify-center">
                                         <img
-                                            src={entugo_logo}
+                                            src={theme === "dark" ? entugo_logo_dark : entugo_logo_light}
                                             alt="Branch Information Logo"
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-contain"
+                                            style={{ background: 'transparent' }}
                                         />
                                     </div>
                                 </div>
