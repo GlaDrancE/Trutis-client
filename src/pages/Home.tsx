@@ -98,7 +98,7 @@ function Home() {
                             { label: 'Coupons', value: coupons.length, trend: '+28.6%', bg: '--home-card-background-1' },
                             { label: 'Active Subscribers', value: "123", trend: '+4.3%', bg: '--home-card-background-2' },
                         ].map((stat, index) => (
-                            <Card key={index} className={cn("p-5 sm:p-6 shadow-none", "bg-gradient-to-r from-[#d5d6eb] to-[#998ade]")}>
+                            <Card key={index} className={cn("p-5 sm:p-6 shadow-none", "bg-gradient-to-r from-[#9ba0ff] to-[#d38ade]")}>
 
                                 <div className="flex justify-between items-start">
                                     <div>

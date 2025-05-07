@@ -12,7 +12,7 @@ const authApi = axios.create({
     baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/api/v1/auth'
 })
 const pointsApi = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/api/v1/points'
+    baseURL: import.meta.env.VITE_POINT_URL || 'http://localhost:3000/api/v1/points'
 })
 
 
@@ -207,7 +207,7 @@ export const getStats = () => api.get("/admin/getStats");
 
 // Forms
 export const getClientFromQR = (qr_id: string) => api.post("/forms/get-client", { qr_id: qr_id });
-export const redeemCoupon = (id: string) => api.post("/forms/redeem-coupon", { id: id });
+export const redeemCoupon = (id: string, client_id: string) => api.post("/forms/redeem-coupon", { id: id, client_id: client_id });
 
 
 // Points
