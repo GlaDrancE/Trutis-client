@@ -56,7 +56,7 @@ const CouponsPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCoupons.map((coupon) => (
-            <CouponCard coupon={coupon} />
+            <CouponCard coupon={coupon} hide={true} />
           ))}
         </div>
 

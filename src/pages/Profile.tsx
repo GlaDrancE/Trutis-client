@@ -39,7 +39,7 @@ const ProfilePage = () => {
         const { name, value, type } = e.target;
         if (!tempProfile) return;
 
-        if (name === 'tugoCoinPercentage') {
+        if (name === 'coinRatio') {
             const numValue = Number(value);
             if (numValue < 0 || numValue > 100) {
                 toast.error("Tugo Coin Percentage must be between 0 and 100");
@@ -49,7 +49,7 @@ const ProfilePage = () => {
 
         setTempProfile(prev => ({
             ...prev!,
-            [name]: type === "radio" || name === 'minOrderValue' || name === 'couponValidity' || name === 'tugoCoinPercentage'
+            [name]: type === "radio" || name === 'minOrderValue' || name === 'couponValidity' || name === 'coinRatio'
                 ? Number(value)
                 : value,
         }));
@@ -122,7 +122,7 @@ const ProfilePage = () => {
                 logo: client?.logo ? client.logo : file,
                 ipAddress: client?.ipAddress,
                 activeDays: tempProfile.activeDays,
-                tugoCoinPercentage: tempProfile.tugoCoinPercentage 
+                coinRatio: tempProfile.coinRatio
             });
 
             if (response.status === 200) {
@@ -436,9 +436,9 @@ const ProfilePage = () => {
                                     <div>
                                         <Label>Tugo Coin Percentage</Label>
                                         <Input
-                                            name="tugoCoinPercentage"
+                                            name="coinRatio"
                                             type="number"
-                                            value={tempProfile.tugoCoinPercentage || ''}
+                                            value={tempProfile.coinRatio || ''}
                                             onChange={handleInputChange}
                                             placeholder="Enter percentage (0-100)"
                                             min="0"
@@ -512,7 +512,7 @@ const ProfilePage = () => {
                                     />
                                     <DisplayField
                                         label="Tugo Coin Percentage"
-                                        value={profile.tugoCoinPercentage ? `${profile.tugoCoinPercentage}%` : undefined}
+                                        value={profile.coinRatio ? `${profile.coinRatio}%` : undefined}
                                     />
                                     <DisplayField
                                         label="Min Order Value"

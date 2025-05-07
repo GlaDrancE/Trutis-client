@@ -54,7 +54,7 @@ export interface Client {
   qr_id?: string;
   public_key?: string;
   plan_title?: string;
-  tugoCoinPercentage?: number;
+  coinRatio?: number;
   agent_id?: string;
   created_at?: string;
   staffId?: string;

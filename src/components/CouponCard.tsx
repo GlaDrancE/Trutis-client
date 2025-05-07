@@ -23,10 +23,11 @@ interface CustomerDetails {
 }
 interface CouponCardProps {
     coupon: Coupon | null | undefined
+    hide: boolean
     customerDetails?: CustomerDetails | null | undefined
 }
 
-export const CouponCard: FC<CouponCardProps> = ({ coupon }) => {
+export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -111,7 +112,7 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon }) => {
                         <p className="text-xs text-gray-400">
                             Created on {formatDate(_coupon?.createdAt || '')}
                         </p>
-                        {!_coupon?.isUsed && (
+                        {!_coupon?.isUsed && !hide && (
                             <button
                                 onClick={(e) => handleRedeemClick(_coupon?.id.toString() || '', e)}
                                 disabled={loadingRedeems[_coupon?.id.toString() || '']}
