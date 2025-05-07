@@ -98,6 +98,7 @@ export interface Coupon {
   isUsed: boolean;
   validFrom: string;
   maxDiscount: number;
+  coinRatio: number;
   minOrderValue: number;
   id: number;
   Coupon: any;

@@ -1,13 +1,9 @@
-import DashboardLayout from '../layout/Layout';
 import React, { useState } from 'react';
 import QrReader from 'react-qr-scanner';
-import { fetchCustomerFromCoupon, getCustomer, redeemCoupon, redeemPoints, updatePoints } from '../../services/api'
-import { CustomerData } from 'types';
+import { getCustomer, redeemPoints, updatePoints } from '../../services/api'
 import { Input } from '@/components/ui/input';
 import { Coins, Loader2 } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { useClientStore } from '@/store/clientStore';
 import useClient from '@/hooks/client-hook';
 import toast from 'react-hot-toast';
 import { Coupon } from 'types';
@@ -15,6 +11,7 @@ import { CouponCard } from '@/components/CouponCard';
 import { RedeemModal } from '@/components/RedeemModal';
 import { calculatePointsForCoupon } from '@/lib/calculatePoints';
 import CoinRedeemSuccess from '@/components/CoinRedeemSuccess';
+import { useParams } from 'react-router';
 
 
 interface CouponRedemption {
@@ -44,11 +41,9 @@ const CouponScanner: React.FC = () => {
     coupon: false,
     redeem: false
   });
-  const [checked, setChecked] = useState<boolean>(false);
+  const { id } = useParams()
   const { client } = useClient();
-  const clientStore = useClientStore();
-  const client_id = localStorage.getItem('clientId') || clientStore.client?.id || '';
-  const [loadingRedeems, setLoadingRedeems] = useState<Record<string, boolean>>({});
+  const client_id = id || client?.id || '';
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [redeemMessage, setRedeemMessage] = useState('');
   const [points, setPoints] = useState('')
@@ -81,7 +76,8 @@ const CouponScanner: React.FC = () => {
         setCustomerDetails(null);
       } else {
         setCustomerDetails(response.data);
-        setCoupons(response.data.customer.CustomersCoupons.Coupons);
+        setCoupons(response.data.customer.Coupon);
+
 
 
       }
@@ -116,29 +112,12 @@ const CouponScanner: React.FC = () => {
     setIsModalOpen(true);
   }
 
-  const handleRedeemClick = async (id: string, e: React.MouseEvent): Promise<void> => {
-    e.stopPropagation();
-    try {
-      setLoadingRedeems(prev => ({ ...prev, [id]: true }));
-      const response = await redeemCoupon(id);
-      if (response.status !== 200) {
-        toast.error('Something went wrong');
-      } else {
-        await clientStore.loadCoupons(client?.id || '');
-        setCoupons(prev => prev ? { ...prev, isUsed: false } : undefined)
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to redeem coupon');
-    } finally {
-      setLoadingRedeems(prev => ({ ...prev, [id]: false }));
-    }
-  };
+
 
   const handleSubmitAmount = async (amount: number) => {
     try {
 
-      const points = calculatePointsForCoupon(amount || 0, coupons?.maxDiscount || 0, coupons?.minOrderValue || 0)
+      const points = calculatePointsForCoupon(amount || 0, coupons?.coinRatio || 0, coupons?.minOrderValue || 0)
       console.log(coupons?.maxDiscount, coupons?.minOrderValue)
       setPointsToAdd(points);
       setIsLoading(prev => ({ ...prev, redeem: true }));
@@ -284,7 +263,7 @@ const CouponScanner: React.FC = () => {
                     </>
                   ) : (
 
-                    <CouponCard customerDetails={customerDetails} coupons={coupons} handleRedeemClick={handleRedeemClick} loadingRedeems={loadingRedeems} />
+                    <CouponCard coupon={coupons} />
                   )
                 }
                 <button

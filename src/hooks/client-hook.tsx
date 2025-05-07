@@ -43,7 +43,8 @@ const useClient = () => {
             coupons: couponsLoading,
             customers: customersLoading
         },
-        loadClient
+        loadClient,
+        loadCoupons
     }
 }
 

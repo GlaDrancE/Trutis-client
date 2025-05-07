@@ -1,31 +1,32 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { Coupon } from 'types'
 import { AlertCircle, Calendar, DollarSign, Gift, IndianRupee } from 'lucide-react';
+import { redeemCoupon } from '../../services/api';
+import { useParams } from 'react-router';
+import useClient from '@/hooks/client-hook';
+import toast from 'react-hot-toast';
+import { useCouponStore } from '@/store';
 
 interface CouponRedemption {
     customerId: string;
     couponId: string;
     usedAt: Date;
-    Coupons: Coupon;
+    coupon: Coupon;
 }
 interface CustomerDetails {
     customer: {
         CouponRedemption: CouponRedemption;
         name: string;
-        CustomerCoupons: [Coupon];
+        Customercoupon: [Coupon];
     }
     points: number;
 }
 interface CouponCardProps {
-    coupons: Coupon | null | undefined
-    customerDetails: CustomerDetails | null | undefined
-    handleRedeemClick: (couponId: string, e: React.MouseEvent) => void;
-    loadingRedeems: Record<string, boolean>;
+    coupon: Coupon | null | undefined
+    customerDetails?: CustomerDetails | null | undefined
 }
 
-export const CouponCard: FC<CouponCardProps> = ({
-    coupons, customerDetails, handleRedeemClick, loadingRedeems
-}) => {
+export const CouponCard: FC<CouponCardProps> = ({ coupon }) => {
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -35,12 +36,33 @@ export const CouponCard: FC<CouponCardProps> = ({
         });
 
     };
-    const validateDate = () => {
-        const currentDate = new Date();
-        const couponDate = new Date(coupons?.validFrom || '');
-        console.log(couponDate, currentDate)
-        return couponDate > currentDate;
-    }
+    const { id } = useParams();
+    // const { client } = useClient();
+    const { loadCoupons } = useCouponStore();
+    const [_coupon, _setCoupon] = useState<Coupon>(coupon as Coupon)
+
+    const [loadingRedeems, setLoadingRedeems] = useState<Record<string, boolean>>({});
+
+    const client_id = id || '';
+
+
+    const handleRedeemClick = async (id: string, e: React.MouseEvent): Promise<void> => {
+        e.stopPropagation();
+        try {
+            setLoadingRedeems(prev => ({ ...prev, [id]: true }));
+            const response = await redeemCoupon(id, client_id);
+            if (response.status !== 200) {
+                toast.error('Something went wrong');
+            } else {
+                _setCoupon({ ..._coupon, isUsed: true })
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to redeem coupon');
+        } finally {
+            setLoadingRedeems(prev => ({ ...prev, [id]: false }));
+        }
+    };
     return (
         <div
             className="bg-background rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border border-gray-100 cursor-pointer w-full"
@@ -49,15 +71,15 @@ export const CouponCard: FC<CouponCardProps> = ({
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-2">
                         <Gift className="h-5 w-5 text-blue-500" />
-                        <span className="text-lg font-semibold">{coupons?.code}</span>
+                        <span className="text-lg font-semibold">{_coupon?.code}</span>
                     </div>
                     <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${coupons?.isUsed
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${_coupon?.isUsed
                             ? 'bg-gray-100 text-gray-700'
                             : 'bg-green-100 text-green-700'
                             }`}
                     >
-                        {coupons?.isUsed ? 'Used' : 'Active'}
+                        {_coupon?.isUsed ? 'Used' : 'Active'}
                     </span>
                 </div>
 
@@ -65,21 +87,21 @@ export const CouponCard: FC<CouponCardProps> = ({
                     <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-2" />
                         <span className="text-sm">
-                            Valid from {formatDate(coupons?.validFrom || '')}
+                            Valid from {formatDate(_coupon?.validFrom || '')}
                         </span>
                     </div>
 
                     <div className="flex items-center">
                         <DollarSign className="h-4 w-4 mr-2" />
                         <span className="text-sm">
-                            Max discount: {coupons?.maxDiscount}%
+                            Max discount: {_coupon?.maxDiscount}%
                         </span>
                     </div>
 
                     <div className="flex items-center">
                         <AlertCircle className="h-4 w-4 mr-2" />
                         <span className="text-sm">
-                            Min order value: {coupons?.minOrderValue}
+                            Min order value: {_coupon?.minOrderValue}
                         </span>
                     </div>
                 </div>
@@ -87,18 +109,18 @@ export const CouponCard: FC<CouponCardProps> = ({
                 <div className="mt-4 pt-4 border-t border-gray-100">
                     <div className="flex items-center justify-between">
                         <p className="text-xs text-gray-400">
-                            Created on {formatDate(coupons?.createdAt || '')}
+                            Created on {formatDate(_coupon?.createdAt || '')}
                         </p>
-                        {!coupons?.isUsed && validateDate() && (
+                        {!_coupon?.isUsed && (
                             <button
-                                onClick={(e) => handleRedeemClick(coupons?.id.toString() || '', e)}
-                                disabled={loadingRedeems[coupons?.id.toString() || '']}
+                                onClick={(e) => handleRedeemClick(_coupon?.id.toString() || '', e)}
+                                disabled={loadingRedeems[_coupon?.id.toString() || '']}
                                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors 
                           bg-black text-white hover:bg-gray-800 
                           dark:bg-white dark:text-black dark:hover:bg-gray-200 
                           disabled:bg-gray-400 disabled:text-gray-700 disabled:cursor-not-allowed`}
                             >
-                                {loadingRedeems[coupons?.id.toString() || ''] ? (
+                                {loadingRedeems[_coupon?.id.toString() || ''] ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent dark:border-black dark:border-t-transparent" />
                                 ) : (
                                     'Claim'
