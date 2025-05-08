@@ -74,7 +74,7 @@ const CouponScanner: React.FC = () => {
       setIsLoading(prev => ({ ...prev, coupon: true }));
 
       const response = await getCustomer(code, client_id);
-      console.log(response.data.customer.CustomersCoupons[0].Coupons)
+      console.log(response.data.customer.CustomersCoupons[0].Coupons);
 
       if (response.status !== 200) {
         setError('Invalid or expired coupon code');
@@ -82,17 +82,21 @@ const CouponScanner: React.FC = () => {
       } else {
         setCustomerDetails(response.data);
         setCoupons(response.data.customer.CustomersCoupons[0].Coupons);
-
-
       }
     } catch (err: any) {
-      setError('Error verifying coupon: ' + (err.response?.data?.message || 'Unknown error'));
+      if (err.response?.data === "Customer not linked to client") {
+        setError("This customer is not linked to the client. Please ensure the coupon is valid for this client.");
+      } else {
+        setError('Error verifying coupon: ' + (err.response?.data?.message || err.response?.data || 'Unknown error'));
+      }
       setCustomerDetails(null);
-      console.log(err)
+      console.log(err);
     } finally {
       setIsLoading(prev => ({ ...prev, coupon: false }));
     }
-  };
+};
+
+  
 
   const handleError = (err: any) => {
     console.error(err);
@@ -271,7 +275,7 @@ const CouponScanner: React.FC = () => {
                             </div>
                           </div>
 
-                          <div className='flex justify-center mb-3'>
+                          <div className='flex justify-center '>
                             <Button variant='default' className='w-full' onClick={() => handleRedeemPoints(points)}>Redeem Points</Button>
                           </div>
                           <div className='flex justify-center mb-8'>
