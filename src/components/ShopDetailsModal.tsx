@@ -99,7 +99,7 @@ export function ShopDetailsModal() {
         return () => {
             clearTimeout(timeout);
         };
-    }, []);
+    }, [client]);
 
     const handleInputChange = (field: keyof ShopDetails) => (e: React.ChangeEvent<HTMLInputElement>) => {
         if (field === 'logo') {

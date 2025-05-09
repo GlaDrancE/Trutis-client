@@ -238,3 +238,7 @@ export const createRazorpaySubscription = (data: {
 
 export const verifyRazorpayPayment = (data: { id: string, razorpay_payment_id: string, razorpay_signature: string }) =>
     paymentApi.post("/payment/verify", data);
+export const verifyRazorpaySubscription = (data: {
+    razorpay_subscription_id: string, razorpay_payment_id: string, razorpay_signature: string, client_id: string
+}) =>
+    paymentApi.post(`/payment/verify-subscription/${data.client_id}`, data);
