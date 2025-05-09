@@ -69,15 +69,18 @@ const PaymentPage = () => {
 
   useEffect(() => {
     const subscription_id = searchParams.get('subscription_id');
+    const order_id = searchParams.get('order_id');
     const successParam = searchParams.get('success');
     const client_id = searchParams.get('client_id');
     const razorpay_payment_id = searchParams.get('razorpay_payment_id');
     const razorpay_signature = searchParams.get('razorpay_signature');
+    console.log(subscription_id, client_id, razorpay_payment_id, razorpay_signature)
 
-    if (!hasVerified.current && successParam === 'true' && subscription_id && client_id && razorpay_payment_id && razorpay_signature) {
+    // Do subscription_id instead of order_id
+    if (!hasVerified.current && successParam === 'true' && order_id && client_id && razorpay_payment_id && razorpay_signature) {
       console.log("zala verify")
-      verifyPayment(subscription_id, razorpay_payment_id, razorpay_signature);
       setClientId(client_id);
+      verifyPayment(order_id, razorpay_payment_id, razorpay_signature, client_id);
       hasVerified.current = true;
     } else if (successParam === 'false' || searchParams.get('cancel')) {
       setSuccess(false);
@@ -93,17 +96,22 @@ const PaymentPage = () => {
     };
   }, [searchParams]);
 
-  const verifyPayment = async (subscription_id: string, razorpay_payment_id: string, razorpay_signature: string) => {
+  const verifyPayment = async (order_id: string, razorpay_payment_id: string, razorpay_signature: string, client_id: string) => {
     try {
-      const response = await verifyRazorpaySubscription({
-        razorpay_subscription_id: subscription_id,
+      // const response = await verifyRazorpaySubscription({
+      //   razorpay_subscription_id: subscription_id,
+      //   razorpay_payment_id,
+      //   razorpay_signature,
+      //   client_id: client_id
+      // });
+      const response = await verifyRazorpayPayment({
+        order_id: order_id,
         razorpay_payment_id,
         razorpay_signature,
-        client_id: clientId
       });
       if (response.data.success) {
         setSuccess(true);
-        setOrderId(subscription_id);
+        setOrderId(order_id);
       } else {
         setSuccess(false);
         setMessage('Payment verification failed. Please contact support.');

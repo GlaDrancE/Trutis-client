@@ -196,7 +196,8 @@ export function ShopDetailsModal() {
                     owner_name: client?.owner_name,
                     googleAPI: shopDetails.googleReviewLink,
                     ipAddress: ip || undefined,
-                    activeDays: shopDetails.activeDays
+                    activeDays: shopDetails.activeDays,
+                    coinRatio: 5
                 });
                 toast.success('Shop details updated successfully');
                 setIsOpen(false);

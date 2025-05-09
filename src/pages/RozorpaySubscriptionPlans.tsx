@@ -198,7 +198,7 @@ const SubscriptionPlans: React.FC = () => {
             duration: duration.toString(),
           },
           theme: {
-            color: 'red',
+            color: '#4c29ff',
           },
         };
 
@@ -232,7 +232,7 @@ const SubscriptionPlans: React.FC = () => {
 
       if (response.data) {
         const subscription = response.data;
-        await navigator.clipboard.writeText(JSON.stringify(subscription));
+        // await navigator.clipboard.writeText(JSON.stringify(subscription));
         const options = {
           key: import.meta.env.VITE_RAZORPAY_KEY_ID,
           amount: subscription.amount,
