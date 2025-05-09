@@ -23,7 +23,7 @@ interface CustomerDetails {
 }
 interface CouponCardProps {
     coupon: Coupon | null | undefined
-    hide: boolean
+    hide?: boolean
     customerDetails?: CustomerDetails | null | undefined
 }
 
@@ -112,10 +112,10 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
                         <p className="text-xs text-gray-400">
                             Created on {formatDate(_coupon?.createdAt || '')}
                         </p>
-                        {!_coupon?.isUsed && !hide && (
+                        {!hide && (
                             <button
                                 onClick={(e) => handleRedeemClick(_coupon?.id.toString() || '', e)}
-                                disabled={loadingRedeems[_coupon?.id.toString() || '']}
+                                disabled={loadingRedeems[_coupon?.id.toString() || ''] || _coupon?.isUsed}
                                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors 
                           bg-black text-white hover:bg-gray-800 
                           dark:bg-white dark:text-black dark:hover:bg-gray-200 
@@ -124,7 +124,7 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
                                 {loadingRedeems[_coupon?.id.toString() || ''] ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent dark:border-black dark:border-t-transparent" />
                                 ) : (
-                                    'Claim'
+                                    !_coupon?.isUsed ? <span>Claim</span> : <span>Claimed</span>
                                 )}
                             </button>
                         )}

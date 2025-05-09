@@ -12,7 +12,7 @@ const CoinRedeemSuccess: React.FC<CoinRedeemProps> = ({ amount, name, onClose })
   const checkmarkRef = useRef<SVGSVGElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
 
-  const formattedAmount = parseFloat(amount.toFixed(1)).toString();
+  const formattedAmount = parseFloat(amount.toFixed(2)).toString();
 
   useEffect(() => {
     if (!circleRef.current || !checkmarkRef.current || !textRef.current) return;

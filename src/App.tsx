@@ -64,7 +64,6 @@ function App() {
       <Router>
         <ThemeProvider>
           <Routes>
-            <Route path="/register" element={<Register />} />
             <Route path="/public_key" element={<PublicID />} />
             <Route path="/sign-up" element={<SignUpPage />} />
             <Route path="/login" element={<SignInPage />} />
@@ -83,6 +82,7 @@ function App() {
               <Route path="/:id/payment" element={<PaymentPage />} />
               <Route path="/:id/reviews" element={<ReviewPage />} />
               <Route path="/:id/marketing" element={<MarketingPage />} />
+              <Route path="/:id/help-center" element={<MarketingPage />} />
               <Route path="*" element={<HandleUnknownRoute />} />
             </Route>
           </Routes>

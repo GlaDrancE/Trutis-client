@@ -99,7 +99,7 @@ export function ShopDetailsModal() {
         return () => {
             clearTimeout(timeout);
         };
-    }, [client]);
+    }, []);
 
     const handleInputChange = (field: keyof ShopDetails) => (e: React.ChangeEvent<HTMLInputElement>) => {
         if (field === 'logo') {
@@ -248,7 +248,7 @@ export function ShopDetailsModal() {
                                         />
                                     </div>
                                 </div>
-                                <h2 className="text-xl font-bold mb-2">Branch Information</h2>
+                                {/* <h2 className="text-xl font-bold mb-2">Branch Information</h2> */}
                                 <p className="text-sm text-gray-600 text-center">
                                     Fill the business information of your branch
                                 </p>
@@ -363,10 +363,19 @@ export function ShopDetailsModal() {
                                             <Label htmlFor="pincode">Pincode</Label>
                                             <Input
                                                 id="pincode"
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength={6}
                                                 value={shopDetails.pincode}
-                                                onChange={handleInputChange('pincode')}
-                                                placeholder="Enter pincode"
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (/^\d{0,6}$/.test(val)) {
+                                                        handleInputChange('pincode')(e);
+                                                    }
+                                                }}
+                                                placeholder="Enter 6-digit pincode"
                                             />
+
                                         </div>
                                     </div>
                                     <div>

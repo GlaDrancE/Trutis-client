@@ -96,7 +96,7 @@ const PaymentPage = () => {
   const verifyPayment = async (order_id: string, razorpay_payment_id: string, razorpay_signature: string) => {
     try {
       const response = await verifyRazorpayPayment({
-        order_id,
+        id: order_id,
         razorpay_payment_id,
         razorpay_signature,
       });

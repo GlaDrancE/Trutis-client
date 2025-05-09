@@ -63,6 +63,7 @@ export interface Client {
   isActive?: boolean;
   customer_id?: string;
   activePlan?: ActivePlan[];
+  shop_timings?: string[];
 }
 
 export interface QRCode {

@@ -79,10 +79,10 @@ export const register = (email: string, password: string) =>
     authApi.post("/admin/signup", { email, password });
 
 export const sendResetPasswordEmail = (email: string) =>
-    authApi.post("/client/sendresetpassword", { email });
+    authApi.post("/user/sendresetpassword", { email, userType: 'client' });
 
 export const resetPassword = (token: string, password: string) =>
-    authApi.post("/client/resetpassword", { token, password });
+    authApi.post("/user/resetpassword", { token, password, userType: "customer" });
 export const loginAgent = (email: string, password: string) =>
     authApi.post("/agent/login", { email, password });
 export const createAgent = (data: Omit<Agent, "id" | "created_at">) =>
@@ -221,6 +221,8 @@ export const redeemPoints = (data: { customerId: string, clientId: string, point
 // payment
 export const getSubscriptionPlans = (client_id: string) =>
     paymentApi.post("/payment/plans", { client_id });
+export const fetchSubscription = (client_id: string) =>
+    paymentApi.post("/payment/fetch-subscription", { client_id });
 
 export const createRazorpayOrder = (data: {
     amount: number;
@@ -228,6 +230,11 @@ export const createRazorpayOrder = (data: {
     receipt: string;
     clientId: string;
 }) => paymentApi.post("/payment/create-order", data);
+export const createRazorpaySubscription = (data: {
+    plan: { name: string; price: number; description: string; id: string };
+    clientId: string;
+    client_email: string;
+}) => paymentApi.post("/payment/create-subscription", data);
 
-export const verifyRazorpayPayment = (data: { order_id: string, razorpay_payment_id: string, razorpay_signature: string }) =>
+export const verifyRazorpayPayment = (data: { id: string, razorpay_payment_id: string, razorpay_signature: string }) =>
     paymentApi.post("/payment/verify", data);

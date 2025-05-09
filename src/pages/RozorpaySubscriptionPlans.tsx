@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getSubscriptionPlans, createRazorpayOrder } from '../../services/api';
+import { getSubscriptionPlans, createRazorpayOrder, createRazorpaySubscription, fetchSubscription } from '../../services/api';
 import {
   QrCode,
   Palette,
@@ -16,6 +16,7 @@ import {
   Crown,
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import useClient from '@/hooks/client-hook';
 
 declare global {
   interface Window {
@@ -47,10 +48,12 @@ interface Plan {
 
 const SubscriptionPlans: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [razorpayLoaded, setRazorpayLoaded] = useState<boolean>(false);
   const { id } = useParams<{ id: string }>();
+  const { client } = useClient();
 
   const immediateAddons: AddonProduct[] = [
     {
@@ -140,12 +143,20 @@ const SubscriptionPlans: React.FC = () => {
           );
           setPlans(sortedPlans);
         }
+        console.log(response.data);
       }
     } catch (error) {
       console.error(error);
       toast.error('Failed to load plans. Please try again.');
     }
   };
+
+  const getCurrentSubscription = async () => {
+    const response = await fetchSubscription(id || '');
+    if (response.status === 200) {
+      setCurrentSubscription(response.data);
+    }
+  }
 
   const handlePlanSelection = async (plan: { name: string; price: number; description: string; default_price: string }, duration: number) => {
     setSelectedPlan(plan.default_price);
@@ -187,7 +198,7 @@ const SubscriptionPlans: React.FC = () => {
             duration: duration.toString(),
           },
           theme: {
-            color: '#3399cc',
+            color: 'red',
           },
         };
 
@@ -205,6 +216,59 @@ const SubscriptionPlans: React.FC = () => {
       toast.error(error.response.data.message || 'Error initiating payment. Please try again.');
     }
   };
+  const handleSubscriptionSelection = async (plan: { name: string; price: number; description: string; id: string }, duration: number) => {
+    try {
+      if (!razorpayLoaded) {
+        toast.error('Payment gateway not loaded. Please try again.');
+        return;
+      }
+      // const addonTotal = immediateAddons.filter(addon => selectedAddons.includes(addon.id)).reduce((sum, addon) => sum + addon.price, 0);
+      const response = await createRazorpaySubscription({
+        plan: plan,
+        clientId: id || '',
+        client_email: client?.email || ''
+      });
+
+
+      if (response.data) {
+        const subscription = response.data;
+        await navigator.clipboard.writeText(JSON.stringify(subscription));
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: subscription.amount,
+          currency: subscription.currency,
+          name: 'Entugo',
+          description: `Subscription: ${plan.name}`,
+          subscription_id: subscription.id,
+          handler: function (response: any) {
+            toast.success('Payment successful!');
+            window.location.href = `/${id}/payment?success=true&subscription_id=${subscription.id}&client_id=${id}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}`;
+          },
+          notes: {
+            client_id: id,
+            plan_id: plan.id,
+            addons: JSON.stringify(selectedAddons),
+            duration: duration.toString(),
+          },
+          theme: {
+            color: '#4c29ff',
+          },
+        };
+
+        const rzp1 = new window.Razorpay(options);
+        rzp1.on('payment.failed', function (response: any) {
+          toast.error('Payment failed. Please try again.');
+          console.error('Payment failed:', response.error);
+        });
+        rzp1.open();
+      } else {
+        toast.error('Failed to create payment order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error initiating payment:', error);
+      toast.error('Error initiating payment. Please try again.');
+    }
+  }
 
   const toggleAddon = (addonId: string) => {
     setSelectedAddons(prev =>
@@ -316,15 +380,14 @@ const SubscriptionPlans: React.FC = () => {
 
                     <button
                       onClick={() =>
-                        handlePlanSelection(
-                          {
-                            name: product.name,
-                            price: price,
-                            description: product.description,
-                            default_price: product.default_price,
-                          },
-                          duration || 1
-                        )
+                        handlePlanSelection({
+                          name: product.name,
+                          price: price,
+                          description: product.description,
+                          default_price: product.id,
+                        },
+                          duration || 1)
+
                       }
                       className={`
                         w-full py-4 rounded-xl font-semibold transition-all duration-300  ${index == 1 ? `bg-whitebackground text-black dark:text-white` : 'bg-premium text-white'}  

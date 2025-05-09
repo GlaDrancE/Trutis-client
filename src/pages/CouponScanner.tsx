@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import QrReader from 'react-qr-scanner';
 import { getCustomer, redeemPoints, updatePoints } from '../../services/api'
 import { Input } from '@/components/ui/input';
@@ -64,7 +64,10 @@ const CouponScanner: React.FC = () => {
     }
   };
 
-  const verifyCoupon = async (code: string) => {
+  const verifyCoupon = async (code: string, e?: FormEvent<HTMLFormElement>) => {
+    if (e) {
+      e.preventDefault();
+    }
     try {
       setIsLoading(prev => ({ ...prev, coupon: true }));
 
@@ -147,7 +150,7 @@ const CouponScanner: React.FC = () => {
   };
   const handleRedeemPoints = async (points: string) => {
     try {
-      const response = await redeemPoints({ customerId: customerDetails?.customer.id || '', clientId: client_id, points: parseInt(points) });
+      const response = await redeemPoints({ customerId: customerDetails?.customer.id || '', clientId: client_id, points: parseFloat(points) });
       if (response.status !== 200) {
         toast.error('Something went wrong');
       } else {
@@ -169,10 +172,10 @@ const CouponScanner: React.FC = () => {
 
         {isScanning ? (
 
-          <div className="flex flex-col items-center">
+          <form className="flex flex-col items-center" onSubmit={(e) => { setIsScanning(false); verifyCoupon(couponCode, e) }}>
             <div className='flex flex-col gap-4 w-full mb-4'>
               <Input type='text' placeholder='Enter Coupon Code' value={couponCode} onChange={(e) => setCouponCode(e.target.value)} />
-              <Button variant='default' className='w-full' onClick={() => { setIsScanning(false); verifyCoupon(couponCode) }}>Verify Coupon</Button>
+              <Button variant='default' className='w-full' >Verify Coupon</Button>
             </div>
             <QrReader
               delay={300}
@@ -183,7 +186,7 @@ const CouponScanner: React.FC = () => {
               className="rounded-lg border-4 border-blue-500 shadow-md"
             />
             <p className="mt-2 text-gray-600 text-center text-sm">Position the QR code within the frame</p>
-          </div>
+          </form>
 
         ) : (
           <div className="flex flex-col items-center animate-fade-in relative">

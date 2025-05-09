@@ -15,7 +15,7 @@ interface TermsConditionModalProps {
 
 export const TermsConditionModal: FC<TermsConditionModalProps> = ({ client, agreed, setAgreed, isLoading, handleFinalSubmit }) => {
     return (
-        <Card className="w-full min-w-full h-[calc(100vh-100px)] bg-whitebackground  text-foreground dark:text-foreground ">
+        <Card className="w-full min-w-full h-auto px-6 bg-whitebackground  text-foreground dark:text-foreground ">
             <CardContent>
                 <div className="max-w-3xl mx-auto bg-whitebackground  shadow-lg rounded-lg p-8 mb-12">
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-foreground mb-4">Co‑Ownership of Data Agreement</h1>

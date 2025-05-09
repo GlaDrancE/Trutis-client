@@ -50,7 +50,7 @@ const ProfilePage = () => {
         setTempProfile(prev => ({
             ...prev!,
             [name]: type === "radio" || name === 'minOrderValue' || name === 'couponValidity' || name === 'coinRatio'
-                ? Number(value)
+                ? parseInt(value)
                 : value,
         }));
     };
@@ -349,8 +349,18 @@ const ProfilePage = () => {
                                         <Input
                                             id="pincode"
                                             name="pincode"
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="\d{6}"
+                                            maxLength={6}
                                             value={tempProfile.pincode}
-                                            onChange={handleInputChange}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (/^\d{0,6}$/.test(val)) {
+                                                    handleInputChange(e);
+                                                }
+                                            }}
+                                            placeholder="Enter 6-digit pincode"
                                             className="mt-1"
                                             required
                                         />
@@ -403,17 +413,21 @@ const ProfilePage = () => {
                                     <div>
                                         <Label>Active Days</Label>
                                         <div className="flex flex-wrap gap-2 mt-2">
-                                            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => (
-                                                <Button
-                                                    type="button"
-                                                    key={index}
-                                                    variant={tempProfile.activeDays?.includes(day) ? 'default' : 'outline'}
-                                                    className="w-24"
-                                                    onClick={() => handleSelectActiveDays(day)}
-                                                >
-                                                    {day}
-                                                </Button>
-                                            ))}
+                                            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => {
+                                                const isCommon = tempProfile.activeDays?.includes(day)
+                                                return (
+                                                    <Button
+                                                        type="button"
+                                                        key={index}
+                                                        variant={isCommon ? 'default' : 'outline'}
+                                                        className="w-24"
+                                                        onClick={() => handleSelectActiveDays(day)}
+                                                    >
+                                                        {day}
+                                                    </Button>
+                                                )
+                                            })
+                                            }
                                         </div>
                                     </div>
                                     <div>
@@ -450,12 +464,15 @@ const ProfilePage = () => {
                                     <div>
                                         <Label>Minimum Order Value</Label>
                                         <Input
-                                            name="minOrderValue"
                                             type="number"
+                                            id="minOrderValue"
+                                            name='minOrderValue'
                                             value={tempProfile.minOrderValue}
                                             onChange={handleInputChange}
+                                            placeholder="Enter Minimum Order Value"
+                                            min="0"
+                                            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             required
-                                            className="mt-1"
                                         />
                                     </div>
                                     <div>
@@ -505,7 +522,24 @@ const ProfilePage = () => {
                                         </div>
                                     </div>
                                     <DisplayField label="Phone Number" value={profile.phone} />
-                                    <DisplayField label="Active Days" value={profile.activeDays} />
+
+
+                                    <div>
+                                        <Label>Active Days</Label>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => {
+                                                const isCommon = tempProfile.activeDays?.includes(day);
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className={` cursor-default px-4 py-2 rounded-xl border border-1 border-black ${isCommon ? 'bg-primary text-white' : 'bg-white'}`}
+                                                    >
+                                                        {day}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
                                     <DisplayField
                                         label="Max Discount"
                                         value={profile.maxDiscount ? `${profile.maxDiscount}%` : undefined}
@@ -552,17 +586,16 @@ const ProfilePage = () => {
 
             {/* Terms & Conditions Dialog */}
             <Dialog open={termsShow} onOpenChange={() => setTermsShow(false)} modal>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Terms & Conditions</DialogTitle>
-                    </DialogHeader>
-                    <TermsConditionModal
-                        client={profile}
-                        agreed={agreed}
-                        setAgreed={setAgreed}
-                        isLoading={submitLoading}
-                        handleFinalSubmit={handleTerms}
-                    />
+                <DialogContent className='sm:max-w-[1000px] max-h-[100vh]'>
+                    <div className='col-span-1 md:col-span-2 md:px-1 overflow-y-auto max-h-[70vh]'>
+                        <TermsConditionModal
+                            client={profile}
+                            agreed={agreed}
+                            setAgreed={setAgreed}
+                            isLoading={submitLoading}
+                            handleFinalSubmit={handleTerms}
+                        />
+                    </div>
                 </DialogContent>
             </Dialog>
 

@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Routes } from 'react-router-dom';
+import { useParams, useNavigate, Routes, useLocation } from 'react-router-dom';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { Link } from 'react-router-dom';
 import useClient from '@/hooks/client-hook';
@@ -6,6 +6,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import dashboard_logo from "@/assets/dashboard-logo.png"
 import {
     BarChart,
     Home,
@@ -73,10 +74,10 @@ const notifications = [
 // Navigation items grouped by section
 const navigationItems = {
     main: [
-        { icon: LineChart, label: 'Dashboard', id: 'dashboard', href: '/' },
-        { icon: QrCode, label: 'QR Code', id: 'qr-code', href: '/coupon-scanner' },
+        { icon: LineChart, label: 'Dashboard', id: '', href: '/' },
+        { icon: QrCode, label: 'QR Code', id: 'coupon-scanner', href: '/coupon-scanner' },
         // { icon: Users, label: 'Customer Data', id: 'customers', href: '/customers' },
-        { icon: Ticket, label: 'Subscriptions', id: 'subscriptions', href: '/subscription-plans' },
+        { icon: Ticket, label: 'Subscriptions', id: 'subscription-plans', href: '/subscription-plans' },
         { icon: Star, label: 'Reviews', id: 'reviews', href: '/reviews' },
         { icon: Ticket, label: 'Rewards', id: 'coupons', href: '/coupons' },
         // { icon: Gift, label: 'Rewards', id: 'rewards', href: '/gift' },
@@ -85,14 +86,14 @@ const navigationItems = {
     settings: [
         { icon: Settings, label: 'Settings', id: 'settings', href: '/settings' },
         // { icon: Bell, label: 'Notification', id: 'notifications', href: '/notifaction' },
-        { icon: HelpCircle, label: 'Help Center', id: 'help', href: '/help-center' },
+        { icon: HelpCircle, label: 'Help Center', id: 'help-center', href: '/help-center' },
     ],
 };
 
 const staffNavigationItems = {
     main: [
-        { icon: LineChart, label: 'Dashboard', id: 'dashboard', href: '' },
-        { icon: QrCode, label: 'QR Code', id: 'qr-code', href: '/coupon-scanner' },
+        { icon: LineChart, label: 'Dashboard', id: '', href: '' },
+        { icon: QrCode, label: 'QR Code', id: 'coupon-scanner', href: '/coupon-scanner' },
         { icon: Ticket, label: 'Rewards', id: 'coupons', href: '/coupons' },
         { icon: Star, label: 'Reviews', id: 'reviews', href: '/reviews' },
     ],
@@ -104,15 +105,16 @@ const staffNavigationItems = {
 const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation()
     const token = localStorage.getItem('token');
     const { client } = useClient();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [activeSection, setActiveSection] = useState('');
+    const [activeSection, setActiveSection] = useState(location.pathname.split('/')[2] || '');
     const [breadCrumbs, setBreadCrumbs] = useState<{ id: string, label: string }[]>([{ id: 'dashboard', label: "Dashboard" }]);
     const { theme, setTheme } = useTheme();
-
+    console.log(location.pathname.split('/')[2])
 
 
     useEffect(() => {
@@ -125,6 +127,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
         window.addEventListener('resize', handleResize);
         document.documentElement.classList.add(sessionStorage.getItem('theme') || 'light');
         return () => window.removeEventListener('resize', handleResize);
+
     }, []);
 
 
@@ -364,9 +367,8 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                 } bg-card  lg:translate-x-0`}>
                 <ScrollArea className="h-full px-6 py-6">
                     {/* Logo */}
-                    <div className="flex items-center gap-3 mb-8">
-                        <BarChart className="h-6 w-6 text-primary" />
-                        <span className="text-xl font-bold">Entugo</span>
+                    <div className="flex items-center justify-center gap-3 mb-8">
+                        <img src={dashboard_logo} className='h-6 mr-8' alt="" />
                         {isMobile && (
                             <Button
                                 variant="premium"
@@ -415,7 +417,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                     {/* Account Section */}
                     <div className="mt-8">
                         <h3 className="text-sm font-medium text-muted-foreground mb-4">Account</h3>
-                        <Button variant={'premium'} className="w-full flex items-center gap-3 mb-4 px-3 py-8 text-white" onClick={() => navigate(`/${id}/profile`)}>
+                        <Button variant={'premium'} className="w-full flex items-center gap-3 mb-4 px-3 py-8 text-white" onClick={() => { setActiveSection("/"); navigate(`/${id}/profile`) }}>
                             <Avatar className='text-foreground'>
                                 <AvatarImage src={typeof client?.logo === 'string' ? client.logo : undefined} />
                                 <AvatarFallback>{client?.owner_name?.charAt(0)}</AvatarFallback>

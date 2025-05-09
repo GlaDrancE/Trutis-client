@@ -54,6 +54,7 @@ export const RedeemModal = ({ message, onSubmit, isOpen, onOpenChange }: RedeemM
                             placeholder="Enter amount"
                             step="0.01"
                             min="0"
+                            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             required
                         />
                     </div>
