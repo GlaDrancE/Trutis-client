@@ -189,7 +189,8 @@ const SubscriptionPlans: React.FC = () => {
           order_id: order.id,
           handler: function (response: any) {
             toast.success('Payment successful!');
-            window.location.href = `/${id}/payment?success=true&order_id=${order.id}&client_id=${id}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}`;
+            window.location.href = `/${id}/payment?success=true&subscription_id=${order.id}&client_id=${id}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}`;
+
           },
           notes: {
             client_id: id,
@@ -216,8 +217,11 @@ const SubscriptionPlans: React.FC = () => {
       toast.error(error.response.data.message || 'Error initiating payment. Please try again.');
     }
   };
-  const handleSubscriptionSelection = async (plan: { name: string; price: number; description: string; id: string }, duration: number) => {
+
+
+  const handleSubscriptionSelection = async (plan: { name: string; price: number; description: string; id: string, }, duration: number) => {
     try {
+      setSelectedPlan(plan.id);
       if (!razorpayLoaded) {
         toast.error('Payment gateway not loaded. Please try again.');
         return;
@@ -380,11 +384,11 @@ const SubscriptionPlans: React.FC = () => {
 
                     <button
                       onClick={() =>
-                        handlePlanSelection({
+                        handleSubscriptionSelection({
                           name: product.name,
                           price: price,
                           description: product.description,
-                          default_price: product.id,
+                          id: product.id,
                         },
                           duration || 1)
 

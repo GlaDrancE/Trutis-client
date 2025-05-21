@@ -112,7 +112,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [activeSection, setActiveSection] = useState(location.pathname.split('/')[2] || '');
-    const [breadCrumbs, setBreadCrumbs] = useState<{ id: string, label: string }[]>([{ id: 'dashboard', label: "Dashboard" }]);
+    const [breadCrumbs, setBreadCrumbs] = useState<{ id: string, label: string }[]>([{ id: location.pathname.split('/')[2] || '', label: location.pathname.split('/')[2]?.charAt(0)?.toUpperCase() + location.pathname.split('/')[2]?.slice(1) || 'Dashboard' }]);
     const { theme, setTheme } = useTheme();
     console.log(location.pathname.split('/')[2])
 
