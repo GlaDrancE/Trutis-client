@@ -224,6 +224,10 @@ export const getSubscriptionPlans = (client_id: string) =>
 export const fetchSubscription = (client_id: string) =>
     paymentApi.post("/payment/fetch-subscription", { client_id });
 
+
+export const fetchClientSubscriptions = (client_id: string) =>
+    paymentApi.post("/payment/fetchClientSubscriptions", { client_id });
+
 export const createRazorpayOrder = (data: {
     amount: number;
     currency: string;
