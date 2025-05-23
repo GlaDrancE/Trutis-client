@@ -191,7 +191,7 @@ const SignInPage: React.FC = () => {
                                     <Input
                                         id="password"
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="Min. 8 characters"
+                                        placeholder="**********"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required

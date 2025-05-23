@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { resetPassword } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import signupBackground from "@/assets/signup-background.jpg";
-import { ArrowLeft, EyeIcon, EyeOffIcon } from 'lucide-react';
+import { ArrowLeft, EyeIcon, EyeOffIcon, CheckCircle2, XCircle } from 'lucide-react';
 
 const ResetPassword = () => {
     const { token } = useParams();
@@ -15,12 +15,36 @@ const ResetPassword = () => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    
+    const [hasMinLength, setHasMinLength] = useState<boolean>(false);
+    const [hasUpperCase, setHasUpperCase] = useState<boolean>(false);
+    const [hasLowerCase, setHasLowerCase] = useState<boolean>(false);
+    const [hasNumber, setHasNumber] = useState<boolean>(false);
+    
+    const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+    
+    useEffect(() => {
+        setHasMinLength(password.length >= 8);
+        setHasUpperCase(/[A-Z]/.test(password));
+        setHasLowerCase(/[a-z]/.test(password));
+        setHasNumber(/\d/.test(password));
+    }, [password]);
+
+    
+    const isPasswordValid = hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setHasSubmitted(true); 
 
         if (password !== confirmPassword) {
             toast.error('Passwords do not match');
+            return;
+        }
+
+        
+        if (!isPasswordValid) {
+            toast.error('Password does not meet the requirements');
             return;
         }
 
@@ -83,7 +107,11 @@ const ResetPassword = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
-                                        className="w-full py-5 pr-10 rounded-2xl"
+                                        className={`w-full py-5 pr-10 rounded-2xl ${
+                                            hasSubmitted && !isPasswordValid
+                                                ? "border-red-500 focus:ring-red-500"
+                                                : ""
+                                        }`}
                                     />
                                     <button
                                         type="button"
@@ -93,6 +121,51 @@ const ResetPassword = () => {
                                         {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                                     </button>
                                 </div>
+                                
+                                {hasSubmitted && !isPasswordValid && (
+                                    <div className="mt-2 space-y-1">
+                                        <div className="flex items-center gap-2 text-sm">
+                                            {hasMinLength ? (
+                                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                            ) : (
+                                                <XCircle className="w-4 h-4 text-red-500" />
+                                            )}
+                                            <span className={hasMinLength ? "text-green-500" : "text-red-500"}>
+                                                At least 8 characters
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            {hasUpperCase ? (
+                                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                            ) : (
+                                                <XCircle className="w-4 h-4 text-red-500" />
+                                            )}
+                                            <span className={hasUpperCase ? "text-green-500" : "text-red-500"}>
+                                                At least one uppercase letter
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            {hasLowerCase ? (
+                                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                            ) : (
+                                                <XCircle className="w-4 h-4 text-red-500" />
+                                            )}
+                                            <span className={hasLowerCase ? "text-green-500" : "text-red-500"}>
+                                                At least one lowercase letter
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            {hasNumber ? (
+                                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                            ) : (
+                                                <XCircle className="w-4 h-4 text-red-500" />
+                                            )}
+                                            <span className={hasNumber ? "text-green-500" : "text-red-500"}>
+                                                At least one number
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -107,7 +180,11 @@ const ResetPassword = () => {
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
-                                        className="w-full py-5 pr-10 rounded-2xl"
+                                        className={`w-full py-5 pr-10 rounded-2xl ${
+                                            hasSubmitted && password !== confirmPassword && confirmPassword.length > 0
+                                                ? "border-red-500 focus:ring-red-500"
+                                                : ""
+                                        }`}
                                     />
                                     <button
                                         type="button"
