@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, CheckCircle2, XCircle } from "lucide-react";
 import { createClient, generateOtp, verifyOtp } from "../../services/api";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, Link } from "react-router-dom";
@@ -27,6 +27,14 @@ const SignUpPage: React.FC = () => {
     const [isOtpSent, setIsOtpSent] = useState<boolean>(false);
     const [canResendOtp, setCanResendOtp] = useState<boolean>(true);
     const [resendTimer, setResendTimer] = useState<number>(0);
+    
+    const [hasMinLength, setHasMinLength] = useState<boolean>(false);
+    const [hasUpperCase, setHasUpperCase] = useState<boolean>(false);
+    const [hasLowerCase, setHasLowerCase] = useState<boolean>(false);
+    const [hasNumber, setHasNumber] = useState<boolean>(false);
+    
+    const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+
     const navigate = useNavigate();
     const { login: storeLogin, setRememberMe: storeSetRememberMe } = useAuthStore();
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -52,7 +60,6 @@ const SignUpPage: React.FC = () => {
                     .sort((a: any, b: any) => a.label.localeCompare(b.label));
 
                 setCountryCodes(codes);
-
 
                 const defaultCountry = codes.find((c: any) => c.code === "+91");
                 if (!defaultCountry && codes.length > 0) {
@@ -80,6 +87,14 @@ const SignUpPage: React.FC = () => {
         }
         return () => clearInterval(interval);
     }, [resendTimer, canResendOtp]);
+
+    
+    useEffect(() => {
+        setHasMinLength(password.length >= 8);
+        setHasUpperCase(/[A-Z]/.test(password));
+        setHasLowerCase(/[a-z]/.test(password));
+        setHasNumber(/\d/.test(password));
+    }, [password]);
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -113,8 +128,14 @@ const SignUpPage: React.FC = () => {
 
     const handleGenerateOtp = async (e: React.FormEvent) => {
         e.preventDefault();
+        setHasSubmitted(true);
         if (!email) {
             toast.error("Please enter a valid email");
+            return;
+        }
+        
+        if (!hasMinLength || !hasUpperCase || !hasLowerCase || !hasNumber) {
+            toast.error("Password does not meet the requirements");
             return;
         }
         setIsLoading(true);
@@ -230,6 +251,9 @@ const SignUpPage: React.FC = () => {
         }
     };
 
+    
+    const isPasswordValid = hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
+
     return (
         <div className="flex min-h-screen bg-whitebackground text-foreground">
             <Toaster position="top-right" />
@@ -237,7 +261,7 @@ const SignUpPage: React.FC = () => {
                 <div className="mb-8">
                     <button
                         onClick={() => window.location.href = "https://entugo.com/in"}
-                        className="flex items-center text-sm  hover:"
+                        className="flex items-center text-sm hover:underline"
                     >
                         <svg
                             className="w-4 h-4 mr-2"
@@ -258,8 +282,8 @@ const SignUpPage: React.FC = () => {
 
                 <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold  mb-2">Sign Up</h1>
-                        <p className="">
+                        <h1 className="text-3xl font-bold mb-2">Sign Up</h1>
+                        <p>
                             {isOtpSent ? "Enter the OTP sent to your email" : "Create your account"}
                         </p>
                     </div>
@@ -268,7 +292,7 @@ const SignUpPage: React.FC = () => {
                         {!isOtpSent ? (
                             <>
                                 <div className="space-y-2">
-                                    <label htmlFor="fullName" className="block text-sm font-medium ">
+                                    <label htmlFor="fullName" className="block text-sm font-medium">
                                         Full Name
                                     </label>
                                     <Input
@@ -282,7 +306,7 @@ const SignUpPage: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="email" className="block text-sm font-medium ">
+                                    <label htmlFor="email" className="block text-sm font-medium">
                                         Email
                                     </label>
                                     <Input
@@ -296,7 +320,7 @@ const SignUpPage: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="phone" className="block text-sm font-medium ">
+                                    <label htmlFor="phone" className="block text-sm font-medium">
                                         Phone
                                     </label>
                                     <div className="flex gap-2">
@@ -328,7 +352,7 @@ const SignUpPage: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="password" className="block text-sm font-medium ">
+                                    <label htmlFor="password" className="block text-sm font-medium">
                                         Password<span className="text-indigo-600">*</span>
                                     </label>
                                     <div className="relative">
@@ -339,16 +363,65 @@ const SignUpPage: React.FC = () => {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
-                                            className="w-full pr-10"
+                                            className={`w-full pr-10 ${
+                                                hasSubmitted && !isPasswordValid
+                                                    ? "border-red-500 focus:ring-red-500"
+                                                    : ""
+                                            }`}
                                         />
                                         <button
                                             type="button"
                                             onClick={togglePasswordVisibility}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 "
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2"
                                         >
                                             {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                                         </button>
                                     </div>
+                                    
+                                    {hasSubmitted && !isPasswordValid && (
+                                        <div className="mt-2 space-y-1">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                {hasMinLength ? (
+                                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                ) : (
+                                                    <XCircle className="w-4 h-4 text-red-500" />
+                                                )}
+                                                <span className={hasMinLength ? "text-green-500" : "text-red-500"}>
+                                                    At least 8 characters
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                {hasUpperCase ? (
+                                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                ) : (
+                                                    <XCircle className="w-4 h-4 text-red-500" />
+                                                )}
+                                                <span className={hasUpperCase ? "text-green-500" : "text-red-500"}>
+                                                    At least one uppercase letter
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                {hasLowerCase ? (
+                                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                ) : (
+                                                    <XCircle className="w-4 h-4 text-red-500" />
+                                                )}
+                                                <span className={hasLowerCase ? "text-green-500" : "text-red-500"}>
+                                                    At least one lowercase letter
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                {hasNumber ? (
+                                                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                ) : (
+                                                    <XCircle className="w-4 h-4 text-red-500" />
+                                                )}
+                                                <span className={hasNumber ? "text-green-500" : "text-red-500"}>
+                                                    At least one number
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex items-center justify-between">
@@ -377,7 +450,7 @@ const SignUpPage: React.FC = () => {
 
                                 <div className="relative flex items-center mt-4">
                                     <div className="flex-grow border-t border-gray-200"></div>
-                                    <span className="flex-shrink mx-4  text-sm">or</span>
+                                    <span className="flex-shrink mx-4 text-sm">or</span>
                                     <div className="flex-grow border-t border-gray-200"></div>
                                 </div>
 
@@ -395,7 +468,7 @@ const SignUpPage: React.FC = () => {
                                 </GoogleOAuthProvider>
 
                                 <div className="text-center mt-4">
-                                    <p className="text-sm ">
+                                    <p className="text-sm">
                                         Already have an account?{" "}
                                         <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
                                             Login
@@ -406,7 +479,7 @@ const SignUpPage: React.FC = () => {
                         ) : (
                             <>
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium  text-center">
+                                    <label className="block text-sm font-medium text-center">
                                         Enter OTP
                                     </label>
                                     <div className="flex justify-center gap-2">
@@ -424,7 +497,7 @@ const SignUpPage: React.FC = () => {
                                             />
                                         ))}
                                     </div>
-                                    <p className="text-sm  text-center mt-2">
+                                    <p className="text-sm text-center mt-2">
                                         Check your Junk or Spam folder if the OTP email is not in your inbox.
                                     </p>
                                 </div>
@@ -460,7 +533,7 @@ const SignUpPage: React.FC = () => {
                                                 Resend OTP
                                             </button>
                                         ) : (
-                                            <p className="text-sm ">
+                                            <p className="text-sm">
                                                 Resend OTP in {resendTimer} seconds
                                             </p>
                                         )}

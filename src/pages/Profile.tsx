@@ -30,8 +30,15 @@ const ProfilePage = () => {
 
     useEffect(() => {
         if (client) {
-            setProfile(client);
-            setTempProfile(client);
+
+            const updatedClient = {
+                ...client,
+                maxDiscount: client.maxDiscount ?? 15,
+                couponValidity: client.couponValidity ?? 21,
+                coinRatio: client.coinRatio ?? 8,
+            };
+            setProfile(updatedClient);
+            setTempProfile(updatedClient);
         }
     }, [client]);
 
@@ -414,7 +421,7 @@ const ProfilePage = () => {
                                         <Label>Active Days</Label>
                                         <div className="flex flex-wrap gap-2 mt-2">
                                             {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => {
-                                                const isCommon = tempProfile.activeDays?.includes(day)
+                                                const isCommon = tempProfile.activeDays?.includes(day);
                                                 return (
                                                     <Button
                                                         type="button"
@@ -425,15 +432,14 @@ const ProfilePage = () => {
                                                     >
                                                         {day}
                                                     </Button>
-                                                )
-                                            })
-                                            }
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                     <div>
                                         <Label>Max Discount</Label>
                                         <div className="flex gap-4">
-                                            {[10, 20, 30].map((discount) => (
+                                            {[10, 15, 20].map((discount) => (
                                                 <label key={discount} className="flex items-center space-x-2">
                                                     <input
                                                         type="radio"
@@ -449,24 +455,27 @@ const ProfilePage = () => {
                                     </div>
                                     <div>
                                         <Label>Tugo Coin Percentage</Label>
-                                        <Input
-                                            name="coinRatio"
-                                            type="number"
-                                            value={tempProfile.coinRatio || ''}
-                                            onChange={handleInputChange}
-                                            placeholder="Enter percentage (0-100)"
-                                            min="0"
-                                            max="100"
-                                            step="1"
-                                            className="mt-1"
-                                        />
+                                        <div className="flex gap-4">
+                                            {[6, 8, 10].map((coinRatio) => (
+                                                <label key={coinRatio} className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="coinRatio"
+                                                        value={coinRatio}
+                                                        checked={tempProfile.coinRatio === coinRatio}
+                                                        onChange={handleInputChange}
+                                                    />
+                                                    <span>{coinRatio}%</span>
+                                                </label>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div>
+                                    {/* <div>
                                         <Label>Minimum Order Value</Label>
                                         <Input
                                             type="number"
                                             id="minOrderValue"
-                                            name='minOrderValue'
+                                            name="minOrderValue"
                                             value={tempProfile.minOrderValue}
                                             onChange={handleInputChange}
                                             placeholder="Enter Minimum Order Value"
@@ -474,7 +483,7 @@ const ProfilePage = () => {
                                             className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             required
                                         />
-                                    </div>
+                                    </div> */}
                                     <div>
                                         <Label>Coupon Valid Till (Days)</Label>
                                         <select
@@ -484,7 +493,7 @@ const ProfilePage = () => {
                                             className="w-full p-2 border rounded"
                                         >
                                             <option value={0}>Select Days</option>
-                                            {[7, 14, 30, 60, 90].map((days) => (
+                                            {[14, 21, 28].map((days) => (
                                                 <option key={days} value={days}>
                                                     {days} days
                                                 </option>
@@ -522,8 +531,6 @@ const ProfilePage = () => {
                                         </div>
                                     </div>
                                     <DisplayField label="Phone Number" value={profile.phone} />
-
-
                                     <div>
                                         <Label>Active Days</Label>
                                         <div className="flex flex-wrap gap-2 mt-2">
@@ -532,11 +539,11 @@ const ProfilePage = () => {
                                                 return (
                                                     <div
                                                         key={index}
-                                                        className={` cursor-default px-4 py-2 rounded-xl border border-1 border-black ${isCommon ? 'bg-primary text-white' : 'bg-white'}`}
+                                                        className={`cursor-default px-4 py-2 rounded-xl border border-1 border-black ${isCommon ? 'bg-primary text-white' : 'bg-white'}`}
                                                     >
                                                         {day}
                                                     </div>
-                                                )
+                                                );
                                             })}
                                         </div>
                                     </div>
@@ -548,10 +555,10 @@ const ProfilePage = () => {
                                         label="Tugo Coin Percentage"
                                         value={profile.coinRatio ? `${profile.coinRatio}%` : undefined}
                                     />
-                                    <DisplayField
+                                    {/* <DisplayField
                                         label="Min Order Value"
                                         value={profile.minOrderValue ? `${profile.minOrderValue} Orders` : undefined}
-                                    />
+                                    /> */}
                                     <DisplayField
                                         label="Coupon Validity"
                                         value={profile.couponValidity ? `${profile.couponValidity} Days` : undefined}
