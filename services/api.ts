@@ -2,17 +2,16 @@ import axios from "axios";
 import { Agent, Client, ClientSignUp } from "../types";
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:3000/api/v1/api',
-
+    baseURL: import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/v1/api` : 'http://localhost:3000/api/v1/api',
 });
 const paymentApi = axios.create({
-    baseURL: import.meta.env.VITE_PAYMENT_URL || 'http://localhost:3000/api/v1/payment'
+    baseURL: import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/v1/payment` : 'http://localhost:3000/api/v1/payment'
 })
 const authApi = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_URL || 'http://localhost:3000/api/v1/auth'
+    baseURL: import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth` : 'http://localhost:3000/api/v1/auth'
 })
 const pointsApi = axios.create({
-    baseURL: import.meta.env.VITE_POINT_URL || 'http://localhost:3000/api/v1/points'
+    baseURL: import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/v1/points` : 'http://localhost:3000/api/v1/points'
 })
 
 
