@@ -77,10 +77,10 @@ const PaymentPage = () => {
     console.log(subscription_id, client_id, razorpay_payment_id, razorpay_signature)
 
     // Do subscription_id instead of order_id
-    if (!hasVerified.current && successParam === 'true' && order_id && client_id && razorpay_payment_id && razorpay_signature) {
+    if (!hasVerified.current && successParam === 'true' && subscription_id && client_id && razorpay_payment_id && razorpay_signature) {
       console.log("zala verify")
       setClientId(client_id);
-      verifyPayment(order_id, razorpay_payment_id, razorpay_signature, client_id);
+      verifyPayment(subscription_id, razorpay_payment_id, razorpay_signature, client_id);
       hasVerified.current = true;
     } else if (successParam === 'false' || searchParams.get('cancel')) {
       setSuccess(false);
@@ -96,22 +96,25 @@ const PaymentPage = () => {
     };
   }, [searchParams]);
 
-  const verifyPayment = async (order_id: string, razorpay_payment_id: string, razorpay_signature: string, client_id: string) => {
+  const verifyPayment = async (subscription_id: string, razorpay_payment_id: string, razorpay_signature: string, client_id: string) => {
     try {
-      // const response = await verifyRazorpaySubscription({
-      //   razorpay_subscription_id: subscription_id,
-      //   razorpay_payment_id,
-      //   razorpay_signature,
-      //   client_id: client_id
-      // });
-      const response = await verifyRazorpayPayment({
-        order_id: order_id,
+      const response = await verifyRazorpaySubscription({
+        razorpay_subscription_id: subscription_id,
         razorpay_payment_id,
         razorpay_signature,
+        client_id: client_id
       });
+
+
+      // const response = await verifyRazorpayPayment({
+      //   order_id: order_id,
+      //   razorpay_payment_id,
+      //   razorpay_signature,
+      // });
+
       if (response.data.success) {
         setSuccess(true);
-        setOrderId(order_id);
+        setOrderId(subscription_id);
       } else {
         setSuccess(false);
         setMessage('Payment verification failed. Please contact support.');

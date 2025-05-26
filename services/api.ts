@@ -223,12 +223,18 @@ export const getSubscriptionPlans = (client_id: string) =>
 export const fetchSubscription = (client_id: string) =>
     paymentApi.post("/payment/fetch-subscription", { client_id });
 
+
+export const fetchClientSubscriptions = (client_id: string) =>
+    paymentApi.post("/payment/fetchClientSubscriptions", { client_id });
+
 export const createRazorpayOrder = (data: {
     amount: number;
     currency: string;
     receipt: string;
     clientId: string;
 }) => paymentApi.post("/payment/create-order", data);
+
+
 export const createRazorpaySubscription = (data: {
     plan: { name: string; price: number; description: string; id: string };
     clientId: string;
@@ -237,6 +243,8 @@ export const createRazorpaySubscription = (data: {
 
 export const verifyRazorpayPayment = (data: { order_id: string, razorpay_payment_id: string, razorpay_signature: string }) =>
     paymentApi.post("/payment/verify", data);
+
+
 export const verifyRazorpaySubscription = (data: {
     razorpay_subscription_id: string, razorpay_payment_id: string, razorpay_signature: string, client_id: string
 }) =>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getSubscriptionPlans, createRazorpayOrder, createRazorpaySubscription, fetchSubscription } from '../../services/api';
+import { getSubscriptionPlans, createRazorpayOrder, createRazorpaySubscription, fetchClientSubscriptions } from '../../services/api';
 import {
   QrCode,
   Palette,
@@ -46,12 +46,40 @@ interface Plan {
   duration: number;
 }
 
+interface Subscription {
+  id: string;
+  subscription_id: string;
+  isActive: boolean;
+  clientId: string;
+  product_id: string;
+  subscription_status: string;
+  trial_completion: boolean;
+  collection_method: string;
+  currency: string;
+  cancel_at_period_end?: boolean;
+  current_period_start?: Date;
+  current_period_end?: Date;
+  canceled_at?: Date;
+  interval: string;
+  interval_count: number;
+  plan_id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  Plan: {
+    id: string;
+    title: string;
+    price: number;
+    description: string;
+  };
+}
+
 const SubscriptionPlans: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
+  const [currentSubscriptions, setCurrentSubscriptions] = useState<Subscription[]>([]);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [razorpayLoaded, setRazorpayLoaded] = useState<boolean>(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const { id } = useParams<{ id: string }>();
   const { client } = useClient();
 
@@ -151,12 +179,19 @@ const SubscriptionPlans: React.FC = () => {
     }
   };
 
-  const getCurrentSubscription = async () => {
-    const response = await fetchSubscription(id || '');
-    if (response.status === 200) {
-      setCurrentSubscription(response.data);
+  const getCurrentSubscriptions = async () => {
+    try {
+      const response = await fetchClientSubscriptions(id || '');
+      if (response.status === 200) {
+        console.log(response);
+        const activeSubscriptions = response.data.filter((sub: Subscription) => sub.isActive);
+        setCurrentSubscriptions(activeSubscriptions);
+      }
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+      toast.error('Failed to load current subscriptions. Please try again.');
     }
-  }
+  };
 
   const handlePlanSelection = async (plan: { name: string; price: number; description: string; default_price: string }, duration: number) => {
     setSelectedPlan(plan.default_price);
@@ -189,7 +224,7 @@ const SubscriptionPlans: React.FC = () => {
           order_id: order.id,
           handler: function (response: any) {
             toast.success('Payment successful!');
-            window.location.href = `/${id}/payment?success=true&order_id=${order.id}&client_id=${id}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}`;
+            window.location.href = `/${id}/payment?success=true&subscription_id=${order.id}&client_id=${id}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}`;
           },
           notes: {
             client_id: id,
@@ -216,23 +251,26 @@ const SubscriptionPlans: React.FC = () => {
       toast.error(error.response.data.message || 'Error initiating payment. Please try again.');
     }
   };
+
   const handleSubscriptionSelection = async (plan: { name: string; price: number; description: string; id: string }, duration: number) => {
     try {
+      setSelectedPlan(plan.id);
+      setLoadingPlan(plan.id);
       if (!razorpayLoaded) {
         toast.error('Payment gateway not loaded. Please try again.');
+        setLoadingPlan(null);
         return;
       }
-      // const addonTotal = immediateAddons.filter(addon => selectedAddons.includes(addon.id)).reduce((sum, addon) => sum + addon.price, 0);
+
       const response = await createRazorpaySubscription({
         plan: plan,
         clientId: id || '',
-        client_email: client?.email || ''
+        client_email: client?.email || '',
       });
-
 
       if (response.data) {
         const subscription = response.data;
-        // await navigator.clipboard.writeText(JSON.stringify(subscription));
+
         const options = {
           key: import.meta.env.VITE_RAZORPAY_KEY_ID,
           amount: subscription.amount,
@@ -259,16 +297,20 @@ const SubscriptionPlans: React.FC = () => {
         rzp1.on('payment.failed', function (response: any) {
           toast.error('Payment failed. Please try again.');
           console.error('Payment failed:', response.error);
+          setLoadingPlan(null);
         });
         rzp1.open();
+        setLoadingPlan(null);
       } else {
         toast.error('Failed to create payment order. Please try again.');
+        setLoadingPlan(null);
       }
     } catch (error) {
       console.error('Error initiating payment:', error);
       toast.error('Error initiating payment. Please try again.');
+      setLoadingPlan(null);
     }
-  }
+  };
 
   const toggleAddon = (addonId: string) => {
     setSelectedAddons(prev =>
@@ -278,6 +320,7 @@ const SubscriptionPlans: React.FC = () => {
 
   useEffect(() => {
     getPlans().then(() => console.log('Plans:', plans));
+    getCurrentSubscriptions();
   }, []);
 
   useEffect(() => {
@@ -311,6 +354,94 @@ const SubscriptionPlans: React.FC = () => {
     <div className="min-h-screen bg-background py-12 px-4">
       <Toaster />
       <div className="max-w-7xl mx-auto">
+        {/* Current Active Plans Section */}
+        {currentSubscriptions.length > 0 && (
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold mb-8 text-center">Your Active Plans</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {currentSubscriptions.map(sub => (
+                <div
+                  key={sub.id}
+                  className={`
+                    relative rounded-xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl
+                    ${sub.Plan.title === 'Silver'
+                      ? 'bg-gradient-to-br from-gray-100 to-gray-300 border-2 border-gray-400 dark:from-gray-700 dark:to-gray-900 dark:border-gray-500'
+                      : sub.Plan.title === 'Gold'
+                        ? 'bg-gradient-to-br from-yellow-100 to-yellow-300 border-2 border-yellow-500 dark:from-yellow-600 dark:to-yellow-800 dark:border-yellow-600'
+                        : 'bg-gradient-to-br from-blue-100 to-blue-300 border-2 border-blue-500 dark:from-blue-600 dark:to-blue-800 dark:border-blue-600'
+                    }
+                  `}
+                >
+                  {/* Status Badge */}
+                  <div className="absolute top-4 right-4">
+                    <span
+                      className={`
+                        px-3 py-1 rounded-full text-sm font-medium
+                        ${sub.subscription_status === 'active'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-200'
+                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-200'
+                        }
+                      `}
+                    >
+                      {sub.subscription_status.charAt(0).toUpperCase() + sub.subscription_status.slice(1)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900">
+                      {sub.Plan.title === 'Silver' ? (
+                        <Shield className="w-6 h-6 text-blue-600 dark:text-blue-300" />
+                      ) : sub.Plan.title === 'Gold' ? (
+                        <Zap className="w-6 h-6 text-blue-600 dark:text-blue-300" />
+                      ) : (
+                        <Crown className="w-6 h-6 text-blue-600 dark:text-blue-300" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold dark:text-white">{sub.Plan.title}</h3>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <p className="text-sm dark:text-gray-200">
+                        <span className="font-medium">Duration:</span> {sub.interval} Months
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <p className="text-sm dark:text-gray-200">
+                        <span className="font-medium">Period:</span>{' '}
+                        {sub.current_period_start
+                          ? new Date(sub.current_period_start).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                          })
+                          : 'N/A'}{' '}
+                        -{' '}
+                        {sub.current_period_end
+                          ? new Date(sub.current_period_end).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                          })
+                          : 'N/A'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium dark:text-gray-200">Amount:</span>
+                      <p className="text-sm font-bold text-green-600 dark:text-green-400">
+                        ₹{sub.Plan.price}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold bg-clip-text mb-6">
             Choose Your Perfect Plan
@@ -380,20 +511,35 @@ const SubscriptionPlans: React.FC = () => {
 
                     <button
                       onClick={() =>
-                        handlePlanSelection({
-                          name: product.name,
-                          price: price,
-                          description: product.description,
-                          default_price: product.id,
-                        },
-                          duration || 1)
-
+                        handleSubscriptionSelection(
+                          {
+                            name: product.name,
+                            price: price,
+                            description: product.description,
+                            id: product.id,
+                          },
+                          duration || 1
+                        )
                       }
+                      disabled={loadingPlan === product.id}
                       className={`
-                        w-full py-4 rounded-xl font-semibold transition-all duration-300  ${index == 1 ? `bg-whitebackground text-black dark:text-white` : 'bg-premium text-white'}  
+                        w-full py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2
+                        ${index == 1 ? `bg-whitebackground text-black dark:text-white` : 'bg-premium text-white'}
+                        ${loadingPlan === product.id ? 'opacity-70 cursor-not-allowed' : ''}
                       `}
                     >
-                      {selectedPlan === product.default_price ? 'Selected' : 'Get Started'}
+                      {loadingPlan === product.id ? (
+                        <>
+                          <div className={`animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 ${index == 1 ? 'border-blue-900' : 'border-white'}`}></div>
+                          <span>Loading...</span>
+                        </>
+                      ) : selectedPlan === product.default_price ? (
+                        'Selected'
+                      ) : currentSubscriptions.length > 0 ? (
+                        'Upgrade'
+                      ) : (
+                        'Get Started'
+                      )}
                     </button>
                   </div>
                 </div>
@@ -479,7 +625,6 @@ const SubscriptionPlans: React.FC = () => {
 };
 
 const calculatePrice = (basePrice: number, duration: number) => {
-  console.log(basePrice, duration);
   const monthlyPrice = basePrice / duration;
 
   return {

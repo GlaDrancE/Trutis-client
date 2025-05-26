@@ -46,6 +46,7 @@ async function subscribe() {
 }
 
 subscribe();
+
 // Helper function to convert the base64 public key to a Uint8Array
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
