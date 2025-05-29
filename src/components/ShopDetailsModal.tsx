@@ -60,6 +60,7 @@ export function ShopDetailsModal() {
         sessionStorage.getItem('hasShownSubscriptionPopup') === 'true'
     );
     const { theme } = useTheme();
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     useEffect(() => {
         let timeout: NodeJS.Timeout;
@@ -222,6 +223,11 @@ export function ShopDetailsModal() {
     };
 
     const handleCloseShopDetailsModal = () => {
+        setIsConfirmOpen(true);
+    };
+
+    const handleConfirmClose = () => {
+        setIsConfirmOpen(false);
         setIsOpen(false);
         setStep("basic");
         if (!client?.isActive && !hasShownSubscriptionPopup) {
@@ -229,6 +235,10 @@ export function ShopDetailsModal() {
             setHasShownSubscriptionPopup(true);
             sessionStorage.setItem('hasShownSubscriptionPopup', 'true');
         }
+    };
+
+    const handleCancelClose = () => {
+        setIsConfirmOpen(false);
     };
 
     return (
@@ -464,6 +474,26 @@ export function ShopDetailsModal() {
                             )}
                         </div>
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Confirmation Dialog */}
+            <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Confirm Close</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to close? Any unsaved changes will be lost.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={handleCancelClose}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleConfirmClose}>
+                            Yes, Close
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 

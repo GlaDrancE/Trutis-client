@@ -27,12 +27,12 @@ const SignUpPage: React.FC = () => {
     const [isOtpSent, setIsOtpSent] = useState<boolean>(false);
     const [canResendOtp, setCanResendOtp] = useState<boolean>(true);
     const [resendTimer, setResendTimer] = useState<number>(0);
-    
+
     const [hasMinLength, setHasMinLength] = useState<boolean>(false);
     const [hasUpperCase, setHasUpperCase] = useState<boolean>(false);
     const [hasLowerCase, setHasLowerCase] = useState<boolean>(false);
     const [hasNumber, setHasNumber] = useState<boolean>(false);
-    
+
     const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
 
     const navigate = useNavigate();
@@ -88,7 +88,7 @@ const SignUpPage: React.FC = () => {
         return () => clearInterval(interval);
     }, [resendTimer, canResendOtp]);
 
-    
+
     useEffect(() => {
         setHasMinLength(password.length >= 8);
         setHasUpperCase(/[A-Z]/.test(password));
@@ -133,14 +133,14 @@ const SignUpPage: React.FC = () => {
             toast.error("Please enter a valid email");
             return;
         }
-        
+
         if (!hasMinLength || !hasUpperCase || !hasLowerCase || !hasNumber) {
             toast.error("Password does not meet the requirements");
             return;
         }
         setIsLoading(true);
         try {
-            const response = await generateOtp(email);
+            const response = await generateOtp(email, fullName);
             if (response.data) {
                 toast.success("OTP sent to your email");
                 setIsOtpSent(true);
@@ -161,7 +161,7 @@ const SignUpPage: React.FC = () => {
         if (!canResendOtp) return;
         setIsLoading(true);
         try {
-            const response = await generateOtp(email);
+            const response = await generateOtp(email, fullName);
             if (response.data) {
                 toast.success("New OTP sent to your email");
                 setCanResendOtp(false);
@@ -251,7 +251,7 @@ const SignUpPage: React.FC = () => {
         }
     };
 
-    
+
     const isPasswordValid = hasMinLength && hasUpperCase && hasLowerCase && hasNumber;
 
     return (
@@ -363,11 +363,10 @@ const SignUpPage: React.FC = () => {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
-                                            className={`w-full pr-10 ${
-                                                hasSubmitted && !isPasswordValid
-                                                    ? "border-red-500 focus:ring-red-500"
-                                                    : ""
-                                            }`}
+                                            className={`w-full pr-10 ${hasSubmitted && !isPasswordValid
+                                                ? "border-red-500 focus:ring-red-500"
+                                                : ""
+                                                }`}
                                         />
                                         <button
                                             type="button"
@@ -377,7 +376,7 @@ const SignUpPage: React.FC = () => {
                                             {showPassword ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                                         </button>
                                     </div>
-                                    
+
                                     {hasSubmitted && !isPasswordValid && (
                                         <div className="mt-2 space-y-1">
                                             <div className="flex items-center gap-2 text-sm">

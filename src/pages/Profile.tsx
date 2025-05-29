@@ -456,7 +456,7 @@ const ProfilePage = () => {
                                     <div>
                                         <Label>Tugo Coin Percentage</Label>
                                         <div className="flex gap-4">
-                                            {[6, 8, 10].map((coinRatio) => (
+                                            {[5, 8, 10].map((coinRatio) => (
                                                 <label key={coinRatio} className="flex items-center space-x-2">
                                                     <input
                                                         type="radio"
@@ -492,7 +492,6 @@ const ProfilePage = () => {
                                             onChange={handleInputChange}
                                             className="w-full p-2 border rounded"
                                         >
-                                            <option value={0}>Select Days</option>
                                             {[14, 21, 28].map((days) => (
                                                 <option key={days} value={days}>
                                                     {days} days

@@ -93,10 +93,9 @@ function Home() {
                     {/* Stats Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
                         {[
-                            { label: 'Customers', value: customers.length, trend: '+15.8%', bg: '--home-card-background-1' },
-                            { label: 'Reviews', value: customers.filter(customer => customer.reviewImage != '').length, trend: '-8.5%', bg: '--home-card-background-2' },
-                            { label: 'Coupons', value: coupons.length, trend: '+28.6%', bg: '--home-card-background-1' },
-                            { label: 'Active Subscribers', value: "123", trend: '+4.3%', bg: '--home-card-background-2' },
+                            { label: 'Customers', value: customers.length, trend: '', bg: '--home-card-background-1' },
+                            { label: 'Reviews', value: customers.filter(customer => customer.reviewImage != '').length, trend: '', bg: '--home-card-background-2' },
+                            { label: 'Coupons', value: coupons.length, trend: '', bg: '--home-card-background-1' },
                         ].map((stat, index) => (
                             <Card key={index} className={cn("p-5 sm:p-6 shadow-none", "bg-gradient-to-r from-[#9ba0ff] to-[#d38ade]")}>
 

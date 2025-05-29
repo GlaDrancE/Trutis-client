@@ -154,7 +154,8 @@ const Register = () => {
         }
         if (email) {
             handleFormSubmit();
-            const response: any = await generateOtp(email);
+            console.log(ownerName)
+            const response: any = await generateOtp(email, ownerName);
             if (response.status !== 200) {
                 toast.error("Something went wrong");
             } else {
@@ -377,7 +378,7 @@ const Register = () => {
                         </p>
                     </CardContent>
                 </Card>}
-                {slide === 2 && <OTPInput value={otp} email={email} setOtp={setOtp} handleFormSubmit={handleFormSubmit} />}
+                {slide === 2 && <OTPInput value={otp} email={email} name={ownerName} setOtp={setOtp} handleFormSubmit={handleFormSubmit} />}
                 {slide === 3 && <div id='clientRegisterForm' className='min-w-full relative h-full min-h-lg'>
                     <Card className='overflow-y-auto w-full min-w-full h-full'>
                         <CardHeader>

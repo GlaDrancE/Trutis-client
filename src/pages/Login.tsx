@@ -16,6 +16,7 @@ const LoginForm = () => {
     const navigate = useNavigate();
     const [slide, setSlide] = useState<number>(1);
     const [otp, setOtp] = useState<string>('');
+    const [rememberMe, setRememberMe] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -59,7 +60,7 @@ const LoginForm = () => {
     const handleValidateLogin = async () => {
         try {
             setIsLoading(true)
-            const response = await loginClient(email, password, "manual");
+            const response = await loginClient(email, password, "manual", rememberMe);
 
             if (response.status !== 200) {
                 toast.error("Invalid Credentails")
@@ -152,6 +153,8 @@ const LoginForm = () => {
                                         id="remember-me"
                                         name="remember-me"
                                         type="checkbox"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
                                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                     />
                                     <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">

@@ -6,12 +6,13 @@ import toast from 'react-hot-toast';
 interface OTPInputProps {
     value: string;
     email: string;
+    name?: string;
     setOtp: (otp: string) => void;
     disabled?: boolean;
     handleFormSubmit?: () => void;
 }
 
-const OTPInput = ({ value, email, setOtp, disabled = false, handleFormSubmit }: OTPInputProps) => {
+const OTPInput = ({ value, email, name, setOtp, disabled = false, handleFormSubmit }: OTPInputProps) => {
     const [otpValues, setOtpValues] = useState<string[]>(new Array(6).fill(''));
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -29,7 +30,7 @@ const OTPInput = ({ value, email, setOtp, disabled = false, handleFormSubmit }: 
     const handleVerify = async (otp?: string) => {
         console.log(value)
         try {
-            const verify = await verifyOtp({ email: email, otp: otp ? otp : value });
+            const verify = await verifyOtp(email, otp ? otp : value);
 
             if (verify.status !== 200) {
                 toast.error("Invalid OTP")
@@ -83,7 +84,7 @@ const OTPInput = ({ value, email, setOtp, disabled = false, handleFormSubmit }: 
     };
     const handleResendOTP = async () => {
         try {
-            const resend = await generateOtp(email);
+            const resend = await generateOtp(email, name || '');
             if (resend.status !== 200) {
                 toast.error("Something went wrong")
             }

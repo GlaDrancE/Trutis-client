@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Agent, Client, ClientSignUp } from "../types";
+import { ClientInfo } from "@/types/client";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/v1/api` : 'http://localhost:3000/api/v1/api',
@@ -90,7 +91,7 @@ export const loginClient = (email: string, password: string, authProvider: strin
     authApi.post("/client/login", { email, password, authProvider, rememberMe });
 export const staffLogin = (staffId: string, password: string, authProvider: string, rememberMe: boolean) =>
     authApi.post("/client/staff/login", { staffId, password, authProvider, rememberMe });
-export const createClient = (data: ClientSignUp): Promise<any> => {
+export const createClient = (data: Client | ClientSignUp): Promise<any> => {
     return authApi.post("/clients/register", data, {
         headers: { "Content-Type": "multipart/form-data" },
     });
@@ -129,9 +130,6 @@ export const createGoogleClient = (data: Omit<Client, "id" | "created_at">): Pro
     return api.post("/auth/clients/google/register", data);
 };
 
-export const verifyClientOtp = (data: string) => {
-    return api.post("/client/verify-otp", data);
-};
 
 export const updateClient = (id: string, data: Partial<Client>) =>
     api.put(`/clients/${id}`, data, {
@@ -182,10 +180,10 @@ export const createProducts = (client_id: string) => paymentApi.post("/payment/c
 
 // OTP
 export const verifyOtp = (email: string, otp: string) =>
-    api.post("/client/verify-otp", { email, otp });
+    api.post("/otp/verify", { email, otp });
 
-export const generateOtp = (email: string) =>
-    api.post("/client/generate-otp", { email });
+export const generateOtp = (email: string, name: string = '', target: string = 'client') =>
+    api.post("/otp/generate", { email, name, target });
 
 // Coupons
 export const getCoupons = (id: string) => api.get(`/forms/get-coupons/${id}`);
