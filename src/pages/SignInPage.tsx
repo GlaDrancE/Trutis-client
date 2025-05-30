@@ -143,7 +143,7 @@ const SignInPage: React.FC = () => {
                         <p className=" mb-8 ">Enter your email and password to sign in!</p>
                     </div>
 
-                    <div className="mb-6 w-full">
+                    <div className="mb-6 w-full" id="google-button">
                         <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
                             <div className="w-full">
                                 <GoogleLogin
