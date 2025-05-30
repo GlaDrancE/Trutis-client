@@ -99,12 +99,6 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
                         </span>
                     </div>
 
-                    <div className="flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-2" />
-                        <span className="text-sm">
-                            Min order value: {_coupon?.minOrderValue}
-                        </span>
-                    </div>
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-gray-100">

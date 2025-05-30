@@ -45,18 +45,20 @@ const ReviewPage = () => {
       review.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       review.email.toLowerCase().includes(searchTerm.toLowerCase());
 
+    const hasReview = review.Reviews && review.Reviews.length > 0;
+
     if (filter === 'liked') {
-      return matchesSearch && review.reviewImage && !review.reviewDescription;
+      return matchesSearch && !hasReview;
     } else if (filter === 'disliked') {
-      return matchesSearch && review.reviewDescription && !review.reviewImage;
+      return matchesSearch && hasReview;
     }
     return matchesSearch;
   });
 
   const stats = {
     total: reviews.length,
-    liked: reviews.filter(r => r.reviewImage && !r.reviewDescription).length,
-    disliked: reviews.filter(r => r.reviewDescription && !r.reviewImage).length,
+    liked: reviews.filter(r => !r.Reviews || r.Reviews.length === 0).length,
+    disliked: reviews.filter(r => r.Reviews && r.Reviews.length > 0).length,
   };
 
   // Handle image click to open popup
@@ -169,8 +171,8 @@ const ReviewPage = () => {
                     <h3 className="font-medium text-gray-900 dark:text-white truncate">{review.name}</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-300">{formatDate(review.createdAt.toString())}</p>
                   </div>
-                  <div className={`p-1.5 rounded-full ${review.reviewImage ? 'bg-green-100' : 'bg-red-100'}`}>
-                    {review.reviewImage ? (
+                  <div className={`p-1.5 rounded-full ${!review.Reviews || review.Reviews.length === 0 ? 'bg-green-100' : 'bg-red-100'}`}>
+                    {!review.Reviews || review.Reviews.length === 0 ? (
                       <ThumbsUp className="w-4 h-4 text-green-600" />
                     ) : (
                       <ThumbsDown className="w-4 h-4 text-red-600" />
@@ -189,7 +191,11 @@ const ReviewPage = () => {
                   </div>
                 </div>
 
-                {review.reviewImage && !review.reviewDescription && (
+                {review.Reviews && review.Reviews.length > 0 ? (
+                  <div className="bg-red-50 dark:bg-black rounded-lg p-3">
+                    <p className="text-sm text-gray-700 dark:text-white italic line-clamp-3">"{review.Reviews[0].review}"</p>
+                  </div>
+                ) : review.reviewImage && (
                   <div
                     className="relative h-32 rounded-lg overflow-hidden cursor-pointer"
                     onClick={() => handleImageClick(review.reviewImage)}
@@ -199,12 +205,6 @@ const ReviewPage = () => {
                       alt="Review"
                       className="w-full h-full object-cover"
                     />
-                  </div>
-                )}
-
-                {review.reviewDescription && !review.reviewImage && (
-                  <div className="bg-red-50 dark:bg-black  rounded-lg p-3">
-                    <p className="text-sm text-gray-700 dark:text-white italic line-clamp-3">"{review.reviewDescription}"</p>
                   </div>
                 )}
               </div>

@@ -1,4 +1,3 @@
-
 export interface Agent {
   id: string;
   name: string;
@@ -125,7 +124,13 @@ export interface CustomerData {
   reviewDescription?: string;
   reviewImage: File | any;
   createdAt: Date;
-
+  Reviews?: {
+    id: string;
+    customerId: string;
+    review: string;
+    createdAt: string;
+    updatedAt: string;
+  }[];
 }
 
 
