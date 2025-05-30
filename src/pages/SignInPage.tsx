@@ -143,9 +143,9 @@ const SignInPage: React.FC = () => {
                         <p className=" mb-8 ">Enter your email and password to sign in!</p>
                     </div>
 
-                    <div className="mb-6">
+                    <div className="mb-6 w-full">
                         <GoogleOAuthProvider clientId={`${GOOGLE_CLIENT_ID}`}>
-                            <div>
+                            <div className="w-full">
                                 <GoogleLogin
                                     onSuccess={handleGoogleSignIn}
                                     onError={() => console.log("Login failed")}
@@ -155,6 +155,7 @@ const SignInPage: React.FC = () => {
                                     locale="en-US"
                                     text="signin_with"
                                     context="signin"
+                                    width="100%"
                                 />
                             </div>
                         </GoogleOAuthProvider>
