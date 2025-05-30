@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 @layer utilities {
-
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -18,11 +17,19 @@
   }
 
   .bg-premium {
-    background: linear-gradient(to right, hsla(237, 100%, 76%, 1), hsla(251, 100%, 55%, 1));
+    background: linear-gradient(
+      to right,
+      hsla(237, 100%, 76%, 1),
+      hsla(251, 100%, 55%, 1)
+    );
   }
 
   .hover\:bg-premium-hover:hover {
-    background: linear-gradient(to right, hsla(237, 100%, 66%, 1), hsla(251, 100%, 45%, 1));
+    background: linear-gradient(
+      to right,
+      hsla(237, 100%, 66%, 1),
+      hsla(251, 100%, 45%, 1)
+    );
   }
 }
 
@@ -93,7 +100,6 @@
   }
 }
 
-
 @layer base {
   * {
     @apply border-border;
@@ -102,4 +108,17 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+#google-button {
+  width: 100%;
+}
+#google-button * {
+  width: 100%;
+}
+.nsm7Bb-HzV7m-LgbsSe-Bz112c {
+  width: auto !important;
+}
+.nsm7Bb-HzV7m-LgbsSe-Bz112c > * {
+  width: auto !important;
 }
