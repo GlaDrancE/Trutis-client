@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Coupon } from 'types'
 import { AlertCircle, Calendar, DollarSign, Gift, IndianRupee } from 'lucide-react';
 import { redeemCoupon } from '../../services/api';
@@ -43,6 +43,12 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
     const [_coupon, _setCoupon] = useState<Coupon>(coupon as Coupon)
 
     const [loadingRedeems, setLoadingRedeems] = useState<Record<string, boolean>>({});
+
+    useEffect(() => {
+        if (coupon) {
+            _setCoupon(coupon)
+        }
+    }, [coupon])
 
     const client_id = id || '';
 
