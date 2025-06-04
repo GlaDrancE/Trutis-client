@@ -113,15 +113,17 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
                             Created on {formatDate(_coupon?.createdAt || '')}
                         </p>
                         {!hide && (
+
                             <button
-                                onClick={(e) => handleRedeemClick(_coupon?.id.toString() || '', e)}
-                                disabled={loadingRedeems[_coupon?.id.toString() || ''] || _coupon?.isUsed}
+                                onClick={(e) => handleRedeemClick(_coupon?.id || '', e)}
+                                disabled={loadingRedeems[_coupon?.id || ''] || _coupon?.isUsed}
                                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors 
                           bg-black text-white hover:bg-gray-800 
                           dark:bg-white dark:text-black dark:hover:bg-gray-200 
                           disabled:bg-gray-400 disabled:text-gray-700 disabled:cursor-not-allowed`}
                             >
-                                {loadingRedeems[_coupon?.id.toString() || ''] ? (
+                                {_coupon.id}
+                                {loadingRedeems[_coupon?.id || ''] ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent dark:border-black dark:border-t-transparent" />
                                 ) : (
                                     !_coupon?.isUsed ? <span>Claim</span> : <span>Claimed</span>

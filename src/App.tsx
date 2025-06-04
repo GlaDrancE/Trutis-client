@@ -5,7 +5,6 @@ import Register from './pages/Register';
 import { PublicID } from './pages/PublicID';
 import LoginForm from './pages/Login';
 import ProtectedRoute from './ProtectedRoutes';
-import HomePage from './pages/HomePage';
 import CustomerDetailsPage from './pages/CustomerDetailsPage';
 import Profile from './pages/Profile';
 import { Settings } from './pages/Settings';

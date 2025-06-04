@@ -58,7 +58,6 @@ const CouponScanner: React.FC = () => {
     if (data?.text) {
       setCouponCode(data.text);
       setIsScanning(false);
-      console.log("Customer : ", data.text)
       setError('');
       await verifyCoupon(data.text);
     }

@@ -101,7 +101,7 @@ export interface Coupon {
   maxDiscount: number;
   coinRatio: number;
   minOrderValue: number;
-  id: number;
+  id: string;
   Coupon: any;
   code: string;
   isValid: boolean;
