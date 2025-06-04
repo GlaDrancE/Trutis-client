@@ -27,6 +27,8 @@ import {
     Sun,
     Moon,
     X,
+    UserPlus2Icon,
+    History
 } from 'lucide-react';
 
 
@@ -79,12 +81,12 @@ const navigationItems = {
         // { icon: Users, label: 'Customer Data', id: 'customers', href: '/customers' },
         { icon: Ticket, label: 'Subscriptions', id: 'subscription-plans', href: '/subscription-plans' },
         { icon: Star, label: 'Reviews', id: 'reviews', href: '/reviews' },
-        { icon: Ticket, label: 'Rewards', id: 'coupons', href: '/coupons' },
-        // { icon: Gift, label: 'Rewards', id: 'rewards', href: '/gift' },
+        { icon: Ticket, label: 'Coupons', id: 'coupons', href: '/coupons' },
+        { icon: History, label: 'History', id: 'history', href: '/history' },
         { icon: TrendingUp, label: 'Marketing', id: 'marketing', href: '/marketing' },
     ],
     settings: [
-        { icon: Settings, label: 'Settings', id: 'settings', href: '/settings' },
+        { icon: UserPlus2Icon, label: 'Staff', id: 'settings', href: '/settings' },
         // { icon: Bell, label: 'Notification', id: 'notifications', href: '/notifaction' },
         { icon: HelpCircle, label: 'Help Center', id: 'help-center', href: '/help-center' },
     ],

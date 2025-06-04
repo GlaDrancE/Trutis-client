@@ -30,8 +30,13 @@ const SettingsPage = () => {
                 const newPassword = Math.random().toString(36).substr(2, 10);
                 setCredentials(prev => ({ ...prev, id: newId, password: newPassword }));
                 setEditedCredentials(prev => ({ ...prev, id: newId, password: newPassword }));
-                await updateStaff({ client_id: client?.id, staff_id: newId, staff_password: newPassword });
-                toast.success('Credentials generated successfully');
+                const response = await updateStaff({ client_id: client?.id, staff_id: newId, staff_password: newPassword });
+
+                if (response.status === 201) {
+                    toast.success('Credentials generated successfully');
+                } else {
+                    toast.error(response.data);
+                }
             }
         } catch (error) {
             toast.error('Failed to generate credentials');

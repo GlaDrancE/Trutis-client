@@ -104,10 +104,10 @@ const ReviewPage = () => {
               <div className="p-3 rounded-xl bg-green-50">
                 <Star className="w-6 h-6 text-green-600" />
               </div>
-              <div>
+              {/* <div>
                 <div className="text-2xl font-bold text-green-600">{stats.liked}</div>
                 <div className="text-sm text-gray-500 dark:text-white">Positive</div>
-              </div>
+              </div> */}
             </div>
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-red-50">
