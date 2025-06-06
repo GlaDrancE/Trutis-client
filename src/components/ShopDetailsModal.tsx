@@ -279,7 +279,7 @@ export function ShopDetailsModal() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="ownerName">Owner Name</Label>
+                                        <Label htmlFor="ownerName">Username</Label>
                                         <Input
                                             id="ownerName"
                                             value={client?.owner_name}

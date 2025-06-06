@@ -302,6 +302,7 @@ const SignUpPage: React.FC = () => {
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
                                         className="w-full"
+                                        required
                                     />
                                 </div>
 
@@ -316,6 +317,7 @@ const SignUpPage: React.FC = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         className="w-full"
+                                        required
                                     />
                                 </div>
 
@@ -347,6 +349,7 @@ const SignUpPage: React.FC = () => {
                                             value={phone}
                                             onChange={(e) => setPhone(e.target.value)}
                                             className="w-full"
+                                            required
                                         />
                                     </div>
                                 </div>
@@ -521,6 +524,10 @@ const SignUpPage: React.FC = () => {
                                     Back to Form
                                 </Button>
 
+
+                                <p>
+                                    OTP is valid for 10 minutes
+                                </p>
                                 {isOtpSent && (
                                     <div className="text-center mt-4">
                                         {canResendOtp ? (
@@ -546,12 +553,12 @@ const SignUpPage: React.FC = () => {
 
             <div className="hidden md:block md:w-1/2 relative">
                 <img src={signupBackground} alt="" className="w-full h-full object-cover absolute top-0 left-0 z-10" />
-                <div className="absolute bottom-4 w-full flex justify-center space-x-6 text-sm text-white z-20">
+                {/* <div className="absolute bottom-4 w-full flex justify-center space-x-6 text-sm text-white z-20">
                     <a href="#" className="hover:underline">Marketplace</a>
                     <a href="#" className="hover:underline">License</a>
                     <a href="#" className="hover:underline">Terms of Use</a>
                     <a href="#" className="hover:underline">Blog</a>
-                </div>
+                </div> */}
             </div>
         </div>
     );

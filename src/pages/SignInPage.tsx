@@ -254,12 +254,11 @@ const SignInPage: React.FC = () => {
 
             <div className="hidden md:block md:w-1/2 relative">
                 <img src={signupBackground} alt="" className="w-full h-full object-cover absolute top-0 left-0 z-10" />
-                <div className="absolute bottom-4 left-4 flex space-x-4 text-sm text-white z-20">
-                    <a href="#" className="hover:underline">Marketplace</a>
+                {/* <div className="absolute bottom-4 left-4 flex space-x-4 text-sm text-white z-20"> <a href="#" className="hover:underline">Marketplace</a>
                     <a href="#" className="hover:underline">License</a>
                     <a href="#" className="hover:underline">Terms of Use</a>
                     <a href="#" className="hover:underline">Blog</a>
-                </div>
+                </div> */}
                 <button className="absolute bottom-4 right-28 bg-white bg-opacity-20 rounded-full p-2 text-white">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path
