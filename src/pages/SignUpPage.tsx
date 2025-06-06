@@ -524,10 +524,11 @@ const SignUpPage: React.FC = () => {
                                     Back to Form
                                 </Button>
 
-
-                                <p>
-                                    OTP is valid for 10 minutes
-                                </p>
+                                <div className="text-center">
+                                    <p>
+                                        OTP is valid for 10 minutes
+                                    </p>
+                                </div>
                                 {isOtpSent && (
                                     <div className="text-center mt-4">
                                         {canResendOtp ? (
@@ -560,7 +561,7 @@ const SignUpPage: React.FC = () => {
                     <a href="#" className="hover:underline">Blog</a>
                 </div> */}
             </div>
-        </div>
+        </div >
     );
 };
 
