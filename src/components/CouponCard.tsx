@@ -122,7 +122,7 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
                           dark:bg-white dark:text-black dark:hover:bg-gray-200 
                           disabled:bg-gray-400 disabled:text-gray-700 disabled:cursor-not-allowed`}
                             >
-                                {_coupon.id}
+                                {/* {_coupon.id} */}
                                 {loadingRedeems[_coupon?.id || ''] ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent dark:border-black dark:border-t-transparent" />
                                 ) : (

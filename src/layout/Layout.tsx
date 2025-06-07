@@ -426,7 +426,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                             </Avatar>
                             <div>
                                 <p className="text-sm font-medium text-white">{client?.owner_name}</p>
-                                <p className="text-xs text-muted-foreground text-white">{client?.email.split("@")[0]}</p>
+                                {/* <p className="text-xs text-muted-foreground text-white">{client?.email.split("@")[0]}</p> */}
                             </div>
                         </Button>
                         <Button

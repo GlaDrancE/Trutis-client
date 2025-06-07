@@ -284,7 +284,7 @@ export function ShopDetailsModal() {
                                             id="ownerName"
                                             value={client?.owner_name}
                                             placeholder="Enter your shop owner name"
-                                            disabled={client?.owner_name ? true : false}
+                                        // disabled={client?.owner_name ? true : false}
                                         />
                                     </div>
                                     <div className="space-y-2">
