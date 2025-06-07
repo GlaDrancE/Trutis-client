@@ -133,6 +133,23 @@ export interface CustomerData {
   }[];
 }
 
+export interface TugoHistory {
+  id: string;
+  customer_id: string;
+  customer_name: string;
+  client_id: string;
+  coin: number;
+  amount: number;
+  historyType: string;
+  customer_code: string;
+  coinRatio: number;
+  createdAt: string;
+  assignedBy: string;
+
+
+}
+
+
 
 
 

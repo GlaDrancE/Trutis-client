@@ -208,10 +208,10 @@ export const redeemCoupon = (id: string, client_id: string) => api.post("/forms/
 
 
 // Points
-export const updatePoints = (data: { customerId: string, name: string, email: string, amount: number, maxDiscount: number, minOrderValue: number, clientId: string, points: number }) =>
+export const updatePoints = (data: { customerId: string, name: string, email: string, amount: number, maxDiscount: number, minOrderValue: number, clientId: string, points: number, code: string, coinRatio: number, assignedBy: string }) =>
     pointsApi.post("/update-points", data)
 
-export const redeemPoints = (data: { customerId: string, clientId: string, points: number }) =>
+export const redeemPoints = (data: { customerId: string, clientId: string, points: number, code: string, coinRatio: number, assignedBy: string }) =>
     pointsApi.post("/redeem-points", data)
 
 
@@ -247,3 +247,6 @@ export const verifyRazorpaySubscription = (data: {
     razorpay_subscription_id: string, razorpay_payment_id: string, razorpay_signature: string, client_id: string
 }) =>
     paymentApi.post(`/payment/verify-subscription/${data.client_id}`, data);
+
+export const getTugoHistory = (client_id: string) =>
+    api.get(`/client/tugo-coin-history/${client_id}`);

@@ -27,6 +27,7 @@ import ReviewPage from './pages/ReviewPage';
 import { useAuthStore } from './store/slices/authStore';
 import { ThemeProvider } from './context/theme-context';
 import MarketingPage from './pages/MarketingPage';
+import TugoCoinsHistory from './pages/TugoHistory';
 
 
 interface CustomJwtPayload extends JwtPayload {
@@ -81,6 +82,7 @@ function App() {
               <Route path="/:id/payment" element={<PaymentPage />} />
               <Route path="/:id/reviews" element={<ReviewPage />} />
               <Route path="/:id/marketing" element={<MarketingPage />} />
+              <Route path="/:id/history" element={<TugoCoinsHistory />} />
               <Route path="/:id/help-center" element={<MarketingPage />} />
               <Route path="*" element={<HandleUnknownRoute />} />
             </Route>

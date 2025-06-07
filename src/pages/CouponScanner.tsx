@@ -12,6 +12,7 @@ import { RedeemModal } from '@/components/RedeemModal';
 import { calculatePointsForCoupon } from '@/lib/calculatePoints';
 import CoinRedeemSuccess from '@/components/CoinRedeemSuccess';
 import { useParams } from 'react-router';
+import { jwtDecode } from 'jwt-decode';
 
 
 interface CouponRedemption {
@@ -29,6 +30,9 @@ interface CustomerDetails {
     CustomerCoupons: [Coupon];
   }
   points: number;
+}
+interface CustomJwtPayload {
+  userType?: string;
 }
 
 const CouponScanner: React.FC = () => {
@@ -49,10 +53,22 @@ const CouponScanner: React.FC = () => {
   const [points, setPoints] = useState('')
   const [pointsToAdd, setPointsToAdd] = useState(0)
   const [isBillSuccess, setIsBillSuccess] = useState(false)
+  const token = localStorage.getItem('token');
   const previewStyle = {
     height: 240,
     width: 240,
   };
+  let userType: any;
+
+  if (token) {
+    try {
+      const decode = jwtDecode<CustomJwtPayload>(token);
+      userType = decode.userType;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+    }
+  }
+
 
   const handleScan = async (data: { text: string } | null) => {
     if (data?.text) {
@@ -131,7 +147,10 @@ const CouponScanner: React.FC = () => {
         maxDiscount: coupons?.maxDiscount || 0,
         minOrderValue: coupons?.minOrderValue || 0,
         clientId: client_id,
-        points: points
+        points: points,
+        code: couponCode,
+        coinRatio: coupons?.coinRatio || 0,
+        assignedBy: userType === 'staff' ? 'STAFF' : 'OWNER'
       })
 
       if (response.status !== 200) {
@@ -149,7 +168,14 @@ const CouponScanner: React.FC = () => {
   };
   const handleRedeemPoints = async (points: string) => {
     try {
-      const response = await redeemPoints({ customerId: customerDetails?.customer.id || '', clientId: client_id, points: parseFloat(points) });
+      const response = await redeemPoints({
+        customerId: customerDetails?.customer.id || '',
+        clientId: client_id,
+        points: parseFloat(points),
+        code: couponCode,
+        coinRatio: coupons?.coinRatio || 0,
+        assignedBy: userType === 'staff' ? 'STAFF' : 'OWNER'
+      });
       if (response.status !== 200) {
         toast.error('Something went wrong');
       } else {

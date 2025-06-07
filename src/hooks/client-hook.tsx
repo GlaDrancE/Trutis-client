@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom'
 import {
     useClientStore,
     useCouponStore,
-    useCustomerStore
+    useCustomerStore,
+    useTugoHistoryStore
 } from '../store'
 
 const useClient = () => {
@@ -26,25 +27,41 @@ const useClient = () => {
         loadCustomers
     } = useCustomerStore()
 
+    const {
+        tugoHistory,
+        isLoading: tugoHistoryLoading,
+        loadTugoHistory,
+        setIsLoading
+    } = useTugoHistoryStore()
+
     useEffect(() => {
         if (id) {
             loadClient(id)
             loadCoupons(id)
             loadCustomers(id)
+            loadTugoHistory(id)
         }
     }, [id])
+
+    useEffect(() => {
+        console.log(tugoHistory)
+    }, [tugoHistory])
 
     return {
         client,
         coupons,
         customers,
+        tugoHistory,
         isLoading: {
             client: clientLoading,
             coupons: couponsLoading,
-            customers: customersLoading
+            customers: customersLoading,
+            tugoHistory: tugoHistoryLoading
         },
         loadClient,
-        loadCoupons
+        loadCoupons,
+        loadCustomers,
+        loadTugoHistory
     }
 }
 

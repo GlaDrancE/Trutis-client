@@ -1,4 +1,4 @@
-import { Client, Coupon, CustomerData } from '../../../types'
+import { Client, Coupon, CustomerData, TugoHistory } from '../../../types'
 
 export interface AuthState {
     token: string | null;
@@ -35,4 +35,12 @@ export interface CustomerState {
     error: string | null;
     loadCustomers: (id: string) => Promise<void>;
     reset: () => void;
-} 
+}
+export interface TugoHistoryState {
+    tugoHistory: TugoHistory[];
+    isLoading: boolean;
+    error: string | null;
+    loadTugoHistory: (id: string) => Promise<void>;
+    setIsLoading: (isLoading: boolean) => void;
+    reset: () => void;
+}
