@@ -260,26 +260,28 @@ const CouponScanner: React.FC = () => {
                         <div className='flex flex-col gap-4 w-full'>
 
                           {/* Amount Input */}
-                          <div className='flex w-full mb-4'>
-                            <div className='relative flex items-center w-full'>
-                              <span className='absolute left-3 text-gray-500'><Coins className='h-4 w-4 text-gray-500' /></span>
-                              <Input
-                                type='number'
-                                placeholder='Enter Amount'
-                                className='pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-                                value={points}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'e' || e.key === '-' || e.key === '+' || e.key === '.') {
-                                    e.preventDefault();
-                                  }
-                                }}
-                                onChange={(e) => setPoints(e.target.value)}
-                              />
+                          <div className='border-2 border-blue-300 rounded-lg p-4 shadow-inner'>
+                            <div className='flex w-full mb-4'>
+                              <div className='relative flex items-center w-full'>
+                                <span className='absolute left-3 text-gray-500'><Coins className='h-4 w-4 text-gray-500' /></span>
+                                <Input
+                                  type='number'
+                                  placeholder='Enter Amount'
+                                  className='pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                                  value={points}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'e' || e.key === '-' || e.key === '+' || e.key === '.') {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  onChange={(e) => setPoints(e.target.value)}
+                                />
+                              </div>
                             </div>
-                          </div>
 
-                          <div className='flex justify-center mb-3'>
-                            <Button variant='default' className='w-full' onClick={() => handleRedeemPoints(points)}>Redeem Points</Button>
+                            <div className='flex justify-center mb-3'>
+                              <Button variant='default' className='w-full' onClick={() => handleRedeemPoints(points)}>Redeem Points</Button>
+                            </div>
                           </div>
                           <div className='flex justify-center mb-8'>
                             <Button variant='default' className='w-full' onClick={() => openRedeemModal()}>Add Points</Button>
