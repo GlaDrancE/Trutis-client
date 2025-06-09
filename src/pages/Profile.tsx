@@ -234,17 +234,19 @@ const ProfilePage = () => {
                         {/* Logo Section */}
                         <div className="flex flex-col items-center mb-6">
                             <div className="relative">
-                                <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                                    {(isEditing ? tempProfile.logo : profile.logo) ? (
-                                        <img
-                                            src={isEditing ? tempProfile.logo as string : profile.logo as string}
-                                            alt="Profile logo"
-                                            className="w-full h-full object-cover"
-                                            loading='lazy'
-                                        />
-                                    ) : (
-                                        <Camera className="w-12 h-12 text-muted-foreground" />
-                                    )}
+                                <div className={`border-2 ${client?.isActive ? 'border-green-400' : 'border-red-400'}  shadow-inner p-1 rounded-full`}>
+                                    <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                                        {(isEditing ? tempProfile.logo : profile.logo) ? (
+                                            <img
+                                                src={isEditing ? tempProfile.logo as string : profile.logo as string}
+                                                alt="Profile logo"
+                                                className="w-full h-full object-cover"
+                                                loading='lazy'
+                                            />
+                                        ) : (
+                                            <Camera className="w-12 h-12 text-muted-foreground" />
+                                        )}
+                                    </div>
                                 </div>
                                 {isEditing && (
                                     <label
