@@ -234,7 +234,7 @@ const ProfilePage = () => {
                         {/* Logo Section */}
                         <div className="flex flex-col items-center mb-6">
                             <div className="relative">
-                                <div className={`border-2 ${client?.isActive ? 'border-green-400' : 'border-red-400'}  shadow-inner p-1 rounded-full`}>
+                                <div className={`border-2 ${client?.isActive && client?.qr_id ? 'border-green-400' : 'border-red-400'}  shadow-inner p-1 rounded-full`}>
                                     <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                                         {(isEditing ? tempProfile.logo : profile.logo) ? (
                                             <img
