@@ -36,15 +36,15 @@ const ForgotPassword = () => {
         try {
             const response = await sendResetPasswordEmail(email);
             if (response.status === 200) {
-                toast.success('Reset link sent to your email');
+                toast.success('Reset email sent! Check your inbox (and spam folder) for the next step');
                 setCanResendLink(false);
                 setResendTimer(60);
             } else {
-                toast.error(response.data.message || 'Failed to send reset link');
+                toast.error(response.data.message || '⚠️ We couldn’t find an account with that email. Please double-check and try again.');
             }
         } catch (error) {
             console.error(error);
-            toast.error('Something went wrong');
+            toast.error('Use the same email you used to register your account.');
         } finally {
             setLoading(false);
         }
@@ -61,15 +61,15 @@ const ForgotPassword = () => {
                         className="flex items-center text-sm text-gray-500 dark:text-white hover:text-gray-700"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back to Login
+                        Return to Login
                     </Link>
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
                     <div className="text-center sm:text-left">
-                        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Forgot Password?</h1>
+                        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Forgot your password?</h1>
                         <p className="text-gray-500 dark:text-white mb-8">
-                            Enter your email address and we'll send you a link to reset your password.
+                            Enter the email linked to your Entugo account, and we’ll send you a reset link.
                         </p>
                     </div>
 
@@ -77,7 +77,7 @@ const ForgotPassword = () => {
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <label htmlFor="email" className="block text-sm font-medium dark:text-white text-gray-700">
-                                    Email<span className="text-indigo-600">*</span>
+                                    Email address<span className="text-indigo-600">*</span>
                                 </label>
                                 <Input
                                     id="email"
@@ -89,7 +89,7 @@ const ForgotPassword = () => {
                                     className="w-full py-5 rounded-2xl"
                                 />
                                 <p className="text-sm text-gray-500">
-                                    Check your Junk or Spam folder if the reset email is not in your inbox.
+                                    Didn’t get it? Check your Spam or Promotions tab just in case.
                                 </p>
                             </div>
 
@@ -99,10 +99,10 @@ const ForgotPassword = () => {
                                 disabled={loading || !canResendLink}
                             >
                                 {loading
-                                    ? "Sending Reset Link..."
+                                    ? "Sending... Reset Email"
                                     : !canResendLink
                                         ? `Wait ${resendTimer} seconds`
-                                        : "Send Reset Link"}
+                                        : "Send Reset Email"}
                             </Button>
                         </div>
                     </form>

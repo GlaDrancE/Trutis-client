@@ -2,7 +2,7 @@ import React, { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import signupBackground from "@/assets/signup-background.jpg";
 import { GoogleLogin } from "@react-oauth/google";
@@ -120,27 +120,15 @@ const SignInPage: React.FC = () => {
                         onClick={() => (window.location.href = "https://entugo.com/in")}
                         className="flex items-center  text-sm  "
                     >
-                        <svg
-                            className="w-4 h-4 mr-2"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 19l-7-7 7-7"
-                            />
-                        </svg>
-                        Back to Entugo
+                        <ArrowLeft className="w-4 h-4 mr-2"/>
+                        Back to Home
                     </button>
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
                     <div className="text-center sm:text-left">
-                        <h1 className="text-3xl font-bold   mb-2">Sign In</h1>
-                        <p className=" mb-8 ">Enter your email and password to sign in!</p>
+                        <h1 className="text-2xl font-bold mb-2">Welcome to Entugo! <br/>Sign in to your account</h1>
+                        <p className=" mb-8 ">Ready to grow your business the smart way? Log in now</p>
                     </div>
 
                     <div className="mb-6 w-full" id="google-button">
@@ -186,7 +174,7 @@ const SignInPage: React.FC = () => {
 
                             <div className="space-y-2">
                                 <label htmlFor="password" className=" block text-sm font-medium ">
-                                    Password<span className="text-blue-600">*</span>
+                                    Your Password<span className="text-blue-600">*</span>
                                 </label>
                                 <div className="relative">
                                     <Input
@@ -219,7 +207,7 @@ const SignInPage: React.FC = () => {
                                         htmlFor="remember"
                                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                     >
-                                        Keep me logged in
+                                        Remember me on this device
                                     </label>
                                 </div>
 
@@ -227,7 +215,7 @@ const SignInPage: React.FC = () => {
                                     to="/forgot-password"
                                     className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
                                 >
-                                    Forgot password?
+                                    Forgot your password?
                                 </Link>
                             </div>
 
@@ -236,14 +224,14 @@ const SignInPage: React.FC = () => {
                                 className=" w-full py-6 bg-indigo-600 hover:bg-indigo-700"
                                 disabled={isLoading}
                             >
-                                {isLoading ? "Signing In..." : "Sign In"}
+                                {isLoading ? "Signing In..." : "Log in to Entugo"}
                             </Button>
                         </div>
                     </form>
 
                     <div className="mt-6 text-center">
                         <p className="text-sm  dark:">
-                            Not registered yet?{" "}
+                            New to Entugo?{" "}
                             <Link to="/sign-up" className="font-medium text-indigo-600 hover:text-indigo-500">
                                 Create an Account
                             </Link>

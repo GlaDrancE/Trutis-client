@@ -87,7 +87,7 @@ const TugoCoinsHistory: React.FC = () => {
                             <div className="flex items-center gap-3">
                                 <TrendingUp className="w-8 h-8 text-green-600" />
                                 <div>
-                                    <p className="text-gray-600 text-sm">Coins Assigned</p>
+                                    <p className="text-gray-600 text-sm">Tugo Coins Added to Customers</p>
                                     <p className="text-2xl font-bold text-green-600">{totalCoinsAssigned.toLocaleString()}</p>
                                 </div>
                             </div>
@@ -99,7 +99,7 @@ const TugoCoinsHistory: React.FC = () => {
                             <div className="flex items-center gap-3">
                                 <Coins className="w-8 h-8 text-red-600" />
                                 <div>
-                                    <p className="text-gray-600 text-sm">Coins Used</p>
+                                    <p className="text-gray-600 text-sm">Tugo Coins Redeemed by Customers</p>
                                     <p className="text-2xl font-bold text-red-600">{totalCoinsUsed.toLocaleString()}</p>
                                 </div>
                             </div>

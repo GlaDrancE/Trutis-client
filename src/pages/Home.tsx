@@ -86,16 +86,16 @@ function Home() {
                 {/* Page Content */}
                 <div className="flex-1 p-4 sm:p-6 lg:p-8 rounded-full">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-                        <h1 className="text-2xl font-bold">Overview</h1>
+                        <h1 className="text-2xl font-bold">Your Business Snapshot</h1>
                         {/* <Button variant="outline">Today</Button> */}
                     </div>
 
                     {/* Stats Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
                         {[
-                            { label: 'Customers', value: customers.length, trend: '', bg: '--home-card-background-1' },
-                            { label: 'Reviews', value: customers.filter(customer => customer.reviewImage != '').length, trend: '', bg: '--home-card-background-2' },
-                            { label: 'Coupons', value: coupons.length, trend: '', bg: '--home-card-background-1' },
+                            { label: 'Total Customers Engaged ', value: customers.length, trend: '', bg: '--home-card-background-1' },
+                            { label: 'Google Reviews Submitted', value: customers.filter(customer => customer.reviewImage != '').length, trend: '', bg: '--home-card-background-2' },
+                            { label: 'Discount Coupons Used', value: coupons.length, trend: '', bg: '--home-card-background-1' },
                         ].map((stat, index) => (
                             <Card key={index} className={cn("p-5 sm:p-6 shadow-none", "bg-gradient-to-r from-[#9ba0ff] to-[#d38ade]")}>
 
@@ -120,7 +120,7 @@ function Home() {
                             data={months}
                             xAxisKey="month"
                             series={lineSeriesConfig}
-                            title="Company Performance Metrics"
+                            title="Customer Engagement Over Time"
                             height="400px"
                             darkMode={isDarkMode}
                         />}
@@ -130,7 +130,7 @@ function Home() {
                         data={_coupons}
                         xAxisKey="month"
                         series={barSeriesConfig}
-                        title="Company Performance Metrics"
+                        title="Coupon Redemptions by Month"
                         height="400px"
                         darkMode={isDarkMode}
                     />
