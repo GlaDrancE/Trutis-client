@@ -37,6 +37,7 @@ import { ShopDetailsModal } from '@/components/ShopDetailsModal';
 import { Loader } from '@/components/Loader';
 import { logOutClient } from '../../services/api';
 import { useTheme } from '@/context/theme-context';
+import { CreditProvider, useCredit } from '@/context/credit-context';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -116,7 +117,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
     const [activeSection, setActiveSection] = useState(location.pathname.split('/')[2] || '');
     const [breadCrumbs, setBreadCrumbs] = useState<{ id: string, label: string }[]>([{ id: location.pathname.split('/')[2] || '', label: location.pathname.split('/')[2]?.charAt(0)?.toUpperCase() + location.pathname.split('/')[2]?.slice(1) || 'Dashboard' }]);
     const { theme, setTheme } = useTheme();
-    console.log(location.pathname.split('/')[2])
+    const { credits } = useCredit();
 
 
     useEffect(() => {
@@ -147,6 +148,35 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
         setActiveSection(sectionId);
         setBreadCrumbs([{ id: sectionId, label: label }]);
     };
+    useEffect(() => {
+        if (location.pathname.includes('subscription-plans')) {
+            setActiveSection("subscription-plans")
+        }
+        if (location.pathname.includes('reviews')) {
+            setActiveSection("reviews")
+        }
+        if (location.pathname.includes('coupons')) {
+            setActiveSection("coupons")
+        }
+        if (location.pathname.includes('history')) {
+            setActiveSection("history")
+        }
+        if (location.pathname.includes('marketing')) {
+            setActiveSection("marketing")
+        }
+        if (location.pathname.includes('coupon-scanner')) {
+            setActiveSection("coupon-scanner")
+        }
+        if (location.pathname.includes('settings')) {
+            setActiveSection("settings")
+        }
+        if (location.pathname.includes('help-center')) {
+            setActiveSection("help-center")
+        }
+        if (location.pathname.includes('profile')) {
+            setActiveSection("profile")
+        }
+    }, [location.pathname]);
 
     let userType;
 
@@ -503,6 +533,13 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
                             >
                                 {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                             </Button>
+                            <Link to={`/${id}/subscription-plans#credits`}>
+                                <Button variant="default" className="">
+                                    Credits: {credits?.toFixed(2) || '0.00'}
+                                </Button>
+                            </Link>
+
+
 
                             {/* <Sheet>
                                 <SheetTrigger asChild>

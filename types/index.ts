@@ -61,6 +61,7 @@ export interface Client {
   staffStatus?: boolean;
   isActive?: boolean;
   customer_id?: string;
+  ClientsCredits?: { credits: number };
   activePlan?: ActivePlan[];
   shop_timings?: string[];
 }
@@ -123,6 +124,7 @@ export interface CustomerData {
   ratings: number;
   reviewDescription?: string;
   reviewImage: File | any;
+  isLoyalCustomer: boolean;
   createdAt: Date;
   Reviews?: {
     id: string;

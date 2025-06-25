@@ -28,6 +28,7 @@ import { useAuthStore } from './store/slices/authStore';
 import { ThemeProvider } from './context/theme-context';
 import MarketingPage from './pages/MarketingPage';
 import TugoCoinsHistory from './pages/TugoHistory';
+import { CreditProvider } from './context/credit-context';
 
 
 interface CustomJwtPayload extends JwtPayload {
@@ -63,30 +64,33 @@ function App() {
       {/* <Toaster position="top-right" /> */}
       <Router>
         <ThemeProvider>
-          <Routes>
-            <Route path="/public_key" element={<PublicID />} />
-            <Route path="/sign-up" element={<SignUpPage />} />
-            <Route path="/login" element={<SignInPage />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="/add-card" element={<AddCardPage />} />
-            <Route path="/contact-us" element={<ContactUs />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/:id" element={<Home />} />
-              <Route path="/:id/coupon-scanner" element={<CouponScanner />} />
-              <Route path="/:id/customer/:couponId" element={<CustomerDetailsPage />} />
-              <Route path="/:id/coupons" element={<CouponsPage />} />
-              <Route path="/:id/profile" element={<Profile />} />
-              <Route path="/:id/settings" element={<Settings />} />
-              <Route path="/:id/subscription-plans" element={<SubscriptionPlans />} />
-              <Route path="/:id/payment" element={<PaymentPage />} />
-              <Route path="/:id/reviews" element={<ReviewPage />} />
-              <Route path="/:id/marketing" element={<MarketingPage />} />
-              <Route path="/:id/history" element={<TugoCoinsHistory />} />
-              <Route path="/:id/help-center" element={<MarketingPage />} />
-              <Route path="*" element={<HandleUnknownRoute />} />
-            </Route>
-          </Routes>
+          <CreditProvider
+          >
+            <Routes>
+              <Route path="/public_key" element={<PublicID />} />
+              <Route path="/sign-up" element={<SignUpPage />} />
+              <Route path="/login" element={<SignInPage />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
+              <Route path="/add-card" element={<AddCardPage />} />
+              <Route path="/contact-us" element={<ContactUs />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/:id" element={<Home />} />
+                <Route path="/:id/coupon-scanner" element={<CouponScanner />} />
+                <Route path="/:id/customer/:couponId" element={<CustomerDetailsPage />} />
+                <Route path="/:id/coupons" element={<CouponsPage />} />
+                <Route path="/:id/profile" element={<Profile />} />
+                <Route path="/:id/settings" element={<Settings />} />
+                <Route path="/:id/subscription-plans" element={<SubscriptionPlans />} />
+                <Route path="/:id/payment" element={<PaymentPage />} />
+                <Route path="/:id/reviews" element={<ReviewPage />} />
+                <Route path="/:id/marketing" element={<MarketingPage />} />
+                <Route path="/:id/history" element={<TugoCoinsHistory />} />
+                <Route path="/:id/help-center" element={<MarketingPage />} />
+                <Route path="*" element={<HandleUnknownRoute />} />
+              </Route>
+            </Routes>
+          </CreditProvider>
         </ThemeProvider>
       </Router>
     </>

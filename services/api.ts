@@ -14,6 +14,9 @@ const authApi = axios.create({
 const pointsApi = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/v1/points` : 'http://localhost:3000/api/v1/points'
 })
+const notificationApi = axios.create({
+    baseURL: import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/v1/notification` : 'http://localhost:3000/api/v1/notification'
+})
 
 
 api.interceptors.request.use(
@@ -247,6 +250,57 @@ export const verifyRazorpaySubscription = (data: {
     razorpay_subscription_id: string, razorpay_payment_id: string, razorpay_signature: string, client_id: string
 }) =>
     paymentApi.post(`/payment/verify-subscription/${data.client_id}`, data);
+export const verifyCreditsPurchase = (data: {
+    order_id: string, razorpay_payment_id: string, razorpay_signature: string, client_id: string
+}) =>
+    paymentApi.post(`/payment/verify-client-credits`, data);
 
 export const getTugoHistory = (client_id: string) =>
     api.get(`/client/tugo-coin-history/${client_id}`);
+
+
+
+export const sendTemplateRequest = (data: {
+    client_id: string,
+    template_id?: string,
+    message: string,
+    subject: string,
+    category: string
+}) => notificationApi.post("/create-template-request", data)
+export const sendMarketingMails = (data: {
+    client_id: string,
+    message: string,
+    title: string,
+    emails: string[],
+    type: string,
+    selected_days: number,
+    credit_available: number,
+    credit_required: number,
+    send_type: string,
+    start_date: string,
+    end_date: string,
+    is_immediate: boolean,
+    coupon_code: string,
+    coupon_start: string,
+    coupon_end: string,
+    coupon_discount: number,
+    coupon_type: string,
+    min_order_value: number
+}) => notificationApi.post("/marketing-emails", data)
+
+export const createTemplate = (data: {
+    client_id: string,
+    title: string,
+    template_name: string,
+    content: string,
+    category: string,
+    is_active: true,
+}) => notificationApi.post("/create-template", data)
+
+export const getTemplates = (client_id: string) => notificationApi.get(`/get-templates/${client_id}`)
+
+export const getMarketingHistory = (client_id: string) => notificationApi.get(`/get-marketing-history/${client_id}`)
+
+export const getCampaigns = () => notificationApi.get(`/get-campaigns`)
+
+export const setCampaignStatus = (data: { client_id: string, campaign_id: string, status: boolean }) => notificationApi.post("/set-campaign-status", data)

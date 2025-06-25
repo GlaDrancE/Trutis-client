@@ -38,6 +38,7 @@ interface CustomJwtPayload {
 const CouponScanner: React.FC = () => {
   const [couponCode, setCouponCode] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [qrError, setQRError] = useState<string>('');
   const [isScanning, setIsScanning] = useState<boolean>(true);
   const [customerDetails, setCustomerDetails] = useState<CustomerDetails | null>(null);
   const [coupons, setCoupons] = useState<Coupon>();
@@ -110,7 +111,7 @@ const CouponScanner: React.FC = () => {
 
   const handleError = (err: any) => {
     console.error(err);
-    setError('Error scanning QR code: ' + (err.message || 'Unknown error'));
+    setQRError('Error scanning QR code: ' + (err.message || 'Unknown error'));
   };
 
   const resetScanner = () => {
@@ -134,7 +135,6 @@ const CouponScanner: React.FC = () => {
 
   const handleSubmitAmount = async (amount: number) => {
     try {
-
       const points = calculatePointsForCoupon(amount || 0, coupons?.coinRatio || 0, coupons?.minOrderValue || 0)
       console.log(coupons?.maxDiscount, coupons?.minOrderValue)
       setPointsToAdd(points);
@@ -316,9 +316,9 @@ const CouponScanner: React.FC = () => {
           </div>
         )}
 
-        {error && (
+        {error || qrError && (
           <div className="mt-3 p-2 bg-red-100 text-red-700 rounded-lg text-center animate-fade-in text-sm">
-            {error}
+            {error || qrError}
             {!isScanning && (
               <button
                 onClick={resetScanner}

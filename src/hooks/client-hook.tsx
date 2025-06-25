@@ -43,9 +43,6 @@ const useClient = () => {
         }
     }, [id])
 
-    useEffect(() => {
-        console.log(tugoHistory)
-    }, [tugoHistory])
 
     return {
         client,

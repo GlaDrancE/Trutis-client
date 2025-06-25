@@ -22,7 +22,7 @@ async function subscribe() {
       return;
     }
 
-    console.log('Service Worker is supported');
+    // console.log('Service Worker is supported');
     navigator.serviceWorker.register('/sw.js')
       .then(registration => {
         console.log('Service Worker registered:', registration);
