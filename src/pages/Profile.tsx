@@ -494,7 +494,7 @@ const ProfilePage = () => {
                                             onChange={handleInputChange}
                                             className="w-full p-2 border rounded"
                                         >
-                                            {[14, 21, 28].map((days) => (
+                                            {[1, 21, 28].map((days) => (
                                                 <option key={days} value={days}>
                                                     {days} days
                                                 </option>

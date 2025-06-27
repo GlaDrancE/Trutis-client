@@ -29,6 +29,7 @@ interface CouponCardProps {
 
 export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
 
+    const [isValid, setIsValid] = useState(false)
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -47,6 +48,9 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
     useEffect(() => {
         if (coupon) {
             _setCoupon(coupon)
+            if (new Date(coupon.validFrom) < new Date()) {
+                setIsValid(true)
+            }
         }
     }, [coupon])
 
@@ -113,10 +117,9 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
                             Created on {formatDate(_coupon?.createdAt || '')}
                         </p>
                         {!hide && (
-
                             <button
                                 onClick={(e) => handleRedeemClick(_coupon?.id || '', e)}
-                                disabled={loadingRedeems[_coupon?.id || ''] || _coupon?.isUsed}
+                                disabled={loadingRedeems[_coupon?.id || ''] || _coupon?.isUsed || !isValid}
                                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors 
                           bg-black text-white hover:bg-gray-800 
                           dark:bg-white dark:text-black dark:hover:bg-gray-200 
@@ -126,7 +129,8 @@ export const CouponCard: FC<CouponCardProps> = ({ coupon, hide }) => {
                                 {loadingRedeems[_coupon?.id || ''] ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent dark:border-black dark:border-t-transparent" />
                                 ) : (
-                                    !_coupon?.isUsed ? <span>Claim</span> : <span>Claimed</span>
+                                    !_coupon?.isUsed && isValid ? <span>Claim</span> : !isValid ? <span>Yet to start</span> : <span>Claimed
+                                    </span>
                                 )}
                             </button>
                         )}
