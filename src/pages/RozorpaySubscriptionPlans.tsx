@@ -819,7 +819,7 @@ const SubscriptionPlans: React.FC = () => {
             </div>
 
             <div className="text-center mt-16 space-y-4">
-              <p className="text-lg">All plans include a 7-day free trial. No credit card required.</p>
+              <p className="text-lg">All plans include a 14-day free trial. No credit card required.</p>
               <p>
                 Need help choosing?{' '}
                 <Link to="/contact" className="text-blue-600 hover:underline font-medium">
