@@ -78,13 +78,13 @@ const notifications = [
 const navigationItems = {
     main: [
         { icon: LineChart, label: 'Dashboard', id: '', href: '/' },
-        { icon: QrCode, label: 'QR Code', id: 'coupon-scanner', href: '/coupon-scanner' },
+        { icon: QrCode, label: 'Scan & Redeem', id: 'coupon-scanner', href: '/coupon-scanner' },
         // { icon: Users, label: 'Customer Data', id: 'customers', href: '/customers' },
-        { icon: Ticket, label: 'Subscriptions', id: 'subscription-plans', href: '/subscription-plans' },
-        { icon: Star, label: 'Reviews', id: 'reviews', href: '/reviews' },
-        { icon: Ticket, label: 'Coupons', id: 'coupons', href: '/coupons' },
-        { icon: History, label: 'History', id: 'history', href: '/history' },
-        { icon: TrendingUp, label: 'Marketing', id: 'marketing', href: '/marketing' },
+        { icon: Ticket, label: 'Plans & Billing', id: 'subscription-plans', href: '/subscription-plans' },
+        { icon: Star, label: 'Customer Reviews', id: 'reviews', href: '/reviews' },
+        { icon: Ticket, label: 'Issued Coupons', id: 'coupons', href: '/coupons' },
+        { icon: History, label: 'Activity Log', id: 'history', href: '/history' },
+        { icon: TrendingUp, label: 'Smart Marketing', id: 'marketing', href: '/marketing' },
     ],
     settings: [
         { icon: UserPlus2Icon, label: 'Staff', id: 'settings', href: '/settings' },

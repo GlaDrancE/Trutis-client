@@ -192,15 +192,15 @@ const CouponScanner: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(98vh-80px)] p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-6 transform transition-all duration-300 hover:shadow-2xl">
-        <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">QR Coupon Scanner</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 text-center mb-4">Redeem Customer Discount</h2>
 
 
         {isScanning ? (
 
           <form className="flex flex-col items-center" onSubmit={(e) => { setIsScanning(false); verifyCoupon(couponCode, e) }}>
             <div className='flex flex-col gap-4 w-full mb-4'>
-              <Input type='text' placeholder='Enter Coupon Code' value={couponCode} onChange={(e) => setCouponCode(e.target.value)} />
-              <Button variant='default' className='w-full' >Verify Coupon</Button>
+              <Input type='text' placeholder='Type coupon code if QR doesn&apos;t scan' value={couponCode} onChange={(e) => setCouponCode(e.target.value)} />
+              <Button variant='default' className='w-full' >Apply Discount</Button>
             </div>
             <QrReader
               delay={300}
@@ -210,7 +210,7 @@ const CouponScanner: React.FC = () => {
               constraints={{ video: { facingMode: 'environment' } }}
               className="rounded-lg border-4 border-blue-500 shadow-md"
             />
-            <p className="mt-2 text-gray-600 text-center text-sm">Position the QR code within the frame</p>
+            <p className="mt-2 text-gray-600 text-center text-sm">Hold the customer’s QR inside the box to scan</p>
           </form>
 
         ) : (
@@ -238,9 +238,9 @@ const CouponScanner: React.FC = () => {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-green-600 mb-2">Coupon Verified!</h3>
+                <h3 className="text-lg font-medium text-green-600 mb-2">Coupon Validated!</h3>
                 <p className="bg-gray-100 p-3 rounded-lg text-gray-800 font-mono text-base break-all mb-4 shadow-inner">
-                  {couponCode}
+                  Coupon Code: {couponCode}
                 </p>
 
                 {
@@ -250,8 +250,8 @@ const CouponScanner: React.FC = () => {
                         <div className="w-full bg-gray-50 p-4 rounded-lg mb-4">
                           <h4 className="text-md font-semibold text-gray-700 mb-2">Customer Details</h4>
                           <div className="space-y-2 text-sm text-gray-600">
-                            <p><span className="font-medium">Name:</span> {customerDetails.customer.name}</p>
-                            <p><span className="font-medium">Total Coins for Redeem:</span> {customerDetails.points} Tugo Coins</p>
+                            <p><span className="font-medium">Customer Name:</span> {customerDetails.customer.name}</p>
+                            <p><span className="font-medium">Available Tugo Coins:</span> {customerDetails.points}</p>
                           </div>
                         </div>
                       )}
@@ -266,7 +266,7 @@ const CouponScanner: React.FC = () => {
                                 <span className='absolute left-3 text-gray-500'><Coins className='h-4 w-4 text-gray-500' /></span>
                                 <Input
                                   type='number'
-                                  placeholder='Enter Amount'
+                                  placeholder='Enter bill amount (₹)'
                                   className='pl-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                                   value={points}
                                   onKeyDown={(e) => {

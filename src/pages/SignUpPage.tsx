@@ -282,9 +282,9 @@ const SignUpPage: React.FC = () => {
 
                 <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold mb-2">Sign Up</h1>
+                        <h1 className="text-3xl font-bold mb-2">Create Your Entugo Account</h1>
                         <p>
-                            {isOtpSent ? "Enter the OTP sent to your email" : "Create your account"}
+                            {isOtpSent ? "Enter the OTP sent to your email" : "Start your journey with reviews, rewards & revisits"}
                         </p>
                     </div>
 
@@ -293,7 +293,7 @@ const SignUpPage: React.FC = () => {
                             <>
                                 <div className="space-y-2">
                                     <label htmlFor="fullName" className="block text-sm font-medium">
-                                        Full Name
+                                        Your full name
                                     </label>
                                     <Input
                                         id="fullName"
@@ -308,7 +308,7 @@ const SignUpPage: React.FC = () => {
 
                                 <div className="space-y-2">
                                     <label htmlFor="email" className="block text-sm font-medium">
-                                        Email
+                                        Email address
                                     </label>
                                     <Input
                                         id="email"
@@ -323,7 +323,7 @@ const SignUpPage: React.FC = () => {
 
                                 <div className="space-y-2">
                                     <label htmlFor="phone" className="block text-sm font-medium">
-                                        Phone
+                                        Mobile number
                                     </label>
                                     <div className="flex gap-2">
                                         <select
@@ -356,13 +356,13 @@ const SignUpPage: React.FC = () => {
 
                                 <div className="space-y-2">
                                     <label htmlFor="password" className="block text-sm font-medium">
-                                        Password<span className="text-indigo-600">*</span>
+                                        Create a password<span className="text-indigo-600">*</span>
                                     </label>
                                     <div className="relative">
                                         <Input
                                             id="password"
                                             type={showPassword ? "text" : "password"}
-                                            placeholder="Min. 8 characters"
+                                            placeholder="At least 8 characters"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
@@ -437,7 +437,7 @@ const SignUpPage: React.FC = () => {
                                             htmlFor="remember"
                                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                         >
-                                            Keep me logged in
+                                            Keep me signed in on this device
                                         </label>
                                     </div>
                                 </div>
@@ -447,7 +447,7 @@ const SignUpPage: React.FC = () => {
                                     className="w-full bg-indigo-600 hover:bg-indigo-700 dark:text-white"
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? "Sending OTP..." : "Send OTP"}
+                                    {isLoading ? "Sending OTP..." : "Send OTP to Verify & Continue"}
                                 </Button>
 
                                 <div className="relative flex items-center mt-4">
@@ -471,9 +471,9 @@ const SignUpPage: React.FC = () => {
 
                                 <div className="text-center mt-4">
                                     <p className="text-sm">
-                                        Already have an account?{" "}
+                                        Already using Entugo?{" "}
                                         <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                            Login
+                                             Log in here
                                         </Link>
                                     </p>
                                 </div>

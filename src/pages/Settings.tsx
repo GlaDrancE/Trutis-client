@@ -133,13 +133,13 @@ const SettingsPage = () => {
                     </div> */}
 
                     <CardHeader>
-                        <CardTitle className="text-2xl text-foreground">Settings</CardTitle>
+                        <CardTitle className="text-2xl text-foreground">Staff Login Setup</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {/* Enable/Disable Switch */}
                         <div className="flex items-center justify-between py-4 border-b">
                             <div className="space-y-1">
-                                <h3 className="text-lg font-medium text-muted-foreground">Enable Staff</h3>
+                                <h3 className="text-lg font-medium text-muted-foreground">Allow Staff to Access Dashboard</h3>
                             </div>
                             <Switch
                                 checked={isEnabled}
@@ -155,7 +155,7 @@ const SettingsPage = () => {
                                 onClick={generateCredentials}
                                 className="w-full bg-primary hover:bg-primary/80"
                             >
-                                Generate Credentials
+                                Staff Login Credentials
                             </Button>
                         )}
 
@@ -178,7 +178,7 @@ const SettingsPage = () => {
 
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-muted-foreground">Restaurant ID</label>
+                                        <label className="text-sm font-medium text-muted-foreground">Staff Username</label>
                                         {isEditing ? (
                                             <Input
                                                 value={editedCredentials.id}

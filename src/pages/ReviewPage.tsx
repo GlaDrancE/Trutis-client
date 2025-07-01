@@ -86,7 +86,7 @@ const ReviewPage = () => {
         <div className="bg-gray-50 dark:bg-gray-950 rounded-2xl shadow-lg p-6 mb-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold dark:bg-gradient-to-r dark:from-blue-400 dark:to-indigo-400 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Customer Feedback Dashboard
+              Customer Feedback
             </h1>
           </div>
 
@@ -97,7 +97,7 @@ const ReviewPage = () => {
               </div>
               <div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</div>
-                <div className="text-sm text-gray-500 dark:text-white">Total Reviews</div>
+                <div className="text-sm text-gray-500 dark:text-white">Total Feedback Collected</div>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -115,7 +115,7 @@ const ReviewPage = () => {
               </div>
               <div>
                 <div className="text-2xl font-bold text-red-600">{stats.disliked}</div>
-                <div className="text-sm text-gray-500 dark:text-white">Feedback</div>
+                <div className="text-sm text-gray-500 dark:text-white">Disliked Feedback</div>
               </div>
             </div>
           </div>
@@ -128,13 +128,13 @@ const ReviewPage = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
-                placeholder="Search by name or email..."
+                placeholder="Search customer by name, email, or phone"
                 className="w-full pl-10 pr-4 bg-transparent py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               {['all', 'liked', 'disliked'].map((f) => (
                 <button
                   key={f}
@@ -151,7 +151,7 @@ const ReviewPage = () => {
                   {f.charAt(0).toUpperCase() + f.slice(1)}
                 </button>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
 
