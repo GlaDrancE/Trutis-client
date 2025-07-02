@@ -126,7 +126,7 @@ const ProfilePage = () => {
             console.log("tempProfile.activeDays ", tempProfile.activeDays);
             const response = await updateClient(id, {
                 ...tempProfile,
-                logo: client?.logo ? client.logo : file,
+                logo: file,
                 ipAddress: client?.ipAddress,
                 activeDays: tempProfile.activeDays,
                 coinRatio: tempProfile.coinRatio
