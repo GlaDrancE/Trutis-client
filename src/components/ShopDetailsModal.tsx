@@ -319,7 +319,7 @@ export function ShopDetailsModal() {
                                             disabled={client?.email ? true : false}
                                         />
                                     </div>
-                                    <div className="flex gap-2 space-y-2">
+                                    <div className="flex gap-2">
                                         {!client?.phone && <select
                                             value={countryCode}
                                             onChange={(e) => setCountryCode(e.target.value)}
