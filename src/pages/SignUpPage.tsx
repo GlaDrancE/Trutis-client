@@ -347,7 +347,11 @@ const SignUpPage: React.FC = () => {
                                             type="tel"
                                             placeholder="99999 99999"
                                             value={phone}
-                                            onChange={(e) => setPhone(e.target.value)}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                setPhone(value);
+                                            }}
+                                            maxLength={10}
                                             className="w-full"
                                             required
                                         />
@@ -473,7 +477,7 @@ const SignUpPage: React.FC = () => {
                                     <p className="text-sm">
                                         Already using Entugo?{" "}
                                         <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                             Log in here
+                                            Log in here
                                         </Link>
                                     </p>
                                 </div>
