@@ -63,6 +63,10 @@ export function ShopDetailsModal() {
     );
     const { theme } = useTheme();
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [countryCode, setCountryCode] = useState<string | undefined>(undefined);
+    const [countryCodes, setCountryCodes] = useState<{ code: string; label: string }[]>([]);
+    const [isLoadingCountryCodes, setIsLoadingCountryCodes] = useState(false);
+    const [phone, setPhone] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         let timeout: NodeJS.Timeout;
@@ -104,6 +108,41 @@ export function ShopDetailsModal() {
             clearTimeout(timeout);
         };
     }, [client]);
+    useEffect(() => {
+        const fetchCountryCodes = async () => {
+            try {
+                setIsLoadingCountryCodes(true);
+                const response = await fetch('https://restcountries.com/v3.1/all?fields=name,idd');
+                const data = await response.json();
+
+                const codes = data
+                    .map((country: any) => {
+                        const dialCode = `${country?.idd?.root || ''}${country?.idd?.suffixes?.[0] || ''}`;
+                        if (!dialCode) return null;
+                        return {
+                            code: dialCode,
+                            label: `${dialCode} (${country.name.common})`,
+                        };
+                    })
+                    .filter((country: any) => country !== null)
+                    .sort((a: any, b: any) => a.label.localeCompare(b.label));
+
+                setCountryCodes(codes);
+
+                const defaultCountry = codes.find((c: any) => c.code === "+91");
+                if (!defaultCountry && codes.length > 0) {
+                    setCountryCode(codes[0].code);
+                }
+            } catch (error) {
+                console.error("Error fetching country codes:", error);
+                setCountryCodes([{ code: "+91", label: "+91 (India)" }]);
+            } finally {
+                setIsLoadingCountryCodes(false);
+            }
+        };
+
+        fetchCountryCodes();
+    }, []);
 
     const handleInputChange = (field: keyof ShopDetails) => (e: React.ChangeEvent<HTMLInputElement>) => {
         if (field === 'logo') {
@@ -281,21 +320,28 @@ export function ShopDetailsModal() {
                                             disabled={client?.email ? true : false}
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="ownerName">Username</Label>
-                                        <Input
-                                            id="ownerName"
-                                            value={shopDetails.username}
-                                            onChange={handleInputChange('username')}
-                                            placeholder="Enter your shop owner name"
-                                        // disabled={client?.owner_name ? true : false}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="phone">Phone Number</Label>
+                                    <div className="flex gap-2 space-y-2">
+                                        {!client?.phone && <select
+                                            value={countryCode}
+                                            onChange={(e) => setCountryCode(e.target.value)}
+                                            className="w-2/5 border dark:text-black border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
+                                            disabled={isLoadingCountryCodes}
+                                        >
+                                            {isLoadingCountryCodes ? (
+                                                <option value="">Loading...</option>
+                                            ) : (
+                                                countryCodes.map((country) => (
+                                                    <option key={country.code} value={country.code}>
+                                                        {country.label}
+                                                    </option>
+                                                ))
+                                            )}
+                                        </select>}
                                         <Input
                                             id="phone"
-                                            value={client?.phone ? client.phone : shopDetails.phone}
+                                            type="tel"
+                                            placeholder="99999 99999"
+                                            value={shopDetails.phone}
                                             onChange={(e) => {
                                                 const value = e.target.value.replace(/\D/g, '');
                                                 handleInputChange('phone')({
@@ -306,8 +352,10 @@ export function ShopDetailsModal() {
                                                     }
                                                 });
                                             }}
-                                            placeholder="Enter your shop phone number"
+                                            maxLength={10}
+                                            className="w-full"
                                             disabled={client?.phone ? true : false}
+                                            required
                                         />
                                     </div>
                                     <Separator />
