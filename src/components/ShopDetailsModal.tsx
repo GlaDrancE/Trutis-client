@@ -18,6 +18,7 @@ import { useTheme } from '@/context/theme-context';
 
 interface ShopDetails {
     logo: File | null;
+    username: string;
     name: string;
     phone: string;
     line1: string;
@@ -41,7 +42,8 @@ export function ShopDetailsModal() {
     const [ip, setIp] = useState<string | undefined>(undefined);
     const [shopDetails, setShopDetails] = useState<ShopDetails>({
         logo: null,
-        name: '',
+        username: client?.owner_name || '',
+        name: client?.shop_name || '',
         phone: client?.phone || '',
         line1: '',
         city: '',
@@ -85,6 +87,7 @@ export function ShopDetailsModal() {
             }, 2000);
             setShopDetails({
                 ...shopDetails,
+                username: client?.owner_name || '',
                 name: client?.shop_name || '',
                 line1: client?.line1 || '',
                 city: client?.city || '',
@@ -282,7 +285,8 @@ export function ShopDetailsModal() {
                                         <Label htmlFor="ownerName">Username</Label>
                                         <Input
                                             id="ownerName"
-                                            value={client?.owner_name}
+                                            value={shopDetails.username}
+                                            onChange={handleInputChange('username')}
                                             placeholder="Enter your shop owner name"
                                         // disabled={client?.owner_name ? true : false}
                                         />
@@ -292,7 +296,16 @@ export function ShopDetailsModal() {
                                         <Input
                                             id="phone"
                                             value={client?.phone ? client.phone : shopDetails.phone}
-                                            onChange={handleInputChange('phone')}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                handleInputChange('phone')({
+                                                    ...e,
+                                                    target: {
+                                                        ...e.target,
+                                                        value: value
+                                                    }
+                                                });
+                                            }}
                                             placeholder="Enter your shop phone number"
                                             disabled={client?.phone ? true : false}
                                         />
