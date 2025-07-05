@@ -63,10 +63,9 @@ export function ShopDetailsModal() {
     );
     const { theme } = useTheme();
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-    const [countryCode, setCountryCode] = useState<string | undefined>(undefined);
+    const [countryCode, setCountryCode] = useState<string>("+91");
     const [countryCodes, setCountryCodes] = useState<{ code: string; label: string }[]>([]);
     const [isLoadingCountryCodes, setIsLoadingCountryCodes] = useState(false);
-    const [phone, setPhone] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         let timeout: NodeJS.Timeout;
